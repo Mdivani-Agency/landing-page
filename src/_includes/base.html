@@ -18,9 +18,9 @@
     <title>Mdivani - Custom Software Solutions for Cloud, Mobile, and Web Applications</title>
 </head>
 <body>
-  <div class="relative z-10 bg_image overflow-hidden">
+  <div class="relative z-10 bg_image bg-auto bg-top lg:bg-contain overflow-hidden">
     {% include "header.html" %}
-    <main class="container flex flex-col px-2 lg:px-10 mx-auto gap-15 z-10">
+    <main class="container flex flex-col px-2 lg:px-10 mx-auto gap-8 2xl:gap-15 z-10">
       {% include "hero.html" %}
       {% include "services.html" %}
       {% include "pitch.html" %}
@@ -65,6 +65,36 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
+
+    function getQueryVariable(variable) {
+        let query = window.location.search.substring(1);
+        let vars = query.split("&");
+        for (const element of vars) {
+            let pair = element.split("=");
+            if (decodeURIComponent(pair[0]) === variable) {
+                return decodeURIComponent(pair[1]);
+            }
+        }
+        return null;
+    }
+
+    analytics.logEvent('page_view', {
+        page_path: window.location.pathname,
+        source: getQueryVariable('utm_source'),
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const scheduleCallLink = document.querySelector('a[href="https://calendar.app.google/xKndvXs26ThvKrQ56"]');
+
+      if (scheduleCallLink) {
+        scheduleCallLink.addEventListener('click', () => {
+          analytics.logEvent('schedule_call_click', {
+            method: 'Google Calendar',
+            source: getQueryVariable('utm_source') // Optional, to track the source
+          });
+        });
+      }
+    });
   </script>
 </body>
 </html>
