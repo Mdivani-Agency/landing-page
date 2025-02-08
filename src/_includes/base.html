@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mdivani offers custom software solutions for cloud, mobile apps, web applications, and AI solutions. Transform your business with our expertise.">
+
+    <meta property="og:title" content="Mdivani - Custom Software Solutions" />
+    <meta property="og:description" content="Offering custom software solutions for cloud, mobile apps, and AI." />
+    <meta property="og:image" content="/assets/images/logo.png" />
+    <meta property="og:url" content="https://mdivani.agency" />
+
+    <link rel="icon" sizes="32x32" href="/assets/favicon.png"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+    <title>Mdivani - Custom Software Solutions for Cloud, Mobile, and Web Applications</title>
+</head>
+<body>
+  <div class="relative z-10 bg_image overflow-hidden">
+    {% include "header.html" %}
+    <main class="container flex flex-col px-2 lg:px-10 mx-auto gap-15 z-10">
+      {% include "hero.html" %}
+      {% include "services.html" %}
+      {% include "pitch.html" %}
+      {% include "contact.html" %}
+    </main>
+    {% include "footer.html" %}
+  </div>
+  <figure class="gradient-bg hidden lg:block">
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+          <feBlend in="SourceGraphic" in2="goo" />
+        </filter>
+      </defs>
+    </svg>
+    <div class="gradients-container">
+      <div class="g2"></div>
+      <div class="g3"></div>
+      <div class="g4"></div>
+    </div>
+  </figure>
+  <script src="scripts/index.js"></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBSQKqj-maC_IanNHWgjNEIRI-K6iHK18E",
+      authDomain: "mdio-4a7c7.firebaseapp.com",
+      projectId: "mdio-4a7c7",
+      storageBucket: "mdio-4a7c7.firebasestorage.app",
+      messagingSenderId: "539399538701",
+      appId: "1:539399538701:web:3d9f5013a2a16853b1ed44",
+      measurementId: "G-PJ84DYZ4WS"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
+</body>
+</html>
