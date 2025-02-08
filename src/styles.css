@@ -586,14 +586,8 @@ video {
 .mb-4 {
   margin-bottom: 3.2rem;
 }
-.mb-8 {
-  margin-bottom: 6.4rem;
-}
 .mb-auto {
   margin-bottom: auto;
-}
-.mt-16 {
-  margin-top: 4rem;
 }
 .mt-auto {
   margin-top: auto;
@@ -658,6 +652,9 @@ video {
 .flex-col {
   flex-direction: column;
 }
+.flex-col-reverse {
+  flex-direction: column-reverse;
+}
 .items-start {
   align-items: flex-start;
 }
@@ -673,11 +670,11 @@ video {
 .justify-between {
   justify-content: space-between;
 }
-.gap-15 {
-  gap: 12rem;
-}
 .gap-2 {
   gap: 1.6rem;
+}
+.gap-3 {
+  gap: 2.4rem;
 }
 .gap-4 {
   gap: 3.2rem;
@@ -715,11 +712,14 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
 }
-.p-1 {
-  padding: 0.8rem;
+.bg-auto {
+  background-size: auto;
 }
-.p-2 {
-  padding: 1.6rem;
+.bg-top {
+  background-position: top;
+}
+.p-4 {
+  padding: 3.2rem;
 }
 .px-2 {
   padding-left: 1.6rem;
@@ -735,6 +735,9 @@ video {
 }
 .pb-4 {
   padding-bottom: 3.2rem;
+}
+.pr-1 {
+  padding-right: 0.8rem;
 }
 .text-center {
   text-align: center;
@@ -798,7 +801,7 @@ video {
   --blending: hard-light;
   --text-2xl: 6.4rem;
   --text-xl: 4.8rem;
-  --text-title: 2.8rem;
+  --text-title: 2.4rem;
   --text-md: 1.8rem;
   --text-sm: 1.6rem;
   --text-xs: 1.4rem;
@@ -933,15 +936,9 @@ html {
   margin-bottom: 4rem;
 }
 
-.hero {
-  text-align: center;
-  gap: 2rem;
-}
-
 .bg_image {
   background-image: url("/assets/images/waves.png");
-    background-size: contain;
-    background-repeat: no-repeat;
+  background-repeat: no-repeat;
 }
 
 .btn-primary {
@@ -1092,12 +1089,12 @@ html {
     text-align: left;
   }
 
-  .md\:text-2xl {
-    font-size: var(--text-2xl);
-  }
-
   .md\:text-md {
     font-size: var(--text-md);
+  }
+
+  .md\:text-title {
+    font-size: var(--text-title);
   }
 
   .md\:text-xl {
@@ -1111,6 +1108,10 @@ html {
     display: block;
   }
 
+  .lg\:bg-contain {
+    background-size: contain;
+  }
+
   .lg\:px-10 {
     padding-left: 8rem;
     padding-right: 8rem;
@@ -1119,5 +1120,32 @@ html {
   .lg\:px-6 {
     padding-left: 4.8rem;
     padding-right: 4.8rem;
+  }
+
+  .lg\:text-title {
+    font-size: var(--text-title);
+  }
+
+  .lg\:text-xl {
+    font-size: var(--text-xl);
+  }
+}
+
+@media (min-width: 1536px) {
+
+  .\32xl\:mb-8 {
+    margin-bottom: 6.4rem;
+  }
+
+  .\32xl\:gap-15 {
+    gap: 12rem;
+  }
+
+  .\32xl\:gap-4 {
+    gap: 3.2rem;
+  }
+
+  .\32xl\:text-2xl {
+    font-size: var(--text-2xl);
   }
 }

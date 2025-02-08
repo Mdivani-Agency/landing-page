@@ -18,7 +18,7 @@
   --blending: hard-light;
   --text-2xl: 6.4rem;
   --text-xl: 4.8rem;
-  --text-title: 2.8rem;
+  --text-title: 2.4rem;
   --text-md: 1.8rem;
   --text-sm: 1.6rem;
   --text-xs: 1.4rem;
@@ -153,15 +153,9 @@ html {
   margin-bottom: 4rem;
 }
 
-.hero {
-  text-align: center;
-  gap: 2rem;
-}
-
 .bg_image {
   background-image: url("/assets/images/waves.png");
-    background-size: contain;
-    background-repeat: no-repeat;
+  background-repeat: no-repeat;
 }
 
 .btn-primary {
