@@ -1,0 +1,28 @@
+{
+  "name": "mdio-landing-page",
+  "version": "1.0.0",
+  "description": "Get info about mdio and contact us",
+  "main": "index.js",
+  "scripts": {
+    "tw": "npx tailwindcss -i src/css/base.css -o src/styles.css --watch",
+    "start": "eleventy --serve",
+    "build": "postcss src/css/base.css -o src/styles.css eleventy",
+    "deploy": "yarn build && npx firebase deploy"
+  },
+  "keywords": [
+    "mdio",
+    "landing",
+    "page",
+    "homepage"
+  ],
+  "author": "Giorgi Mdivani",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "3.0.0",
+    "autoprefixer": "10.4.20",
+    "firebase-tools": "^13.29.2",
+    "postcss": "8.5.1",
+    "postcss-cli": "11.0.0",
+    "tailwindcss": "3.4.17"
+  }
+}
