@@ -16,8 +16,10 @@
   --color5: 32, 151, 188;
   --circle-size: 80%;
   --blending: hard-light;
-  --text-2xl: 6.4rem;
-  --text-xl: 4.8rem;
+  --text-3xl: 6.4rem;
+  --text-2xl: 4.8rem;
+  --text-xl: 3.2rem;
+  --text-lg: 2.8rem;
   --text-title: 2.4rem;
   --text-md: 1.8rem;
   --text-sm: 1.6rem;
@@ -153,7 +155,7 @@ html {
   margin-bottom: 4rem;
 }
 
-.bg_image {
+.bg-image {
   background-image: url("/assets/images/waves.png");
   background-repeat: no-repeat;
 }
@@ -242,4 +244,41 @@ html {
 
 .text-box {
   background: linear-gradient(rgba(12,12,12, .5), rgba(34,34,34, .5));
+}
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+  z-index: 1000; /* Ensure it's on top */
+  overflow: hidden;
+  justify-content: center;
+  align-items: end;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+
+.modal-dialog {
+  position: relative;
+  width: 100vw;
+  height: 80vh;
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.modal-close {
+  position: absolute;
+  top: -4rem;
+  border: none;
+  color:  var(--text-primary);
+  cursor: pointer;
+  font-size: var(--text-lg);
 }

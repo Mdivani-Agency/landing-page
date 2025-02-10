@@ -16,8 +16,10 @@ module.exports = {
         sans: ["Roboto"],
       },
       fontSize: {
+        "3xl": "var(--text-3xl)",
         "2xl": "var(--text-2xl)",
         "xl": "var(--text-xl)",
+        "lg": "var(--text-lg)",
         "title": "var(--text-title)",
         "md": "var(--text-md)",
         "sm": "var(--text-sm)",
@@ -37,6 +39,8 @@ module.exports = {
         "10": "8rem",
         "12": "9.6rem",
         "15": "12rem",
+        "24": "19.2rem",
+        "30": "24rem",
         "32": "30rem",
       },
       lineHeight: {
