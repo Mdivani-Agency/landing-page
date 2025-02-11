@@ -5,6 +5,7 @@
 :root {
   --bg-primary: #0A0A0A;
   --text-primary: #fff9f9;
+  --text-secondary: #007069;
   --text-stroke: #C3D2CE;
   --text-neutral: #292929;
   --color-bg1: rgb(108, 0, 162);
@@ -20,7 +21,7 @@
   --text-2xl: 4.8rem;
   --text-xl: 3.2rem;
   --text-lg: 2.8rem;
-  --text-title: 2.4rem;
+  --text-title: 2.2rem;
   --text-md: 1.8rem;
   --text-sm: 1.6rem;
   --text-xs: 1.4rem;
@@ -78,6 +79,10 @@ html {
     100% {
         transform: translateX(-50%) translateY(-10%);
     }
+}
+
+ul {
+  margin: 0 0 1em 2em;
 }
 
 .gradient-bg {
@@ -183,8 +188,7 @@ html {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(10, 10, 10, 0.50);
-  box-shadow: 0 2px 12px rgba(255,249, 249, .1);
+  background: rgba(34, 34, 34, 0.8);
   backdrop-filter: blur(5px);
   width: 100%;
   transition: all;
@@ -206,11 +210,11 @@ html {
 .mobile-nav a {
   font-weight: 400;
   color: var(--text-primary);
-  font-size: var(--text-sm);
+  font-size: var(--text-title);
   text-decoration: none;
   transition: all;
-  padding: 0.5rem 2rem;
-  border-bottom: 1px solid var(--text-neutral);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--text-stroke);
   width: 100%;
   text-align: right;
 }

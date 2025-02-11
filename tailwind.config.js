@@ -9,8 +9,11 @@ module.exports = {
       colors: {
         gray: {
           100: "#C3D2CE",
+          500: "rgb(34,34,34)",
           700: "#292929"
         },
+        primary: "var(--text-primary)",
+        secondary: "var(--text-secondary)"
       },
       fontFamily: {
         sans: ["Roboto"],
@@ -28,6 +31,7 @@ module.exports = {
       },
       spacing: {
         "1": "0.8rem",
+        "1.5": "1.2rem",
         "2": "1.6rem",
         "3": "2.4rem",
         "4": "3.2rem",
@@ -50,7 +54,8 @@ module.exports = {
         "4": "1.5",
       },
       borderRadius: {
-        md: "2.4rem"
+        md: "2.4rem",
+        sm: "1rem",
       }
     },
   },

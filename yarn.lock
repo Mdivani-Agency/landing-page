@@ -2614,7 +2614,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firebase-tools@npm:^13.29.2":
+"firebase-tools@npm:13.29.2":
   version: 13.29.2
   resolution: "firebase-tools@npm:13.29.2"
   dependencies:
@@ -4178,7 +4178,7 @@ __metadata:
   dependencies:
     "@11ty/eleventy": "npm:3.0.0"
     autoprefixer: "npm:10.4.20"
-    firebase-tools: "npm:^13.29.2"
+    firebase-tools: "npm:13.29.2"
     postcss: "npm:8.5.1"
     postcss-cli: "npm:11.0.0"
     tailwindcss: "npm:3.4.17"

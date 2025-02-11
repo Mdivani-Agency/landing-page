@@ -1,11 +1,13 @@
 <section id="contact" class="flex flex-col items-center justify-center gap-4 mb-8 md:min-h-screen">
-  <h2 class="text-lg md:text-xl leading-2 font-semibold text-center">
-    Looking for a Trusted Software Partner? Let's Build Something Great Together.
-  </h2>
-  <p class="text-md text-center md:text-left lg:text-title">Let's connect! We will respond promptly to start building something great together</p>
-  <div class="flex flex-col-reverse justify-center items-center gap-4 md:flex-row">
-    {% assign btn_title = "Schedule Call Now" %}
-    {% include "btn-primary.html" %}
-    {% include "mail-link.html" %}
-  </div>
+  <article class="text-box border border-[0.5px] border-gray-100 rounded-sm p-2 md:p-12">
+    <h2 class="text-title md:text-xl leading-2 font-semibold text-center mb-2">
+      Looking for a Trusted Software Partner? Let's Build Something Great Together.
+    </h2>
+    <p class="text-md text-center lg:text-title mb-3">Let's connect! We will respond promptly to start building something great together</p>
+    <div class="flex flex-col-reverse justify-center items-center gap-4 md:flex-row">
+      {% assign btn_title = "Schedule a Call Now" %}
+      {% include "btn-primary.html" %}
+      {% include "mail-link.html" %}
+    </div>
+  </article>
 </section>
