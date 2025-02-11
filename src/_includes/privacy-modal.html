@@ -1,0 +1,11 @@
+<dialog class="modal-overlay self-center md:items-center"" aria-hidden="true" tabindex="-1" id="privacy-modal" >
+  <div id="privacy-modal-dialog" class="modal-dialog transition duration-300 translate-y-[100%] md:scale-[.55] md:opacity-0 md:w-[90vw]">
+    <div class="modal-content max-h-full overflow-y-auto">
+      <button onclick="closePrivacy()" type="button" class="modal-close right-2 md:rigt-0" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div class="p-3">
+        {% include "privacy-statement.html" %}
+      </div>
+  </div>
+</dialog>
