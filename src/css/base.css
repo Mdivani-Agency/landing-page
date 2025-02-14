@@ -184,12 +184,15 @@ ul {
   opacity: 0;
 }
 
+.bg-blur {
+  background: rgba(34, 34, 34, 0.8);
+  backdrop-filter: blur(5px);
+}
+
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(34, 34, 34, 0.8);
-  backdrop-filter: blur(5px);
   width: 100%;
   transition: all;
   transition-duration: .3s;
@@ -320,4 +323,47 @@ ul {
 .article ul {
   list-style-type: disc;
   padding-left: .2rem;
+}
+
+.stroke-1 {
+  animation: cross-right .3s linear .3s forwards;
+}
+
+.stroke-2 {
+  animation: hide-stroke linear .3s forwards;
+  opacity: 1;
+}
+
+.stroke-3 {
+  animation: cross-left .3s linear .3s forwards;
+}
+
+@keyframes hide-stroke {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes cross-left {
+  0% {
+    transform: rotate(0) translate(0, 0);
+  }
+
+  100% {
+    transform: rotate(-45deg) translate(-13.5px, 1.5px);
+  }
+}
+
+@keyframes cross-right {
+  0% {
+    transform: rotate(0) translate(0, 0);
+  }
+
+  100% {
+    transform: rotate(45deg) translate(6px, -6px);
+  }
 }

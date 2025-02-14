@@ -27,7 +27,7 @@
 <body>
   <div class="relative z-10 overflow-hidden">
     <figure class="absolute w-full h-screen -z-10 bg-image bg-cover lg:bg-contain lg:h-full" ></figure>
-    <header id="header" class="header fixed px-2 md:px-6 z-50">
+    <header id="header" class="header bg-blur fixed px-2 md:px-6 z-50">
   <a title="scroll to top" href="/" class="size-9"><?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <svg alt="MDIVANI Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <g transform="matrix(1 0 0 1 512 512)" id="background-logo"  >
@@ -80,13 +80,13 @@
   </nav>
   <button id="burger" class="md:hidden flex items-center py-2">
     <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3.25 13L22.75 13" stroke="#FFF9F9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M3.25 6.5L22.75 6.5" stroke="#FFF9F9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M3.25 19.5L22.75 19.5" stroke="#FFF9F9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.25 6L24 6" stroke="#FFF9F9" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.25 12L24 12" stroke="#FFF9F9" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.25 18L24 18" stroke="#FFF9F9" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </button>
-  <div id="mobile-nav" class="hidden absolute top-0 left-0 z-10 flex flex-col w-full items-center justify-end gap-4 pb-12 px-2 bg-gray-500 h-screen md:hidden">
-    <div class="w-full flex justify-between items-center mb-auto">
+  <div id="mobile-nav" class="hidden absolute top-0 left-0 z-10 flex flex-col w-full items-center justify-end gap-4 pb-15 px-2 bg-gray-500 h-screen md:hidden">
+    <div class="w-full shrink-0 flex justify-between items-center mb-auto">
       <a title="scroll to top" href="/" class="size-9"><?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <svg alt="MDIVANI Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <g transform="matrix(1 0 0 1 512 512)" id="background-logo"  >
@@ -131,10 +131,11 @@
 </svg>
 </a>
 
-      <button id="burger-close" class="md:hidden flex items-center py-2 cursor-pointer hover:opacity-80">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M19.5 6.5L6.5 19.5" stroke="#FFF9F9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M6.5 6.5L19.5 19.5" stroke="#FFF9F9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <button id="burger-close" class="md:hidden flex items-center py-2 hover:opacity-80">
+        <svg class="relative" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="stroke-1" d="M3.25 6L24 6" stroke="#FFF9F9" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="stroke-2" d="M3.25 12L24 12" stroke="#FFF9F9" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="stroke-3" d="M3.25 18L24 18" stroke="#FFF9F9" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -441,13 +442,13 @@
   </div>
 </dialog>
 
-    <div id="cookie-consent" class="hidden fixed bottom-0 left-0 right-0 p-2 bg-gray-800 text-white">
+    <div id="cookie-consent" class="hidden fixed bottom-0 left-0 right-0 p-4 bg-blur text-white">
     <p class="text-md font-medium">
         We use cookies to improve your experience on our site. By using our site you accept our
-        <button onclick="openPrivacyModal()" class="underline" target="_blank">Privacy Policy</button>.
+        <button onclick="openPrivacyModal()" class="underline text-secondary" target="_blank">Privacy Policy</button>.
     </p>
-    <button id="accept-cookies" onclick="acceptCookies()" class="text-sm bg-blue-500 p-1 mt-2 mr-1 rounded">Accept Cookies</button>
-    <button id="reject-cookies" onclick="rejectCookies()" class="text-sm bg-red-500 p-1 mt-2 rounded">Reject Cookies</button>
+    <button autofocus id="accept-cookies" onclick="acceptCookies()" class="text-sm text-black bg-white p-1 px-2 mt-2 mr-1 rounded-sm">Accept Cookies</button>
+    <button id="reject-cookies" onclick="rejectCookies()" class="text-sm bg-transparent border border-stroke p-1 px-2 mt-2 rounded-sm">Reject Cookies</button>
 </div>
 
   </div>
