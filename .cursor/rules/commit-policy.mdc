@@ -1,3 +1,43 @@
 ---
+description: Strict commit and version-control rules for cloud agents
 alwaysApply: true
 ---
+
+# Strict Commit Rules for Cloud Agents
+
+## Default behavior
+
+- Do not create, amend, reset, rebase, squash, cherry-pick, or push commits unless the user explicitly requests it.
+- Before making a commit, inspect the working tree with:
+  - `git status`
+  - `git diff`
+  - `git diff --cached`
+- Never commit unrelated changes, generated files, temporary files, editor settings, logs, credentials, secrets, or environment files.
+- Do not discard, overwrite, or reset user changes.
+- Never use destructive commands such as:
+  - `git reset --hard`
+  - `git clean -fd`
+  - `git checkout -- .`
+  - `git restore .`
+- Never force-push.
+- Never amend an existing commit unless the user explicitly requests it.
+- Never modify commit history without explicit user approval.
+
+## Before committing
+
+The agent must:
+
+1. Review all staged and unstaged changes.
+2. Confirm that the changes are limited to the requested task.
+3. Check for secrets, tokens, passwords, private keys, and personal data.
+4. Run the project’s relevant validation commands.
+5. Report any failed, skipped, or unavailable checks.
+6. Ensure no debug output, temporary code, commented-out experiments, or accidental files remain.
+7. Stage only the intended files explicitly by path.
+
+Do not use:
+
+```bash
+git add .
+git add -A
+git commit -am
