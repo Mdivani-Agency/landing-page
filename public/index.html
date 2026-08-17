@@ -18,7 +18,8 @@
     <title>Mdivani - Custom Software Solutions for Cloud, Mobile, and Web Applications</title>
 </head>
 <body>
-  <div class="relative z-10 bg_image overflow-hidden">
+  <div class="relative z-10 overflow-hidden">
+    <figure class="absolute w-full h-screen -z-10 bg-image bg-cover lg:bg-contain lg:h-full" ></figure>
     <header id="header" class="header fixed px-2 md:px-6 z-50">
   <a title="scroll to top" href="#home" class="size-9"><?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <svg alt="MDIVANI Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -133,54 +134,57 @@
       <a title="scroll to contact sections" href="#contact">Contact</a>
       <a title="scroll to services sections" href="#services">Services</a>
     </nav>
-      <a title="send email directly" class="text-primary text-xs font-regular" href="mailto:info@mdivani.org">info@mdivani.org</a>
-      <a title="Schedule a call with us" target="_blank" href="https://calendar.app.google/xKndvXs26ThvKrQ56" class="bg-gradient text-xs text-black rounded-md py-2 px-8 hover:scale-105 transition">
-  
+      <a class="text-primary text-md font-regular" href="mailto:info@mdivani.org">
+  <svg class="inline size-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#FFF9F9" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M22 6L12 13L2 6" stroke="#FFF9F9" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  info@mdivani.org
 </a>
 
   </div>
 </header>
 
-    <main class="container flex flex-col px-2 lg:px-10 mx-auto gap-15 z-10">
-      <section id="home" class="section hero flex flex-col justify-center items-center">
-  <h1 class="text-title md:text-2xl font-semibold leading-1">Launch Your Dream App. From Idea to Market, We've Got You Covered.</h1>
-  <p class="text-xs md:text-md font-regular">We build scalable, user-centric web and mobile applications using cutting-edge technologies like React Native, Node.js, and AWS</p>
+    <main class="container flex flex-col px-2 lg:px-10 mx-auto gap-8 2xl:gap-15 z-10">
+      <section id="home" class="section text-center gap-3 flex flex-col justify-center items-center 2xl:gap-4">
+  <h1 class="text-xl lg:text-2xl 2xl:text-3xl font-semibold leading-1">Launch Your Dream App<br/> From Idea to Market, We've Got You Covered</h1>
+  <p class="text-sm md:text-title font-regular">We build scalable, user-centric web and mobile applications using cutting-edge<br/> technologies like React Native, Node.js, and AWS</p>
   
-  <a title="Schedule a call with us" target="_blank" href="https://calendar.app.google/xKndvXs26ThvKrQ56" class="bg-gradient text-xs text-black rounded-md py-2 px-8 hover:scale-105 transition">
+  <button onclick="openCalendar()" title="Schedule a call with us" class="bg-gradient text-md text-black font-medium rounded-md py-2 px-8 hover:scale-105 transition">
   Get a Free Consultation
-</a>
+</button>
 
 </section>
 
       <section id="services" class="relative flex flex-col justify-center">
   <figure class="absolute figure -left-[50%] bg-[#2aecbb4d]"></figure>
-  <h2 class="text-xl font-semibold leading-1 text-center mb-8">Explore Our Services</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="text-box grid grid-cols-3 border border-[0.5px] border-gray-100 rounded-md p-2">
+  <h2 class="text-xl font-semibold leading-1 text-center mb-4 2xl:mb-8">Explore Our Services</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <div class="text-box grid grid-cols-3 border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4">
       <figure class="col-span-3 md:col-span-1 md:order-last">
-        <img class="block mx-auto" src="/assets/images/cloud.png" alt="Cloud Icon" />
+        <img class="block mx-auto w-auto h-30" src="/assets/images/cloud.png" loading="lazy" alt="Cloud Icon" />
       </figure>
-      <article class="col-span-3 md:col-span-2 p-1">
+      <article class="col-span-3 md:col-span-2 pr-1">
         <h3 class="text-title mb-1">Custom Software<br/>Solutions</h3>
         <p class="text-md">Don't get bogged down in lengthy development cycles and inflated costs. We build custom software solutions designed specifically for startups, prioritizing speed, cost-effectiveness, and future scalability</p>
       </article>
     </div>
 
-    <div class="text-box flex flex-col border border-[0.5px] border-gray-100 rounded-md p-2 row-span-2">
+    <div class="text-box flex flex-col border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4 row-span-2">
       <figure class="mt-auto">
-        <img class="block mx-auto md:ml-auto" src="/assets/images/db.png" alt="React Icon" />
+        <img class="block mx-auto w-auto h-30 md:h-32 md:ml-auto" src="/assets/images/db.png" loading="lazy" alt="Database Icon" />
       </figure>
-      <article class="w-full mt-auto p-1">
+      <article class="w-full mt-auto pr-1">
         <h3 class="text-title mb-1">Strategic Tech Guidance for Startup Success</h3>
         <p class="text-md">Navigating the complex world of technology can be overwhelming for startups.  Let us be your guide. We provide strategic technology consulting services tailored to your unique needs, helping you make informed decisions about your tech stack, avoid costly mistakes, and build a sustainable foundation for your business.</p>
       </article>
     </div>
 
-    <div class="text-box grid grid-cols-3 border border-[0.5px] border-gray-100 rounded-md p-2">
+    <div class="text-box grid grid-cols-3 border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4">
       <figure class="col-span-3 flex items-center justify-center md:col-span-1 md:order-last">
-        <img class="block mx-auto" src="/assets/images/react.png" alt="Database Icon" />
+        <img class="block mx-auto w-auto h-30" src="/assets/images/react.png" loading="lazy" alt="React Icon" />
       </figure>
-      <article class="col-span-3 md:col-span-2 p-1">
+      <article class="col-span-3 md:col-span-2 pr-1">
         <h3 class="text-title mb-1">Web & Mobile Application<br/>Development</h3>
         <p class="text-md">Reach your target audience across all devices with our expert web and mobile application development services. We utilize React Native, a cutting-edge framework, to build native-quality apps for both iOS and Android from a single codebase.</p>
       </article>
@@ -189,27 +193,27 @@
   </div>
 </section>
 
-      <section id="process" class="flex flex-col gap-15">
+      <section id="process" class="flex flex-col gap-8 2xl:gap-15">
   <section>
-    <h2 class="text-xl font-semibold leading-1 text-center mb-8">Why Choose Us?</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <h2 class="text-xl font-semibold text-center leading-1 mb-4 2xl:mb-8">Why Choose Us?</h2>
+    <div class="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4">
       <div>
         <article>
-          <h3 class="text-title gradient-text mb-2">User Centric Approach</h3>
+          <h3 class="text-title gradient-text md:mb-2">User Centric Approach</h3>
           <p class="text-md">We design with the end-user in mind, ensuring that every product we create enhances user experience and solves real-world problems</p>
         </article>
       </div>
 
       <div>
         <article>
-          <h3 class="text-title gradient-text mb-2">Proven Expertise</h3>
+          <h3 class="text-title gradient-text md:mb-2">Proven Expertise</h3>
           <p class="text-md">With years of hands-on experience and a diverse portfolio, our team brings a wealth of knowledge to every project we undertake.</p>
         </article>
       </div>
 
       <div>
         <article>
-          <h3 class="text-title gradient-text mb-2">Scalable Growth</h3>
+          <h3 class="text-title gradient-text md:mb-2">Scalable Growth</h3>
           <p class="text-md">Our solutions are built to grow with your business, providing flexibility and support as your needs evolve. </p>
         </article>
       </div>
@@ -219,10 +223,10 @@
 
   <section class="relative">
     <figure class="absolute figure -right-[50%] -top-[50%] bg-[#0685EA]"></figure>
-    <h2 class="text-xl font-semibold leading-1 text-center mb-8 mt-16">Our Process</h2>
+    <h2 class="text-xl font-semibold leading-1 text-center mb-4 2xl:mb-8">Our Process</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="text-box border border-[0.5px] border-gray-100 rounded-md p-2">
+    <div class="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4">
+      <div class="text-box border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4">
         <figure class="size-4 mb-2">
           <img src="/assets/images/cpu.png" alt="CPU Icon" />
         </figure>
@@ -232,7 +236,7 @@
         </article>
       </div>
 
-      <div class="text-box border border-[0.5px] border-gray-100 rounded-md p-2">
+      <div class="text-box border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4"">
         <figure class="size-4 mb-2">
           <img src="/assets/images/pallete.png" alt="Pallete Icon" />
         </figure>
@@ -242,7 +246,7 @@
         </article>
       </div>
 
-      <div class="text-box border border-[0.5px] border-gray-100 rounded-md p-2">
+      <div class="text-box border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4"">
         <figure class="size-4 mb-2">
           <img src="/assets/images/science.png" alt="Science Icon" />
         </figure>
@@ -252,7 +256,7 @@
         </article>
       </div>
 
-      <div class="text-box border border-[0.5px] border-gray-100 rounded-md p-2">
+      <div class="text-box border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4"">
         <figure class="size-4 mb-2">
           <img src="/assets/images/rocket.png" alt="Rocket Icon" />
         </figure>
@@ -265,17 +269,16 @@
   </section>
 </section>
 
-      <section id="contact" class="section flex flex-col items-center justify-center gap-4">
-  <h2 class="text-title md:text-xl leading-2 font-semibold text-center">
-    Looking for a Trusted Software Partner?
-    Let's Build Something Great Together.
+      <section id="contact" class="flex flex-col items-center justify-center gap-4 mb-8 md:min-h-screen">
+  <h2 class="text-lg md:text-xl leading-2 font-semibold text-center">
+    Looking for a Trusted Software Partner? Let's Build Something Great Together.
   </h2>
-  <p class="text-sm text-center md:text-left md:text-md">Let's connect! We will respond promptly to start building something great together</p>
-  <div class="flex flex-col justify-center items-center gap-4 md:flex-row">
+  <p class="text-md text-center md:text-left lg:text-title">Let's connect! We will respond promptly to start building something great together</p>
+  <div class="flex flex-col-reverse justify-center items-center gap-4 md:flex-row">
     
-    <a title="Schedule a call with us" target="_blank" href="https://calendar.app.google/xKndvXs26ThvKrQ56" class="bg-gradient text-xs text-black rounded-md py-2 px-8 hover:scale-105 transition">
+    <button onclick="openCalendar()" title="Schedule a call with us" class="bg-gradient text-md text-black font-medium rounded-md py-2 px-8 hover:scale-105 transition">
   Schedule Call Now
-</a>
+</button>
 
     <a class="text-primary text-md font-regular" href="mailto:info@mdivani.org">
   <svg class="inline size-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -371,6 +374,16 @@
   </div>
 </footer>
 
+    <dialog class="modal-overlay self-center md:items-center"" aria-hidden="true" tabindex="-1" id="my-modal" >
+  <div id="modal-dialog" class="modal-dialog transition duration-300 translate-y-[100%] md:scale-[.55] md:opacity-0 md:w-[90vw]">
+    <div class="modal-content h-full">
+      <button onclick="closeCalendar()" type="button" class="modal-close right-2 md:rigt-0" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <iframe title="Google Calendar" src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ3drXi2j_NDP1NqGMdu1qbA9mU7uF20M3rMGBQZCv9MeqUmMDAS7qYl6SiCpECQK16l_QV7iqW7?gv=true" style="border: 0" width="100%" height="100%"></iframe>
+    </div>
+</dialog>
+
   </div>
   <figure class="gradient-bg hidden lg:block">
     <svg xmlns="http://www.w3.org/2000/svg">
@@ -388,27 +401,6 @@
       <div class="g4"></div>
     </div>
   </figure>
-  <script src="scripts/index.js"></script>
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
-    // https://firebase.google.com/docs/web/setup#available-libraries
-
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyBSQKqj-maC_IanNHWgjNEIRI-K6iHK18E",
-      authDomain: "mdio-4a7c7.firebaseapp.com",
-      projectId: "mdio-4a7c7",
-      storageBucket: "mdio-4a7c7.firebasestorage.app",
-      messagingSenderId: "539399538701",
-      appId: "1:539399538701:web:3d9f5013a2a16853b1ed44",
-      measurementId: "G-PJ84DYZ4WS"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
+  <script type="module" src="scripts/index.js"></script>
 </body>
 </html>

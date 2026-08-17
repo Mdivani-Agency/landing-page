@@ -1,0 +1,82 @@
+---
+description: General development rules for this landing page
+alwaysApply: true
+---
+
+# Landing Page Development Rules
+
+## General Principles
+
+- Preserve the existing visual design, layout, content, and user experience unless explicitly asked to change them.
+- Prefer simple, maintainable solutions over unnecessary abstractions.
+- Inspect the existing codebase before making changes.
+- Keep changes focused and avoid modifying unrelated files.
+- Do not introduce new dependencies unless they are clearly necessary.
+- Follow the existing project structure, naming conventions, and formatting style.
+
+## HTML and Semantics
+
+- Use semantic HTML elements such as `header`, `nav`, `main`, `section`, `article`, and `footer`.
+- Maintain a logical heading hierarchy. Use one primary `h1` per page.
+- Use accessible labels for form fields, buttons, and interactive controls.
+- Use meaningful `alt` text for informative images.
+- Use empty `alt=""` for decorative images.
+- Prefer native HTML elements and browser functionality before adding JavaScript.
+
+## CSS and Responsive Design
+
+- Use the existing styling approach and design tokens where available.
+- Build mobile-first responsive layouts.
+- Avoid fixed widths that cause horizontal scrolling.
+- Use reusable classes and variables instead of duplicating styles.
+- Preserve spacing, typography, colors, and responsive behavior when refactoring.
+- Test layouts at mobile, tablet, and desktop widths.
+- Ensure visible focus states for keyboard users.
+- Do not use inline styles unless there is a strong reason.
+
+## JavaScript
+
+- Keep JavaScript minimal and progressive-enhancement focused.
+- Use clear, descriptive variable and function names.
+- Avoid global variables.
+- Handle missing DOM elements safely.
+- Add error handling for forms, API requests, and other asynchronous operations.
+- Do not store secrets or private credentials in frontend code.
+- Clean up event listeners and timers where appropriate.
+
+## Performance
+
+- Optimize images and use modern formats when possible.
+- Avoid unnecessary JavaScript and large dependencies.
+- Use lazy loading for below-the-fold images where appropriate.
+- Do not block page rendering unnecessarily.
+- Preserve or improve Core Web Vitals.
+- Avoid loading third-party scripts unless they are required.
+
+## Accessibility
+
+- Follow WCAG-oriented best practices.
+- Ensure sufficient color contrast.
+- Make all interactive functionality usable with a keyboard.
+- Do not rely on color alone to communicate information.
+- Respect reduced-motion preferences where animations are used.
+- Ensure buttons and links have clear, descriptive text.
+
+## SEO
+
+- Preserve or improve page titles and meta descriptions.
+- Use semantic headings and descriptive link text.
+- Keep canonical URLs and social sharing metadata consistent.
+- Do not remove structured data without checking its purpose.
+- Ensure important content is available in the initial HTML.
+
+## Testing and Validation
+
+Before completing a change:
+
+- Check for console errors.
+- Test the affected functionality on desktop and mobile layouts.
+- Verify keyboard navigation for interactive elements.
+- Check links, forms, images, and responsive behavior.
+- Run the project’s available linting and formatting commands.
+- Confirm that no unrelated behavior or visual styling was changed.
