@@ -1,19 +1,14 @@
 {
   "name": "mdio-landing-page",
-  "install": "corepack enable && yarn install --immutable && yarn build",
+  "install": "corepack enable && yarn install --immutable",
   "terminals": [
     {
       "name": "dev-server",
-      "command": "corepack enable && yarn start",
-      "description": "Eleventy dev server with live reload at http://localhost:8080. Rebuilds public/ from src/ on change."
-    },
-    {
-      "name": "tailwind-watch",
-      "command": "corepack enable && yarn tw",
-      "description": "Tailwind CSS watcher that recompiles src/styles.css whenever markup or CSS changes."
+      "command": "corepack enable && yarn dev",
+      "description": "Next.js App Router dev server with hot reload at http://localhost:3000."
     }
   ],
   "ports": [
-    { "name": "eleventy dev server", "port": 8080 }
+    { "name": "next dev server", "port": 3000 }
   ]
 }
