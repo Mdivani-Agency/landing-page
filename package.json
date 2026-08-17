@@ -6,7 +6,7 @@
   "scripts": {
     "tw": "npx tailwindcss -i src/css/base.css -o src/styles.css --watch",
     "start": "eleventy --serve",
-    "build": "postcss src/css/base.css -o src/styles.css eleventy",
+    "build": "postcss src/css/base.css -o src/styles.css && eleventy",
     "deploy": "yarn build && npx firebase deploy"
   },
   "keywords": [

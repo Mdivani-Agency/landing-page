@@ -1,0 +1,31 @@
+---
+description: Git branching and merge workflow for development and production
+alwaysApply: true
+---
+
+# Git Branching and Merge Workflow
+
+## Branch Roles
+
+- `development` is the default integration branch for ongoing work.
+- `main` is the production branch.
+- Feature, bug-fix, refactor, and other working branches must initially branch from `development`.
+- `main` must never be used as the starting point for ordinary feature work.
+
+## Branch Naming
+
+Use descriptive branch names with lowercase kebab-case:
+
+- `feature/<short-description>`
+- `fix/<short-description>`
+- `refactor/<short-description>`
+- `chore/<short-description>`
+- `hotfix/<short-description>`
+
+Examples:
+
+```text
+feature/user-profile
+fix/mobile-navigation
+refactor/api-client
+hotfix/payment-timeout
