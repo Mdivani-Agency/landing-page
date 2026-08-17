@@ -17,6 +17,7 @@
   ],
   "author": "Giorgi Mdivani",
   "license": "ISC",
+  "packageManager": "yarn@4.9.2",
   "devDependencies": {
     "@11ty/eleventy": "3.0.0",
     "autoprefixer": "10.4.20",
