@@ -71,7 +71,9 @@ node_modules/
 # Next.js
 /.next/
 /out/
-next-env.d.ts
+
+# Eleventy (legacy) build output — Next.js owns public/
+/eleventy-dist/
 
 # Vercel
 .vercel
