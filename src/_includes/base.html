@@ -18,15 +18,17 @@
     <title>Mdivani - Custom Software Solutions for Cloud, Mobile, and Web Applications</title>
 </head>
 <body>
-  <div class="relative z-10 bg_image overflow-hidden">
+  <div class="relative z-10 overflow-hidden">
+    <figure class="absolute w-full h-screen -z-10 bg-image bg-cover lg:bg-contain lg:h-full" ></figure>
     {% include "header.html" %}
-    <main class="container flex flex-col px-2 lg:px-10 mx-auto gap-15 z-10">
+    <main class="container flex flex-col px-2 lg:px-10 mx-auto gap-8 2xl:gap-15 z-10">
       {% include "hero.html" %}
       {% include "services.html" %}
       {% include "pitch.html" %}
       {% include "contact.html" %}
     </main>
     {% include "footer.html" %}
+    {% include "calendar.html" %}
   </div>
   <figure class="gradient-bg hidden lg:block">
     <svg xmlns="http://www.w3.org/2000/svg">
@@ -44,27 +46,6 @@
       <div class="g4"></div>
     </div>
   </figure>
-  <script src="scripts/index.js"></script>
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
-    // https://firebase.google.com/docs/web/setup#available-libraries
-
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyBSQKqj-maC_IanNHWgjNEIRI-K6iHK18E",
-      authDomain: "mdio-4a7c7.firebaseapp.com",
-      projectId: "mdio-4a7c7",
-      storageBucket: "mdio-4a7c7.firebasestorage.app",
-      messagingSenderId: "539399538701",
-      appId: "1:539399538701:web:3d9f5013a2a16853b1ed44",
-      measurementId: "G-PJ84DYZ4WS"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
+  <script type="module" src="scripts/index.js"></script>
 </body>
 </html>
