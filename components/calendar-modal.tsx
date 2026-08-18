@@ -89,11 +89,11 @@ export function CalendarModal() {
       closeButtonRef.current?.focus();
     };
 
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keydown", onKeyDown, true);
     document.addEventListener("focusin", onFocusIn);
 
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keydown", onKeyDown, true);
       document.removeEventListener("focusin", onFocusIn);
       pageChrome?.removeAttribute("inert");
       releaseScrollLock();
@@ -114,10 +114,6 @@ export function CalendarModal() {
       className={`modal-overlay self-center md:items-center${isOpen ? " show" : ""}`}
       aria-labelledby="calendar-modal-title"
       id="my-modal"
-      onCancel={(event) => {
-        event.preventDefault();
-        closeCalendar();
-      }}
       onClose={() => {
         if (isOpen) {
           closeCalendar();
