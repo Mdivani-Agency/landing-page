@@ -17,7 +17,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["Roboto"],
+        sans: ["var(--font-roboto)", "Roboto", "sans-serif"],
       },
       fontSize: {
         "3xl": "var(--text-3xl)",

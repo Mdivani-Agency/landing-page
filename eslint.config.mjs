@@ -7,6 +7,7 @@ const eslintConfig = [
       "node_modules/**",
       "public/**",
       "_site/**",
+      "eleventy-dist/**",
       "src/**",
     ],
   },
