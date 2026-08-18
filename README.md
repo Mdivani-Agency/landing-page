@@ -34,6 +34,7 @@ Structure:
 - `app/` — App Router entry (`layout.tsx`, `page.tsx`, `globals.css`)
 - `components/` — reusable UI (added as sections are ported)
 - Tailwind CSS is configured via `tailwind.config.js` + `postcss.config.js`; TypeScript via `tsconfig.json`.
+- Design tokens live in `app/globals.css` (`:root` CSS variables) and `tailwind.config.js`. Roboto is loaded with `next/font/google`. Static images stay under `public/assets/`.
 
 ## Legacy Eleventy site
 
