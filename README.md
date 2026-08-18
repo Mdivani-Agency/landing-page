@@ -35,6 +35,7 @@ Structure:
 - `components/` — reusable UI (added as sections are ported)
 - Tailwind CSS is configured via `tailwind.config.js` + `postcss.config.js`; TypeScript via `tsconfig.json`.
 - Design tokens live in `app/globals.css` (`:root` CSS variables) and `tailwind.config.js`. Roboto is loaded with `next/font/google`. Static images stay under `public/assets/`.
+- Shared chrome lives in `components/` (`header`, `footer`, calendar modal). Homepage sections are in `components/sections/`.
 
 ## Legacy Eleventy site
 
