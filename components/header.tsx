@@ -1,36 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/logo";
 import { MailLink } from "@/components/mail-link";
+import { acquireScrollLock, releaseScrollLock } from "@/lib/scroll-lock";
 import { sectionLinks } from "@/lib/site";
 
 export function Header() {
   const [hidden, setHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const lastScrollTop = useRef(0);
+  const mobileOpenRef = useRef(false);
 
   useEffect(() => {
-    let lastScrollTop = 0;
+    mobileOpenRef.current = mobileOpen;
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    lastScrollTop.current = window.scrollY || document.documentElement.scrollTop;
 
     const onScroll = () => {
-      if (mobileOpen) {
+      if (mobileOpenRef.current) {
         return;
       }
 
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      setHidden(scrollTop > lastScrollTop && scrollTop > 0);
-      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+      setHidden(scrollTop > lastScrollTop.current && scrollTop > 0);
+      lastScrollTop.current = scrollTop <= 0 ? 0 : scrollTop;
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [mobileOpen]);
+  }, []);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    if (!mobileOpen) {
+      return;
+    }
 
+    acquireScrollLock();
     return () => {
-      document.body.style.overflow = "";
+      releaseScrollLock();
     };
   }, [mobileOpen]);
 
@@ -84,7 +94,7 @@ export function Header() {
         className={`${mobileOpen ? "flex" : "hidden"} absolute top-0 left-0 z-10 flex-col w-full items-center justify-end gap-4 pb-4 px-2 bg-black h-screen md:hidden`}
       >
         <div className="w-full flex justify-between items-center mb-auto">
-          <Logo />
+          <Logo onClick={closeMobileNav} />
           <button
             type="button"
             id="burger-close"

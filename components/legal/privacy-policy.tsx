@@ -174,7 +174,7 @@ export function PrivacyPolicyContent() {
           <li>
             Email: <a href={`mailto:${site.email}`}>{site.email}</a>
           </li>
-          <li>Address: L.kvachadze str 19, Tbilisi, Georgia</li>
+          <li>Address: {site.address}</li>
         </ul>
       </section>
     </article>

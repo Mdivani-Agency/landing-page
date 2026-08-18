@@ -41,15 +41,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className={roboto.variable}>
       <body className="font-sans">
         <Providers>
-          <div className="relative z-10 overflow-hidden">
+          <div id="page-chrome" className="relative z-10 overflow-hidden">
             <figure className="absolute w-full h-screen -z-10 bg-image bg-cover lg:bg-contain lg:h-full" />
             <Header />
             <main className="container flex flex-col px-2 lg:px-10 mx-auto gap-8 2xl:gap-15 z-10">
               {children}
             </main>
             <Footer />
-            <CalendarModal />
           </div>
+          <CalendarModal />
           <GradientBackground />
           <Analytics />
         </Providers>

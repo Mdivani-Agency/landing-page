@@ -1,3 +1,20 @@
+const MEASUREMENT_ID_PATTERN = /^G-[A-Z0-9]+$/;
+
+type PendingEvent = {
+  name: string;
+  params?: Record<string, unknown>;
+};
+
+const pendingEvents: PendingEvent[] = [];
+
+export function resolveMeasurementId(
+  gaId = "",
+  firebaseId = "",
+): string | undefined {
+  const raw = gaId.trim() || firebaseId.trim();
+  return MEASUREMENT_ID_PATTERN.test(raw) ? raw : undefined;
+}
+
 export function getUtmSource(): string | null {
   if (typeof window === "undefined") {
     return null;
@@ -6,23 +23,40 @@ export function getUtmSource(): string | null {
   return new URLSearchParams(window.location.search).get("utm_source");
 }
 
-export function trackPageView(pagePath: string): void {
+function flushPendingEvents(): void {
   if (typeof window === "undefined" || typeof window.gtag !== "function") {
     return;
   }
 
-  window.gtag("event", "page_view", {
+  while (pendingEvents.length > 0) {
+    const event = pendingEvents.shift();
+
+    if (!event) {
+      break;
+    }
+
+    window.gtag("event", event.name, event.params);
+  }
+}
+
+function enqueueEvent(name: string, params?: Record<string, unknown>): void {
+  pendingEvents.push({ name, params });
+  flushPendingEvents();
+}
+
+export function markAnalyticsReady(): void {
+  flushPendingEvents();
+}
+
+export function trackPageView(pagePath: string): void {
+  enqueueEvent("page_view", {
     page_path: pagePath,
     source: getUtmSource(),
   });
 }
 
 export function trackScheduleCallClick(): void {
-  if (typeof window === "undefined" || typeof window.gtag !== "function") {
-    return;
-  }
-
-  window.gtag("event", "schedule_call_click", {
+  enqueueEvent("schedule_call_click", {
     method: "Google Calendar",
     source: getUtmSource(),
   });

@@ -1,16 +1,22 @@
 import Image from "next/image";
-import Link from "next/link";
 
-export function Logo() {
+type LogoProps = {
+  onClick?: () => void;
+};
+
+export function Logo({ onClick }: LogoProps) {
   return (
-    <Link title="scroll to top" href="/#home" className="size-9">
+    // Native hash link: App Router Link often skips same-page /#home scrolling.
+    // eslint-disable-next-line @next/next/no-html-link-for-pages
+    <a title="scroll to top" href="/#home" className="size-9" onClick={onClick}>
       <Image
         src="/assets/logo.svg"
         alt="MDIVANI Logo"
         width={72}
         height={72}
         className="block size-full"
+        priority
       />
-    </Link>
+    </a>
   );
 }
