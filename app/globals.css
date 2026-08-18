@@ -278,10 +278,16 @@ body {
 .modal-overlay {
   display: none;
   position: fixed;
+  inset: 0;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   overflow: hidden;
@@ -289,8 +295,13 @@ body {
   align-items: end;
 }
 
-.modal-overlay.show {
+.modal-overlay.show,
+.modal-overlay[open] {
   display: flex;
+}
+
+.modal-overlay::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-dialog {

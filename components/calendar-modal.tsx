@@ -10,39 +10,43 @@ const FOCUSABLE_SELECTOR =
 
 export function CalendarModal() {
   const { isOpen, closeCalendar } = useCalendar();
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    const dialog = overlayRef.current;
+
+    if (!dialog) {
+      return;
+    }
+
     if (!isOpen) {
+      if (dialog.open) {
+        dialog.close();
+      }
       return;
     }
 
     const previouslyFocused = document.activeElement;
     const pageChrome = document.getElementById("page-chrome");
+
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+
     closeButtonRef.current?.focus();
     acquireScrollLock();
     pageChrome?.setAttribute("inert", "");
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        closeCalendar();
-        return;
-      }
+    const focusableInDialog = () =>
+      Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
 
+    const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Tab") {
         return;
       }
 
-      const overlay = overlayRef.current;
-
-      if (!overlay) {
-        return;
-      }
-
-      const focusable = Array.from(
-        overlay.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-      );
+      const focusable = focusableInDialog();
 
       if (focusable.length === 0) {
         event.preventDefault();
@@ -53,24 +57,44 @@ export function CalendarModal() {
       const last = focusable[focusable.length - 1];
       const active = document.activeElement;
 
-      if (event.shiftKey && (active === first || !overlay.contains(active))) {
+      if (dialog.contains(active) && active !== dialog && active !== first && active !== last) {
+        return;
+      }
+
+      if (event.shiftKey && (active === first || !dialog.contains(active))) {
         event.preventDefault();
         last.focus();
         return;
       }
 
-      if (!event.shiftKey && (active === last || !overlay.contains(active))) {
+      if (!event.shiftKey && (active === last || !dialog.contains(active))) {
         event.preventDefault();
         first.focus();
       }
     };
 
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target;
+
+      if (!(target instanceof Node) || dialog.contains(target)) {
+        return;
+      }
+
+      closeButtonRef.current?.focus();
+    };
+
     document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("focusin", onFocusIn);
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
       pageChrome?.removeAttribute("inert");
       releaseScrollLock();
+
+      if (dialog.open) {
+        dialog.close();
+      }
 
       if (previouslyFocused instanceof HTMLElement) {
         previouslyFocused.focus();
@@ -79,15 +103,20 @@ export function CalendarModal() {
   }, [isOpen, closeCalendar]);
 
   return (
-    <div
+    <dialog
       ref={overlayRef}
       className={`modal-overlay self-center md:items-center${isOpen ? " show" : ""}`}
-      role={isOpen ? "dialog" : undefined}
-      aria-modal={isOpen ? true : undefined}
-      aria-hidden={!isOpen}
-      aria-labelledby={isOpen ? "calendar-modal-title" : undefined}
-      tabIndex={-1}
+      aria-labelledby="calendar-modal-title"
       id="my-modal"
+      onCancel={(event) => {
+        event.preventDefault();
+        closeCalendar();
+      }}
+      onClose={() => {
+        if (isOpen) {
+          closeCalendar();
+        }
+      }}
     >
       <div
         id="modal-dialog"
@@ -118,6 +147,6 @@ export function CalendarModal() {
           ) : null}
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
