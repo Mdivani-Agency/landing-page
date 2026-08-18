@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Roboto } from "next/font/google";
+import { Analytics } from "@/components/analytics";
 import { CalendarModal } from "@/components/calendar-modal";
 import { Footer } from "@/components/footer";
 import { GradientBackground } from "@/components/gradient-background";
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <CalendarModal />
           </div>
           <GradientBackground />
+          <Analytics />
         </Providers>
       </body>
     </html>

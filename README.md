@@ -36,6 +36,7 @@ Structure:
 - Tailwind CSS is configured via `tailwind.config.js` + `postcss.config.js`; TypeScript via `tsconfig.json`.
 - Design tokens live in `app/globals.css` (`:root` CSS variables) and `tailwind.config.js`. Roboto is loaded with `next/font/google`. Static images stay under `public/assets/`.
 - Shared chrome lives in `components/` (`header`, `footer`, calendar modal). Homepage sections are in `components/sections/`.
+- Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`. Copy `.env.example` and leave the values empty to run locally without tracking.
 
 ## Legacy Eleventy site
 
