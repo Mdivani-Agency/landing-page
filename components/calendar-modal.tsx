@@ -42,6 +42,12 @@ export function CalendarModal() {
       Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeCalendar();
+        return;
+      }
+
       if (event.key !== "Tab") {
         return;
       }
