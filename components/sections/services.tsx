@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Services() {
   return (
     <section id="services" className="relative flex flex-col justify-center">
@@ -8,10 +10,12 @@ export function Services() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <div className="text-box grid grid-cols-3 border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4">
           <figure className="col-span-3 md:col-span-1 md:order-last">
-            <img
+            <Image
               className="block mx-auto w-auto h-30"
               src="/assets/images/cloud.png"
               alt="Cloud Icon"
+              width={881}
+              height={976}
             />
           </figure>
           <article className="col-span-3 md:col-span-2 pr-1">
@@ -31,10 +35,12 @@ export function Services() {
 
         <div className="text-box flex flex-col border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4 row-span-2">
           <figure className="mt-auto">
-            <img
+            <Image
               className="block mx-auto w-auto h-30 md:h-32 md:ml-auto"
               src="/assets/images/db.png"
               alt="Database Icon"
+              width={881}
+              height={976}
             />
           </figure>
           <article className="w-full mt-auto pr-1">
@@ -53,10 +59,12 @@ export function Services() {
 
         <div className="text-box grid grid-cols-3 border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4">
           <figure className="col-span-3 flex items-center justify-center md:col-span-1 md:order-last">
-            <img
+            <Image
               className="block mx-auto w-auto h-30"
               src="/assets/images/react.png"
               alt="React Icon"
+              width={881}
+              height={976}
             />
           </figure>
           <article className="col-span-3 md:col-span-2 pr-1">

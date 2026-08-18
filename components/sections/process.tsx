@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const steps = [
   {
     title: "Discovery and Strategy",
@@ -39,7 +41,7 @@ export function Process() {
             className="text-box border border-[0.5px] border-gray-100 rounded-md p-2 md:p-4"
           >
             <figure className="size-4 mb-2">
-              <img src={step.icon} alt={step.alt} />
+              <Image src={step.icon} alt={step.alt} width={80} height={80} />
             </figure>
             <article>
               <h3 className="text-title mb-1">{step.title}</h3>
