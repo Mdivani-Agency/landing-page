@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Roboto } from "next/font/google";
+import { DM_Sans, Fraunces } from "next/font/google";
 import { Analytics } from "@/components/analytics";
 import { CalendarModal } from "@/components/calendar-modal";
 import { Footer } from "@/components/footer";
@@ -10,10 +10,16 @@ import { Providers } from "@/components/providers";
 import { site } from "@/lib/site";
 import "./globals.css";
 
-const roboto = Roboto({
+const dmSans = DM_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-roboto",
+  variable: "--font-sans",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-serif",
 });
 
 export const metadata: Metadata = {
@@ -36,17 +42,38 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.personName,
+  jobTitle: site.personRole,
+  url: site.url,
+  email: site.email,
+  worksFor: {
+    "@type": "Organization",
+    name: site.name,
+    url: site.url,
+  },
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: site.address,
+    addressLocality: "Tbilisi",
+    addressCountry: "GE",
+  },
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={roboto.variable}>
+    <html lang="en" className={`${dmSans.variable} ${fraunces.variable}`}>
       <body className="font-sans">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Providers>
           <div id="page-chrome" className="relative z-10 overflow-hidden">
-            <figure className="absolute w-full h-screen -z-10 bg-image bg-cover lg:bg-contain lg:h-full" />
             <Header />
-            <main className="container flex flex-col px-2 lg:px-10 mx-auto gap-8 2xl:gap-15 z-10">
-              {children}
-            </main>
+            <main className="site-main">{children}</main>
             <Footer />
           </div>
           <CalendarModal />

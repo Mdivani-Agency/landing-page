@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { ConversationButton } from "@/components/conversation-button";
 import { Logo } from "@/components/logo";
-import { MailLink } from "@/components/mail-link";
 import { acquireScrollLock, releaseScrollLock } from "@/lib/scroll-lock";
-import { sectionLinks } from "@/lib/site";
+import { navLinks } from "@/lib/site";
 
 export function Header() {
   const [hidden, setHidden] = useState(false);
@@ -53,18 +54,23 @@ export function Header() {
       id="header"
       className={`header fixed px-2 md:px-6 z-50${hidden ? " hide-header" : ""}`}
     >
-      <Logo />
-      <nav aria-label="navigation" className="nav hidden md:grid">
-        {sectionLinks.map((link) => (
-          <a key={link.href} title={link.title} href={link.href}>
+      <Logo onClick={closeMobileNav} />
+      <nav aria-label="Primary" className="nav hidden lg:flex">
+        {navLinks.map((link) => (
+          <Link key={link.href} title={link.title} href={link.href}>
             {link.label}
-          </a>
+          </Link>
         ))}
       </nav>
+      <div className="hidden lg:block">
+        <ConversationButton className="btn-conversation-sm">
+          Start a conversation
+        </ConversationButton>
+      </div>
       <button
         type="button"
         id="burger"
-        className="md:hidden flex items-center py-2"
+        className="lg:hidden flex items-center py-2"
         aria-expanded={mobileOpen}
         aria-controls="mobile-nav"
         aria-label="Open navigation"
@@ -91,14 +97,14 @@ export function Header() {
       </button>
       <div
         id="mobile-nav"
-        className={`${mobileOpen ? "flex" : "hidden"} absolute top-0 left-0 z-10 flex-col w-full items-center justify-end gap-4 pb-4 px-2 bg-black h-screen md:hidden`}
+        className={`${mobileOpen ? "flex" : "hidden"} absolute top-0 left-0 z-10 flex-col w-full items-center justify-end gap-4 pb-4 px-2 bg-black h-screen lg:hidden`}
       >
         <div className="w-full flex justify-between items-center mb-auto">
           <Logo onClick={closeMobileNav} />
           <button
             type="button"
             id="burger-close"
-            className="md:hidden flex items-center py-2 cursor-pointer hover:opacity-80"
+            className="flex items-center py-2 cursor-pointer hover:opacity-80"
             aria-label="Close navigation"
             onClick={closeMobileNav}
           >
@@ -119,19 +125,23 @@ export function Header() {
             </svg>
           </button>
         </div>
-        <nav aria-label="navigation" className="mobile-nav flex flex-col w-full px-2">
-          {sectionLinks.map((link) => (
-            <a
+        <nav aria-label="Primary" className="mobile-nav flex flex-col w-full px-2">
+          {navLinks.map((link) => (
+            <Link
               key={link.href}
               title={link.title}
               href={link.href}
               onClick={closeMobileNav}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
-        <MailLink />
+        <div className="w-full px-2 pb-6">
+          <ConversationButton className="w-full" onClick={closeMobileNav}>
+            Start a conversation
+          </ConversationButton>
+        </div>
       </div>
     </header>
   );

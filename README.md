@@ -1,6 +1,6 @@
 # mdivani.agency
 
-Marketing landing page for Mdivani / mdio. Next.js (App Router) on Vercel.
+Personal AI engineering and product studio for Mdivani Agency. The site presents Giorgi Mdivani as Founder & Lead AI Engineer. Next.js (App Router) on Vercel.
 
 ## Requirements
 
