@@ -1,0 +1,182 @@
+import { site } from "@/lib/site";
+
+export function PrivacyPolicyContent() {
+  return (
+    <article className="article">
+      <header>
+        <h1 className="text-title font-semibold">
+          Privacy Policy for Mdio (Mdivani Agency)
+        </h1>
+        <p className="text-xs font-medium">
+          <strong>Last Updated: February 11, 2025</strong>
+        </p>
+      </header>
+
+      <section>
+        <h2 className="text-md font-semibold">Introduction</h2>
+        <p>
+          At Mdio (Mdivani Agency), we are committed to protecting your privacy.
+          This Privacy Policy explains how we collect, use, disclose, and
+          safeguard your information when you visit our website{" "}
+          <a href={site.url}>{site.url}</a> (the &quot;Site&quot;), interact with
+          our services, or contact us.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">Information We Collect</h2>
+        <p>
+          We may collect personal information that you provide to us directly,
+          as well as information that is collected automatically when you use
+          our website. The types of information we may collect include:
+        </p>
+        <h3>1. Personal Information</h3>
+        <ul>
+          <li>Name</li>
+          <li>Email address</li>
+          <li>Phone number</li>
+          <li>Company name</li>
+          <li>Job title</li>
+          <li>
+            Any other information you provide to us during inquiries or
+            communications
+          </li>
+        </ul>
+        <h3>2. Usage Data</h3>
+        <p>Information about how you use our Site and services.</p>
+        <h3>3. Cookies and Tracking Technologies</h3>
+        <p>
+          We may use cookies and similar tracking technologies to monitor
+          activity on our Site and store certain information. You can find more
+          about our use of cookies in the “Cookies” section below.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">How We Use Your Information</h2>
+        <p>
+          We may use the information we collect for various purposes, including:
+        </p>
+        <ul>
+          <li>To provide, maintain, and improve our Site and services.</li>
+          <li>
+            To communicate with you, including responding to your inquiries and
+            sending you updates.
+          </li>
+          <li>To personalize your experience on our Site.</li>
+          <li>
+            To analyze usage of our Site and improve our marketing strategies.
+          </li>
+          <li>To comply with legal obligations.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">Sharing Your Information</h2>
+        <p>
+          We do not sell or rent your personal information to third parties. We
+          may share your information in the following circumstances:
+        </p>
+        <h3>Service Providers</h3>
+        <p>
+          We may employ third-party companies and individuals to facilitate our
+          services (e.g., hosting providers, analytics providers) and these
+          parties may have access to your personal information but are obligated
+          not to disclose or use it for any other purpose.
+        </p>
+        <h3>Legal Requirements</h3>
+        <p>
+          We may disclose your personal information if required to do so by law
+          or in response to valid requests by public authorities (e.g., a court
+          or a government agency).
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">Data Security</h2>
+        <p>
+          The security of your personal information is important to us, and we
+          take reasonable precautions to protect it. However, no method of
+          transmission over the Internet or method of electronic storage is 100%
+          secure, so we cannot guarantee its absolute security.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">Your Data Protection Rights</h2>
+        <p>
+          Depending on your location, you may have the following rights
+          regarding your personal information:
+        </p>
+        <ul>
+          <li>
+            <strong>The right to access</strong> – You have the right to request
+            copies of your personal information.
+          </li>
+          <li>
+            <strong>The right to rectification</strong> – You have the right to
+            request that we correct any information you believe is inaccurate or
+            incomplete.
+          </li>
+          <li>
+            <strong>The right to erasure</strong> – You have the right to
+            request that we erase your personal information, under certain
+            conditions.
+          </li>
+          <li>
+            <strong>The right to restrict processing</strong> – You have the
+            right to request that we restrict the processing of your personal
+            information, under certain conditions.
+          </li>
+          <li>
+            <strong>The right to object to processing</strong> – You have the
+            right to object to our processing of your personal information,
+            under certain conditions.
+          </li>
+          <li>
+            <strong>The right to data portability</strong> – You have the right
+            to request that we transfer the data that we have collected to
+            another organization, or directly to you, under certain conditions.
+          </li>
+        </ul>
+        <p>
+          To exercise these rights, please contact us at{" "}
+          <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">Cookies</h2>
+        <p>
+          Cookies are files with small amounts of data, which may include an
+          anonymous unique identifier. You can instruct your browser to refuse
+          all cookies or to indicate when a cookie is being sent. However, if
+          you do not accept cookies, you may not be able to use some portions of
+          our service.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">Changes to This Privacy Policy</h2>
+        <p>
+          We may update our Privacy Policy from time to time. We will notify you
+          of any changes by posting the new Privacy Policy on this page. You are
+          advised to review this Privacy Policy periodically for any changes.
+          Changes to this Privacy Policy are effective when they are posted on
+          this page.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">Contact Us</h2>
+        <p>If you have any questions about this Privacy Policy, please contact us:</p>
+        <ul>
+          <li>
+            Email: <a href={`mailto:${site.email}`}>{site.email}</a>
+          </li>
+          <li>Address: {site.address}</li>
+        </ul>
+      </section>
+    </article>
+  );
+}

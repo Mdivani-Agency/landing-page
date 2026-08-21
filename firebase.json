@@ -1,7 +1,10 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "eleventy-dist",
     "site": "mdio-4a7c7",
+    "predeploy": [
+      "yarn build:eleventy"
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
