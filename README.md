@@ -6,7 +6,7 @@ The site is being migrated from Eleventy (11ty) to **Next.js (App Router)**. See
 
 ## Requirements
 
-- Node.js 22+
+- Node.js 22.x (`firebase-tools` / `superstatic` reject Node 24)
 - Yarn (Berry) — pinned via `packageManager` in `package.json`. Run `corepack enable` once so `yarn` resolves to the pinned version.
 
 ## Install
@@ -64,6 +64,6 @@ When connecting the GitLab repo in Vercel:
 - Framework: Next.js
 - Install: `corepack enable && yarn install --immutable`
 - Build: `yarn build`
-- Node.js: 22.x
+- Node.js: **22.x** in Project Settings (not 24 — `superstatic` from `firebase-tools` will fail `yarn install`)
 - Production Branch: `development` until Next.js is merged to `main` (`main` still builds Eleventy)
 - Env (Production and Preview, not git): `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-PJ84DYZ4WS` (or `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`)

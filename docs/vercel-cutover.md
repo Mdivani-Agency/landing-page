@@ -21,7 +21,7 @@ Tracked on [MDI-60](https://linear.app/mdivani/issue/MDI-60).
 2. Framework: Next.js (auto-detected from `next.config.mjs`).
 3. Install command (also in `vercel.json`): `corepack enable && yarn install --immutable`.
 4. Build command: `yarn build` (Next.js). Output: `.next`.
-5. Node.js: 22.x (`package.json` `engines.node` is `>=22`).
+5. Node.js: **22.x** in Project Settings → General (must match `.nvmrc` and `package.json` `engines.node`). Do not leave this on 24 — `firebase-tools` pulls in `superstatic@9`, which only allows Node 18, 20, or 22. If install fails with `Got "24.x"`, change the project Node version to 22.x and redeploy.
 6. Set **Production Branch** to `development` until Next.js is on `main`.
 7. Confirm a **Preview** deployment from this Next.js branch succeeds.
 8. Confirm a **Production** deployment from `development` succeeds on the `*.vercel.app` URL.

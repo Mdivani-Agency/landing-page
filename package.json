@@ -23,7 +23,7 @@
   "license": "ISC",
   "packageManager": "yarn@4.9.2",
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "devDependencies": {
     "@11ty/eleventy": "3.0.0",
