@@ -52,3 +52,18 @@ yarn deploy          # rebuild Eleventy, then deploy eleventy-dist/ to Firebase
 Eleventy sources live in `src/` and build to `eleventy-dist/` (gitignored). `firebase.json` also runs `yarn build:eleventy` as a hosting predeploy hook, so a bare `npx firebase deploy` still refreshes the marketing site.
 
 Do **not** use `yarn build && npx firebase deploy` — `yarn build` is Next.js and will not update `eleventy-dist/`. Use `yarn deploy` or `yarn build:eleventy`.
+
+## Vercel (MDI-60)
+
+Next.js is meant to replace Firebase Hosting. Preview and production deploys are configured in `vercel.json` (Yarn Berry install via Corepack). Cutover steps live in [`docs/vercel-cutover.md`](docs/vercel-cutover.md) and on Linear [MDI-60](https://linear.app/mdivani/issue/MDI-60).
+
+Do **not** point `mdivani.agency` DNS at Vercel until a Preview deployment from the Next.js branch is verified. Keep Firebase Hosting up during that check.
+
+When connecting the GitLab repo in Vercel:
+
+- Framework: Next.js
+- Install: `corepack enable && yarn install --immutable`
+- Build: `yarn build`
+- Node.js: 22.x
+- Production Branch: `development` until Next.js is merged to `main` (`main` still builds Eleventy)
+- Env (Production and Preview, not git): `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-PJ84DYZ4WS` (or `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`)
