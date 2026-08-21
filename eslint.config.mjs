@@ -9,6 +9,7 @@ const eslintConfig = [
       "_site/**",
       "eleventy-dist/**",
       "src/**",
+      ".yarn/**",
     ],
   },
   ...nextCoreWebVitals,
