@@ -1,7 +1,7 @@
 export const site = {
   name: "Mdivani",
   url: "https://mdivani.agency",
-  email: "info@mdivani.org",
+  email: "giorgi@mdivani.agency",
   address: "L.Kvachadze 19, Tbilisi, Georgia",
   title:
     "Mdivani - Custom Software Solutions for Cloud, Mobile, and Web Applications",
