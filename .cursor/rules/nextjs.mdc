@@ -1,14 +1,13 @@
 ---
-description: Rules for gradually migrating the landing page to Next.js
-globs: ["app/**/*", "pages/**/*", "components/**/*", "src/**/*"]
+description: Rules for the Next.js App Router landing page
+globs: ["app/**/*", "components/**/*", "lib/**/*"]
 alwaysApply: false
 ---
 
-# Next.js Migration Rules
+# Next.js App Rules
 
-- Prefer small, incremental migrations over rewriting the entire application.
 - Preserve existing URLs, metadata, content, and visual behavior.
-- Use Server Components by default where applicable.
+- Use Server Components by default.
 - Add `"use client"` only when client-side state, effects, browser APIs, or event handlers are required.
 - Keep reusable UI in `components/`.
 - Keep page-specific content and logic close to the relevant route.
@@ -16,6 +15,4 @@ alwaysApply: false
 - Use `Link` for internal navigation.
 - Keep secrets and private environment variables server-side.
 - Use environment variables for configuration; never hardcode credentials.
-- Avoid mixing routing or data-fetching patterns without a clear reason.
-- Ensure migrated pages remain accessible, responsive, and SEO-friendly.
-- Do not migrate unrelated sections unless explicitly requested.
+- Ensure pages remain accessible, responsive, and SEO-friendly.
