@@ -19,14 +19,14 @@ Tracked on [MDI-60](https://linear.app/mdivani/issue/MDI-60).
 
 1. Create a Vercel project and connect GitLab `mdivani-agency/landing-page`.
 2. Framework: Next.js (auto-detected from `next.config.mjs`).
-3. Install command (also in `vercel.json`): `corepack enable && yarn install --immutable`.
+3. Install command (also in `vercel.json`): `node .yarn/releases/yarn-4.9.2.cjs install --immutable`. This uses the committed Yarn 4 binary so the deploy does not depend on Corepack or `ENABLE_EXPERIMENTAL_COREPACK`.
 4. Build command: `yarn build` (Next.js). Output: `.next`.
 5. Node.js: **22.x** in Project Settings → General (must match `.nvmrc` and `package.json` `engines.node`). Do not leave this on 24 — `firebase-tools` pulls in `superstatic@9`, which only allows Node 18, 20, or 22. If install fails with `Got "24.x"`, change the project Node version to 22.x and redeploy.
 6. Set **Production Branch** to `development` until Next.js is on `main`.
 7. Confirm a **Preview** deployment from this Next.js branch succeeds.
 8. Confirm a **Production** deployment from `development` succeeds on the `*.vercel.app` URL.
 
-If Corepack is skipped, set the Vercel project env `ENABLE_EXPERIMENTAL_COREPACK=1` and redeploy.
+Do not set a dashboard Install Command override that runs classic Yarn 1 (`yarn install`). If you prefer Corepack instead of the committed binary, set `ENABLE_EXPERIMENTAL_COREPACK=1` and keep `packageManager` as `yarn@4.9.2`.
 
 ## 2. Environment variables (Vercel dashboard, not git)
 

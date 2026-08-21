@@ -55,14 +55,14 @@ Do **not** use `yarn build && npx firebase deploy` — `yarn build` is Next.js a
 
 ## Vercel (MDI-60)
 
-Next.js is meant to replace Firebase Hosting. Preview and production deploys are configured in `vercel.json` (Yarn Berry install via Corepack). Cutover steps live in [`docs/vercel-cutover.md`](docs/vercel-cutover.md) and on Linear [MDI-60](https://linear.app/mdivani/issue/MDI-60).
+Next.js is meant to replace Firebase Hosting. Preview and production deploys are configured in `vercel.json` (Yarn 4 via the committed `.yarn/releases` binary). Cutover steps live in [`docs/vercel-cutover.md`](docs/vercel-cutover.md) and on Linear [MDI-60](https://linear.app/mdivani/issue/MDI-60).
 
 Do **not** point `mdivani.agency` DNS at Vercel until a Preview deployment from the Next.js branch is verified. Keep Firebase Hosting up during that check.
 
 When connecting the GitLab repo in Vercel:
 
 - Framework: Next.js
-- Install: `corepack enable && yarn install --immutable`
+- Install: `node .yarn/releases/yarn-4.9.2.cjs install --immutable`
 - Build: `yarn build`
 - Node.js: **22.x** in Project Settings (not 24 — `superstatic` from `firebase-tools` will fail `yarn install`)
 - Production Branch: `development` until Next.js is merged to `main` (`main` still builds Eleventy)

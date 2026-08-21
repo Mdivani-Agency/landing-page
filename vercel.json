@@ -1,5 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "installCommand": "corepack enable && yarn install --immutable"
+  "installCommand": "node .yarn/releases/yarn-4.9.2.cjs install --immutable"
 }
