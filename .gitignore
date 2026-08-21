@@ -67,3 +67,13 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Next.js
+/.next/
+/out/
+
+# Eleventy (legacy) build output — Next.js owns public/
+/eleventy-dist/
+
+# Vercel
+.vercel
