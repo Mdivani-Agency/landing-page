@@ -28,7 +28,7 @@ export function WhatIBuild() {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <Link href={capability.href} className="text-link">
+            <Link href={capability.href} scroll={false} className="text-link">
               Explore {capability.title}
             </Link>
           </article>

@@ -35,7 +35,7 @@
 html {
   font-size: 62.5%;
   scroll-behavior: smooth;
-  scroll-padding-top: 8.8rem;
+  scroll-padding-top: 10.4rem;
 }
 
 body {
@@ -610,7 +610,7 @@ body {
 .hero-section,
 .band,
 .work-detail {
-  scroll-margin-top: 8.8rem;
+  scroll-margin-top: 10.4rem;
 }
 
 .work-detail {
