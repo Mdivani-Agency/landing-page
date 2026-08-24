@@ -1,16 +1,17 @@
-import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { processSteps } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Startup & Greenfield Development",
   description:
     "Idea to production for founders starting without a team or a codebase. Senior-led startup software development with Giorgi Mdivani.",
-};
+  path: "/startup-development",
+});
 
 export default function StartupDevelopmentPage() {
   return (
-    <article>
+    <article className="page-stack">
       <PageIntro
         eyebrow="Startup development"
         title="From idea to a product in production."

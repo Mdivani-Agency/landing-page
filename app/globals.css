@@ -35,6 +35,7 @@
 html {
   font-size: 62.5%;
   scroll-behavior: smooth;
+  scroll-padding-top: 10.4rem;
 }
 
 body {
@@ -469,6 +470,9 @@ body {
 
 .capability-card,
 .work-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   background: var(--card-bg);
   border: 1px solid var(--border-subtle);
   border-radius: 1.6rem;
@@ -481,7 +485,17 @@ body {
   font-family: var(--font-serif), "Fraunces", serif;
   font-size: var(--text-title);
   font-weight: 500;
+  line-height: 1.2;
   margin-bottom: 1.2rem;
+}
+
+.work-card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.work-card h3 a:hover {
+  opacity: 0.86;
 }
 
 .capability-card p,
@@ -498,6 +512,17 @@ body {
   flex-direction: column;
   gap: 0.8rem;
   font-size: var(--text-sm);
+  flex: 1 1 auto;
+}
+
+.work-card .work-summary,
+.split-cards > .capability-card > p {
+  flex: 1 1 auto;
+}
+
+.work-card .work-stack,
+.capability-grid > .capability-card > .text-link {
+  margin-top: auto;
 }
 
 .capability-card-featured {
@@ -599,6 +624,23 @@ body {
   border-top: 1px solid var(--border-subtle);
 }
 
+.page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8rem;
+}
+
+.page-intro,
+.hero-section,
+.band,
+.work-detail {
+  scroll-margin-top: 10.4rem;
+}
+
+.work-detail {
+  gap: 2.4rem;
+}
+
 .page-intro {
   display: flex;
   flex-direction: column;
@@ -696,10 +738,44 @@ body {
 }
 
 @media (min-width: 768px) {
+  .work-card > .eyebrow {
+    min-height: calc(var(--text-xs) * 1.45 * 3);
+  }
+
+  .work-card > h3 {
+    min-height: calc(var(--text-title) * 1.2 * 3);
+  }
+
+  .split-cards > .capability-card > h3 {
+    min-height: calc(var(--text-title) * 1.2 * 2);
+  }
+
+  .work-card > .work-summary {
+    min-height: calc(var(--text-sm) * 1.5 * 2);
+  }
+
+  .capability-grid > .capability-card > .eyebrow {
+    min-height: calc(var(--text-xs) * 1.45);
+  }
+
+  .capability-grid > .capability-card > h3 {
+    min-height: calc(var(--text-title) * 1.2 * 3);
+  }
+
+  .capability-grid > .capability-card > .capability-summary {
+    min-height: calc(var(--text-sm) * 1.5 * 3);
+  }
+
+  .capability-grid > .capability-card > .text-link {
+    min-height: calc(var(--text-sm) * 1.2 * 2);
+    align-items: flex-start;
+  }
+
   .capability-grid,
   .split-cards,
   .work-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
   }
 
   .capability-card-featured {

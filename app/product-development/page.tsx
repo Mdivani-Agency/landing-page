@@ -1,18 +1,19 @@
-import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { capabilities } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
 
 const capability = capabilities[1];
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Product Development",
   description:
     "Greenfield SaaS, web, mobile, and backend development with Giorgi Mdivani — senior product engineering for founders.",
-};
+  path: "/product-development",
+});
 
 export default function ProductDevelopmentPage() {
   return (
-    <article>
+    <article className="page-stack">
       <PageIntro
         eyebrow="Product Development"
         title="A first product with a senior engineer on the critical path."

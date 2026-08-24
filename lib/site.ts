@@ -4,6 +4,9 @@ export const site = {
   personRole: "Founder & Lead AI Engineer",
   url: "https://mdivani.agency",
   email: "info@mdivani.org",
+  streetAddress: "L.Kvachadze 19",
+  addressLocality: "Tbilisi",
+  addressCountry: "GE",
   address: "L.Kvachadze 19, Tbilisi, Georgia",
   title: "Giorgi Mdivani — AI Engineering & Product Development",
   description:
