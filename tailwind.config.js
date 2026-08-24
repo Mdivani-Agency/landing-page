@@ -14,9 +14,11 @@ module.exports = {
           100: "#C3D2CE",
           700: "#292929"
         },
+        muted: "var(--text-muted)",
       },
       fontFamily: {
-        sans: ["var(--font-roboto)", "Roboto", "sans-serif"],
+        sans: ["var(--font-sans)", "DM Sans", "sans-serif"],
+        serif: ["var(--font-serif)", "Fraunces", "serif"],
       },
       fontSize: {
         "3xl": "var(--text-3xl)",

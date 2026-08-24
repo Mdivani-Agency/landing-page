@@ -3,8 +3,7 @@ import { PrivacyPolicyContent } from "@/components/legal/privacy-policy";
 
 export const metadata: Metadata = {
   title: {
-    absolute:
-      "Mdivani Privacy Policy | Custom App Development & SaaS Scaling Experts.",
+    absolute: "Privacy Policy | Mdivani",
   },
   description:
     "How Mdivani collects, uses, and protects information on mdivani.agency.",

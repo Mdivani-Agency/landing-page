@@ -11,7 +11,7 @@ export function Logo({ onClick }: LogoProps) {
     <a title="scroll to top" href="/#home" className="size-9" onClick={onClick}>
       <Image
         src="/assets/logo.svg"
-        alt="MDIVANI Logo"
+        alt="Mdivani"
         width={72}
         height={72}
         className="block size-full"

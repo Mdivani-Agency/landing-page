@@ -3,8 +3,7 @@ import { TermsOfServiceContent } from "@/components/legal/terms-of-service";
 
 export const metadata: Metadata = {
   title: {
-    absolute:
-      "Mdivani Terms of Service | Custom App Development & SaaS Scaling Experts.",
+    absolute: "Terms of Service | Mdivani",
   },
   description:
     "Terms of Service for Mdio (Mdivani Agency) software development services.",
