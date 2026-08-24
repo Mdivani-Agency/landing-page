@@ -762,8 +762,13 @@ body {
     min-height: calc(var(--text-title) * 1.2 * 3);
   }
 
-  .capability-grid > .capability-card > p {
+  .capability-grid > .capability-card > .capability-summary {
     min-height: calc(var(--text-sm) * 1.5 * 3);
+  }
+
+  .capability-grid > .capability-card > .text-link {
+    min-height: calc(var(--text-sm) * 1.2 * 2);
+    align-items: flex-start;
   }
 
   .capability-grid,

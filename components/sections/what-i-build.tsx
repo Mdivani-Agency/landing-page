@@ -21,7 +21,7 @@ export function WhatIBuild() {
           >
             <p className="eyebrow">{capability.eyebrow}</p>
             <h3>{capability.title}</h3>
-            <p>{capability.summary}</p>
+            <p className="capability-summary">{capability.summary}</p>
             <ul>
               {capability.items.map((item) => (
                 <li key={item}>{item}</li>
