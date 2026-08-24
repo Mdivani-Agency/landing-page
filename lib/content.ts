@@ -35,7 +35,7 @@ export const capabilities = [
   },
   {
     id: "architecture",
-    href: "/about",
+    href: "/about#architecture",
     eyebrow: "Leadership",
     title: "Architecture & Technical Leadership",
     summary:
@@ -81,14 +81,13 @@ export const selectedWork = [
     client: "Eolas Medical",
     role: "Senior full-stack engineer",
     title: "Hospital knowledge app with AI search",
+    summary: "AI search across hospital guidelines and clinician documents.",
     problem:
-      "Clinicians needed one place for guidelines, private hospital documents, and onboarding — searchable, secure, and usable on web and mobile.",
+      "Clinicians needed one searchable place for guidelines and hospital documents.",
     built:
-      "High-availability hospital application with content management, secure messaging, fine-grained access, and AI-assisted search across millions of medical guidelines.",
-    challenge:
-      "HIPAA-sensitive data, cross-platform sync, and an AI search path that stays inside access controls.",
-    outcome:
-      "A production system used by hospitals and individual clinicians, with web and mobile clients on the same backend.",
+      "Web and mobile hospital app with content management, messaging, and AI search.",
+    challenge: "Sensitive clinical data, with search that stays inside access controls.",
+    outcome: "In production for hospitals and individual clinicians.",
     stack: ["React Native", "React", "AWS", "GraphQL", "OpenAI"],
   },
   {
@@ -97,14 +96,14 @@ export const selectedWork = [
     client: "Flighter Group",
     role: "Full-stack / fractional technical lead",
     title: "Aviation onboarding and document intelligence",
+    summary: "Aviation onboarding with AI document processing.",
     problem:
-      "Aviation onboarding was slow and manual: certificates, identity documents, and compliance checks lived in email and shared drives.",
+      "Certificates and compliance checks lived in email and shared drives.",
     built:
-      "Serverless multi-stage onboarding on AWS — S3/KMS storage, Lambda validation, EventBridge workflows, and AI-assisted document processing.",
+      "Serverless AWS onboarding with encrypted storage, workflows, and AI document processing.",
     challenge:
-      "Sensitive aviation data, SOC 2 readiness, and automation that does not skip a required human check.",
-    outcome:
-      "Faster applicant processing, less manual compliance work, and a path to consistent certification data.",
+      "Sensitive aviation data, with automation that still includes required human checks.",
+    outcome: "Faster applicant processing and less manual compliance work.",
     stack: ["TypeScript", "AWS Lambda", "DynamoDB", "Terraform", "AI agents"],
   },
   {
@@ -113,14 +112,13 @@ export const selectedWork = [
     client: "Phoenix Court / LocalGlobe",
     role: "Senior full-stack engineer",
     title: "AI analytics for investment teams",
+    summary: "AI analytics that help investment teams act on signals faster.",
     problem:
-      "Investment analysts were spending too long turning raw signals into something a partner could act on.",
+      "Analysts spent too long turning raw signals into partner-ready insights.",
     built:
-      "React and Node features plus Python/PostgreSQL tools that detect trends and surface funding opportunities, with an AWS pipeline to ship them.",
-    challenge:
-      "Useful AI for domain experts — predictive analytics and workflow automation without a black-box that nobody trusts.",
-    outcome:
-      "Reported 30% higher engagement on insights, 40% less analysis time, and 60% faster deploys after the pipeline work.",
+      "React, Node, and Python tools that surface trends and funding opportunities.",
+    challenge: "Predictive analytics that domain experts can trust.",
+    outcome: "Faster analysis and a pipeline that ships insights to production.",
     stack: ["React", "Node.js", "Python", "OpenAI", "AWS"],
   },
 ] as const;

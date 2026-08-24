@@ -1,18 +1,19 @@
-import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { capabilities } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
 
 const capability = capabilities[0];
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "AI Engineering for Startups",
   description:
     "AI agents, RAG, document intelligence, and LLM product features built by Giorgi Mdivani for founders shipping real software.",
-};
+  path: "/ai-engineering",
+});
 
 export default function AiEngineeringPage() {
   return (
-    <article>
+    <article className="page-stack">
       <PageIntro
         eyebrow="AI Engineering"
         title="AI that belongs in the product, not the pitch deck."

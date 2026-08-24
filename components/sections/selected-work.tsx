@@ -24,7 +24,7 @@ export function SelectedWork() {
             <h3>
               <Link href={item.href}>{item.title}</Link>
             </h3>
-            <p>{item.outcome}</p>
+            <p>{item.summary}</p>
             <p className="work-stack">{item.stack.join(" · ")}</p>
           </article>
         ))}

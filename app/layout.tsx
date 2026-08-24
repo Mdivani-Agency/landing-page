@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 import { GradientBackground } from "@/components/gradient-background";
 import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
-import { site } from "@/lib/site";
+import { site, socialLinks } from "@/lib/site";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -56,10 +56,11 @@ const jsonLd = {
   },
   address: {
     "@type": "PostalAddress",
-    streetAddress: site.address,
-    addressLocality: "Tbilisi",
-    addressCountry: "GE",
+    streetAddress: site.streetAddress,
+    addressLocality: site.addressLocality,
+    addressCountry: site.addressCountry,
   },
+  sameAs: socialLinks.map((link) => link.href),
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

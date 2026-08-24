@@ -1,16 +1,17 @@
-import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { selectedWork } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Selected Work",
   description:
     "Selected production work by Giorgi Mdivani — AI search for clinicians, aviation document intelligence, and investment analytics.",
-};
+  path: "/work",
+});
 
 export default function WorkPage() {
   return (
-    <article>
+    <article className="page-stack">
       <PageIntro
         eyebrow="Work"
         title="Selected work"
