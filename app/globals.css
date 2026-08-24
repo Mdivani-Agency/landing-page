@@ -473,7 +473,6 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  height: 100%;
   background: var(--card-bg);
   border: 1px solid var(--border-subtle);
   border-radius: 1.6rem;
@@ -739,14 +738,32 @@ body {
 }
 
 @media (min-width: 768px) {
-  .work-card > .eyebrow,
-  .capability-grid > .capability-card > .eyebrow {
-    min-height: calc(var(--text-xs) * 1.45 * 2);
+  .work-card > .eyebrow {
+    min-height: calc(var(--text-xs) * 1.45 * 3);
   }
 
-  .work-card > h3,
-  .capability-card > h3 {
+  .work-card > h3 {
+    min-height: calc(var(--text-title) * 1.2 * 3);
+  }
+
+  .split-cards > .capability-card > h3 {
     min-height: calc(var(--text-title) * 1.2 * 2);
+  }
+
+  .work-card > .work-summary {
+    min-height: calc(var(--text-sm) * 1.5 * 2);
+  }
+
+  .capability-grid > .capability-card > .eyebrow {
+    min-height: calc(var(--text-xs) * 1.45);
+  }
+
+  .capability-grid > .capability-card > h3 {
+    min-height: calc(var(--text-title) * 1.2 * 3);
+  }
+
+  .capability-grid > .capability-card > p {
+    min-height: calc(var(--text-sm) * 1.5 * 3);
   }
 
   .capability-grid,
@@ -767,38 +784,6 @@ body {
 
   .about-grid {
     grid-template-columns: 28rem 1fr;
-  }
-}
-
-@supports (grid-template-rows: subgrid) {
-  @media (min-width: 768px) {
-    .work-card > .eyebrow,
-    .capability-grid > .capability-card > .eyebrow,
-    .work-card > h3,
-    .capability-card > h3 {
-      min-height: 0;
-    }
-
-    .work-list > .work-card {
-      display: grid;
-      grid-template-rows: subgrid;
-      grid-row: span 4;
-      row-gap: 0;
-    }
-
-    .split-cards > .capability-card {
-      display: grid;
-      grid-template-rows: subgrid;
-      grid-row: span 2;
-      row-gap: 0;
-    }
-
-    .capability-grid > .capability-card {
-      display: grid;
-      grid-template-rows: subgrid;
-      grid-row: span 5;
-      row-gap: 0;
-    }
   }
 }
 
