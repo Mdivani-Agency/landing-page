@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { capabilities } from "@/lib/content";
 
 export function WhatIBuild() {
@@ -30,7 +29,7 @@ export function WhatIBuild() {
             </ul>
             <a href={capability.href} className="text-link">
               Explore {capability.title}
-            </Link>
+            </a>
           </article>
         ))}
       </div>
