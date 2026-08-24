@@ -22,9 +22,7 @@ export function SelectedWork() {
               {item.client} · {item.role}
             </p>
             <h3>
-              <Link href={item.href} scroll={false}>
-                {item.title}
-              </Link>
+              <a href={item.href}>{item.title}</a>
             </h3>
             <p>{item.summary}</p>
             <p className="work-stack">{item.stack.join(" · ")}</p>

@@ -23,10 +23,14 @@ export function HashScroll() {
   useEffect(() => {
     scrollToHash();
     const frame = window.requestAnimationFrame(scrollToHash);
+    const retries = [50, 200, 400].map((ms) =>
+      window.setTimeout(scrollToHash, ms),
+    );
     window.addEventListener("hashchange", scrollToHash);
 
     return () => {
       window.cancelAnimationFrame(frame);
+      retries.forEach((id) => window.clearTimeout(id));
       window.removeEventListener("hashchange", scrollToHash);
     };
   }, [pathname]);
