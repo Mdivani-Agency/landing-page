@@ -367,8 +367,7 @@ body {
   .g2,
   .g3,
   .g4,
-  .header,
-  .testimonial-quote {
+  .header {
     animation: none;
     transition: none;
   }
@@ -912,6 +911,12 @@ a.toptal-badge {
 .testimonial-linkedin-icon {
   width: 2rem;
   height: 2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-quote {
+    transition: none;
+  }
 }
 
 @media (min-width: 768px) {
