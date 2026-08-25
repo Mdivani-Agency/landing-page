@@ -1,3 +1,4 @@
+import { Avatar } from "@/components/avatar";
 import { stack } from "@/lib/content";
 import { site } from "@/lib/site";
 
@@ -11,14 +12,18 @@ export function AboutGiorgi() {
         </h2>
       </header>
       <div className="about-grid">
-        <div className="portrait-panel" aria-hidden="true">
-          <span className="portrait-mark">GM</span>
-          <span className="portrait-caption">
+        <figure className="portrait-panel">
+          <Avatar
+            src="/assets/images/giorgi.jpg"
+            alt={site.personName}
+            fallback={site.personName}
+          />
+          <figcaption className="portrait-caption">
             {site.personName}
             <br />
             {site.personRole}
-          </span>
-        </div>
+          </figcaption>
+        </figure>
         <div className="about-copy">
           <p>
             I’m a senior software and AI engineer with more than a decade
