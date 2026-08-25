@@ -558,14 +558,13 @@ body {
 
 .toptal-badge {
   --toptal-hex: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%);
-  --toptal-scale: 0.36;
+  --toptal-scale: 0.32;
   position: absolute;
   left: 85.355%;
   top: 85.355%;
   z-index: 1;
-  width: calc(212px * var(--toptal-scale));
-  height: calc(230px * var(--toptal-scale));
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(var(--toptal-scale));
+  transform-origin: center;
   color: #204ecf;
   text-decoration: none;
   font-family: Arial, Helvetica, sans-serif;
@@ -576,8 +575,6 @@ body {
   background: #25a9ef;
   padding: 6px;
   clip-path: var(--toptal-hex);
-  transform: scale(var(--toptal-scale));
-  transform-origin: top left;
 }
 
 .toptal-badge-inner {
