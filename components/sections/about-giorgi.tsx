@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Avatar } from "@/components/avatar";
+=======
+import { ProfileLinks } from "@/components/profile-links";
+>>>>>>> f9c4728 (feat(about): add professional profile links for Giorgi)
 import { stack } from "@/lib/content";
 import { site } from "@/lib/site";
 
@@ -42,6 +46,7 @@ export function AboutGiorgi() {
               <li key={item}>{item}</li>
             ))}
           </ul>
+          <ProfileLinks />
         </div>
       </div>
     </section>

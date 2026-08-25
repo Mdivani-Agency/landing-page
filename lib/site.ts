@@ -35,6 +35,29 @@ export const footerLinks = [
   },
 ] as const;
 
+export const profileLinks = [
+  {
+    href: "https://www.linkedin.com/in/georgemdivani",
+    label: "LinkedIn",
+    title: "Giorgi Mdivani on LinkedIn",
+  },
+  {
+    href: "https://www.upwork.com/freelancers/~019fa0d78b5eea58a0",
+    label: "Upwork",
+    title: "Giorgi Mdivani on Upwork",
+  },
+  {
+    href: "https://www.toptal.com/developers/resume/giorgi-mdivani",
+    label: "Toptal",
+    title: "Giorgi Mdivani on Toptal",
+  },
+  {
+    href: "https://github.com/mdivani",
+    label: "GitHub",
+    title: "Giorgi Mdivani on GitHub",
+  },
+] as const;
+
 export const socialLinks = [
   {
     href: "https://www.linkedin.com/in/georgemdivani",

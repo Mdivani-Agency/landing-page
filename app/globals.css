@@ -638,6 +638,21 @@ body {
   padding-left: 1.6rem;
 }
 
+.profile-links {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.profile-links-label {
+  color: var(--text-primary);
+}
+
+.profile-links a {
+  color: var(--text-secondary);
+  text-underline-offset: 0.3em;
+}
+
 .work-dl {
   display: grid;
   gap: 2rem;
@@ -710,6 +725,7 @@ body {
 .btn-conversation:focus-visible,
 .btn-ghost:focus-visible,
 .text-link:focus-visible,
+.profile-links a:focus-visible,
 .nav a:focus-visible,
 .mobile-nav a:focus-visible {
   outline: 2px solid var(--text-secondary);

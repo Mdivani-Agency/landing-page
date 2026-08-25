@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { stack } from "@/lib/content";
-import { site, socialLinks } from "@/lib/site";
+import { ProfileLinks } from "@/components/profile-links";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About Giorgi Mdivani",
@@ -33,15 +34,7 @@ export default function AboutPage() {
             <li key={item}>{item}</li>
           ))}
         </ul>
-        <ul className="detail-list">
-          {socialLinks.map((link) => (
-            <li key={link.href}>
-              <a href={link.href} target="_blank" rel="noreferrer">
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <ProfileLinks />
       </section>
     </article>
   );
