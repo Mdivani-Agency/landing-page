@@ -1,19 +1,35 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { MailLink } from "@/components/mail-link";
-import { sectionLinks, socialLinks } from "@/lib/site";
+import { footerLinks, site, socialLinks } from "@/lib/site";
 
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="px-2 lg:px-6 mx-auto">
+    <footer className="site-footer">
       <div className="flex flex-col md:flex-row md:justify-between mb-10 gap-6">
-        <section className="flex flex-col gap-2">
+        <section className="flex flex-col gap-2 max-w-md">
           <Logo />
+          <p className="text-sm text-muted">
+            {site.personName}, {site.personRole}. Senior-led engineering for
+            founders — scalable when the product needs a team.
+          </p>
           <MailLink />
         </section>
-        <nav className="grid grid-cols-2 gap-8 md:ml-auto">
+        <nav aria-label="Footer" className="grid grid-cols-2 gap-8 md:ml-auto">
+          <div className="flex flex-col items-start">
+            {footerLinks.map((link) => (
+              <Link
+                key={link.href}
+                title={link.title}
+                className="text-md font-regular"
+                href={link.href}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
           <div className="flex flex-col items-start">
             {socialLinks.map((link) => (
               <a
@@ -23,18 +39,6 @@ export function Footer() {
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-          <div className="flex flex-col items-start">
-            {sectionLinks.map((link) => (
-              <a
-                key={link.href}
-                title={link.title}
-                className="text-md font-regular"
-                href={link.href}
               >
                 {link.label}
               </a>

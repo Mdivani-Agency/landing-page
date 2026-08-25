@@ -1,19 +1,27 @@
-import { Contact } from "@/components/sections/contact";
+import { AboutGiorgi } from "@/components/sections/about-giorgi";
+import { FinalCta } from "@/components/sections/final-cta";
+import { Founders } from "@/components/sections/founders";
+import { Geography } from "@/components/sections/geography";
+import { Greenfield } from "@/components/sections/greenfield";
 import { Hero } from "@/components/sections/hero";
-import { Process } from "@/components/sections/process";
-import { Services } from "@/components/sections/services";
-import { WhyChooseUs } from "@/components/sections/why-choose-us";
+import { HowIWork } from "@/components/sections/how-i-work";
+import { SelectedWork } from "@/components/sections/selected-work";
+import { StudioModel } from "@/components/sections/studio-model";
+import { WhatIBuild } from "@/components/sections/what-i-build";
 
 export function HomeSections() {
   return (
     <>
       <Hero />
-      <Services />
-      <section id="process" className="flex flex-col gap-8 2xl:gap-15">
-        <WhyChooseUs />
-        <Process />
-      </section>
-      <Contact />
+      <WhatIBuild />
+      <Greenfield />
+      <SelectedWork />
+      <AboutGiorgi />
+      <StudioModel />
+      <HowIWork />
+      <Founders />
+      <Geography />
+      <FinalCta />
     </>
   );
 }
