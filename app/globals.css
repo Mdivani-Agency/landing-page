@@ -568,12 +568,10 @@ body {
 
 .toptal-badge {
   --toptal-hex: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%);
-  --toptal-scale: 0.32;
   position: absolute;
   left: 0;
   top: 0;
-  transform: translate(-50%, -50%) scale(var(--toptal-scale));
-  transform-origin: center;
+  transform: translate(-50%, -50%);
   color: #204ecf;
   text-decoration: none;
   font-family: Arial, Helvetica, sans-serif;
@@ -582,17 +580,17 @@ body {
 .toptal-badge-frame {
   display: inline-block;
   background: #25a9ef;
-  padding: 6px;
+  padding: 3px;
   clip-path: var(--toptal-hex);
 }
 
 .toptal-badge-inner {
-  width: 200px;
-  padding: 24px 0 40px;
+  width: 76px;
+  padding: 10px 0 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 3px;
   text-align: center;
   background:
     radial-gradient(circle at 20% -10%, #00c3ff -80%, #fff 30%),
@@ -601,36 +599,36 @@ body {
     radial-gradient(circle at 120% 80%, #00c3ff -80%, #fff 30%);
   background-blend-mode: multiply;
   clip-path: var(--toptal-hex);
-  box-shadow: 0 28px 50px rgba(6, 30, 96, 0.35);
+  box-shadow: 0 10px 18px rgba(6, 30, 96, 0.35);
 }
 
 .toptal-badge-stars {
-  width: 64px;
+  width: 24px;
   height: auto;
 }
 
 .toptal-badge-title {
   margin: 0;
-  font-size: 19px;
+  font-size: 7px;
   font-weight: 700;
   line-height: 1;
   color: #204ecf;
 }
 
 .toptal-badge-rule {
-  width: 120px;
+  width: 42px;
   height: 1px;
   background: #25a9ef;
 }
 
 .toptal-badge-kicker {
-  font-size: 16px;
-  margin-bottom: -6px;
+  font-size: 6px;
+  margin-bottom: -2px;
   color: #204ecf;
 }
 
 .toptal-badge-wordmark {
-  width: 100px;
+  width: 38px;
   height: auto;
 }
 
@@ -638,11 +636,11 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 20px;
-  border-radius: 6px;
+  padding: 2px 7px;
+  border-radius: 3px;
   background: #296bff;
   color: #fff;
-  font-size: 16px;
+  font-size: 6px;
   font-weight: 500;
 }
 
