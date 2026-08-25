@@ -8,9 +8,8 @@ export function Geography() {
           internationally.
         </h2>
         <p className="band-copy">
-          Remote-first is the default. UK startups are the primary market; the
-          US is a close second. Time zones, English, and production AWS are
-          already how the work happens.
+          Remote-first is the default. Time zones, English, and production AWS
+          are already how the work happens.
         </p>
       </header>
     </section>

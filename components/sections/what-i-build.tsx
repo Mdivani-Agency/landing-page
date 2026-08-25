@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { capabilities } from "@/lib/content";
 
 export function WhatIBuild() {
@@ -22,15 +21,15 @@ export function WhatIBuild() {
           >
             <p className="eyebrow">{capability.eyebrow}</p>
             <h3>{capability.title}</h3>
-            <p>{capability.summary}</p>
+            <p className="capability-summary">{capability.summary}</p>
             <ul>
               {capability.items.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <Link href={capability.href} className="text-link">
+            <a href={capability.href} className="text-link">
               Explore {capability.title}
-            </Link>
+            </a>
           </article>
         ))}
       </div>

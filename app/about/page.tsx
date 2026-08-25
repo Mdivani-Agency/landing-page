@@ -1,17 +1,20 @@
-import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
-import { stack } from "@/lib/content";
+import { capabilities, stack } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
 import { site, socialLinks } from "@/lib/site";
 
-export const metadata: Metadata = {
+const architecture = capabilities[2];
+
+export const metadata = pageMetadata({
   title: "About Giorgi Mdivani",
   description:
     "Giorgi Mdivani is Founder and Lead AI Engineer at Mdivani Agency — a senior engineer for founders building new software and AI products.",
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
-    <article>
+    <article className="page-stack">
       <PageIntro
         eyebrow="About"
         title={`${site.personName}, ${site.personRole}.`}
@@ -40,6 +43,21 @@ export default function AboutPage() {
                 {link.label}
               </a>
             </li>
+          ))}
+        </ul>
+      </section>
+      <section
+        id="architecture"
+        className="band"
+        aria-labelledby="architecture-heading"
+      >
+        <h2 id="architecture-heading" className="section-title">
+          {architecture.title}
+        </h2>
+        <p className="band-copy">{architecture.summary}</p>
+        <ul className="detail-list">
+          {architecture.items.map((item) => (
+            <li key={item}>{item}</li>
           ))}
         </ul>
       </section>
