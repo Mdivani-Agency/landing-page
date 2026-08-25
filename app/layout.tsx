@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 import { GradientBackground } from "@/components/gradient-background";
 import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
-import { site } from "@/lib/site";
+import { profileLinks, site } from "@/lib/site";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -49,6 +49,7 @@ const jsonLd = {
   jobTitle: site.personRole,
   url: site.url,
   email: site.email,
+  sameAs: profileLinks.map((link) => link.href),
   worksFor: {
     "@type": "Organization",
     name: site.name,

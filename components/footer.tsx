@@ -38,7 +38,7 @@ export function Footer() {
                 className="text-md font-regular"
                 href={link.href}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 {link.label}
               </a>
