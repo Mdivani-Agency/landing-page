@@ -550,17 +550,22 @@ body {
   gap: 2.4rem;
 }
 
-.about-identity {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 2.4rem;
+.portrait-avatar {
+  position: relative;
+  display: block;
+  width: 100%;
 }
 
 .toptal-badge {
   --toptal-hex: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%);
-  display: inline-block;
+  --toptal-scale: 0.36;
+  position: absolute;
+  left: 85.355%;
+  top: 85.355%;
+  z-index: 1;
+  width: calc(212px * var(--toptal-scale));
+  height: calc(230px * var(--toptal-scale));
+  transform: translate(-50%, -50%);
   color: #204ecf;
   text-decoration: none;
   font-family: Arial, Helvetica, sans-serif;
@@ -571,6 +576,8 @@ body {
   background: #25a9ef;
   padding: 6px;
   clip-path: var(--toptal-hex);
+  transform: scale(var(--toptal-scale));
+  transform-origin: top left;
 }
 
 .toptal-badge-inner {
@@ -640,6 +647,9 @@ body {
   gap: 1.6rem;
   min-height: 28rem;
   padding: 2.4rem;
+  padding-right: 3.6rem;
+  padding-bottom: 3.6rem;
+  overflow: visible;
   border-radius: 1.6rem;
   border: 1px solid var(--border-subtle);
   background:
@@ -832,22 +842,12 @@ body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .portrait-panel {
-    width: 22rem;
-    min-height: 24rem;
+  .about-grid {
+    grid-template-columns: 28rem 1fr;
   }
 }
 
 @media (min-width: 1024px) {
-  .about-grid {
-    grid-template-columns: minmax(20rem, max-content) 1fr;
-    align-items: center;
-  }
-
-  .about-identity {
-    justify-content: flex-start;
-  }
-
   .capability-grid {
     grid-template-columns: 1.2fr 1fr 1fr;
   }

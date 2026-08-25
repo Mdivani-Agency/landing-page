@@ -1,7 +1,6 @@
-import { Avatar } from "@/components/avatar";
+import { AboutIdentity } from "@/components/about-identity";
 import { ProfileLinks } from "@/components/profile-links";
 import { stack } from "@/lib/content";
-import { site } from "@/lib/site";
 
 export function AboutGiorgi() {
   return (
@@ -13,18 +12,7 @@ export function AboutGiorgi() {
         </h2>
       </header>
       <div className="about-grid">
-        <figure className="portrait-panel">
-          <Avatar
-            src="/assets/images/giorgi.jpg"
-            alt={site.personName}
-            fallback={site.personName}
-          />
-          <figcaption className="portrait-caption">
-            {site.personName}
-            <br />
-            {site.personRole}
-          </figcaption>
-        </figure>
+        <AboutIdentity />
         <div className="about-copy">
           <p>
             I’m a senior software and AI engineer with more than a decade
