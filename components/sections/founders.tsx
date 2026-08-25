@@ -22,8 +22,7 @@ export function Founders() {
           Startup founders building something new.
         </h2>
         <p className="band-copy">
-          Named client quotes will live here when they are given for
-          publication. Until then, this is the work people actually book.
+          This is the work people actually book.
         </p>
       </header>
       <div className="split-cards three">
