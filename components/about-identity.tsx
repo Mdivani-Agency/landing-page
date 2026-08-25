@@ -11,9 +11,7 @@ export function AboutIdentity() {
           alt={site.personName}
           fallback={site.personName}
         />
-        <span className="toptal-badge-anchor">
-          <ToptalBadge />
-        </span>
+        <ToptalBadge />
       </div>
       <figcaption className="portrait-caption">
         {site.personName}
