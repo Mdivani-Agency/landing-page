@@ -560,10 +560,10 @@ body {
   --toptal-hex: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%);
   --toptal-scale: 0.32;
   position: absolute;
-  left: 85.355%;
-  top: 85.355%;
+  right: 0;
+  bottom: 0;
   z-index: 1;
-  transform: translate(-50%, -50%) scale(var(--toptal-scale));
+  transform: translate(50%, 50%) scale(var(--toptal-scale));
   transform-origin: center;
   color: #204ecf;
   text-decoration: none;
