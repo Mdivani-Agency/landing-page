@@ -565,9 +565,9 @@ a.toptal-badge {
   bottom: 14.645%;
   z-index: 1;
   box-sizing: border-box;
-  width: 7.2rem;
-  max-width: 7.2rem;
-  width: min(26cqi, 7.2rem);
+  width: 5.6rem;
+  max-width: 5.6rem;
+  width: min(26cqi, 5.6rem);
   transform: translate(50%, 50%);
   color: #204ecf;
   text-decoration: none;
