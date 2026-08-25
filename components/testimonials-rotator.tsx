@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FocusEvent } from "react";
+import { useEffect, useRef, useState, type FocusEvent } from "react";
 import { LinkedInMark } from "@/components/linkedin-mark";
 import type { Testimonial } from "@/lib/content";
 
@@ -25,9 +25,25 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
   const [paused, setPaused] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
 
+  const indexRef = useRef(index);
+  const pausedRef = useRef(paused);
+  const reduceMotionRef = useRef(reduceMotion);
+  const fadingRef = useRef(false);
+  const clearIdleRef = useRef(() => {});
+  const scheduleIdleRef = useRef(() => {});
+
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
+
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => {
+      reduceMotionRef.current = media.matches;
       setReduceMotion(media.matches);
     };
 
@@ -37,55 +53,100 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
   }, []);
 
   useEffect(() => {
-    if (paused || testimonials.length < 2 || !visible) {
-      return;
-    }
+    let idleTimer = 0;
+    let fadeTimer = 0;
+    let cancelled = false;
 
-    const idleTimer = window.setTimeout(() => {
-      if (reduceMotion) {
-        setIndex((current) => nextIndex(current, testimonials.length));
+    const clearIdle = () => {
+      window.clearTimeout(idleTimer);
+      idleTimer = 0;
+    };
+
+    const scheduleIdle = () => {
+      clearIdle();
+      if (
+        cancelled ||
+        pausedRef.current ||
+        fadingRef.current ||
+        testimonials.length < 2
+      ) {
         return;
       }
 
-      setVisible(false);
-    }, IDLE_MS);
+      idleTimer = window.setTimeout(() => {
+        if (cancelled || pausedRef.current || fadingRef.current) {
+          return;
+        }
 
-    return () => window.clearTimeout(idleTimer);
-  }, [index, paused, reduceMotion, testimonials.length, visible]);
+        const upcoming = nextIndex(indexRef.current, testimonials.length);
 
-  useEffect(() => {
-    if (visible) {
+        if (reduceMotionRef.current) {
+          setIndex(upcoming);
+          indexRef.current = upcoming;
+          scheduleIdle();
+          return;
+        }
+
+        fadingRef.current = true;
+        setVisible(false);
+        fadeTimer = window.setTimeout(() => {
+          fadingRef.current = false;
+          if (cancelled) {
+            return;
+          }
+
+          setIndex(upcoming);
+          indexRef.current = upcoming;
+          setVisible(true);
+          scheduleIdle();
+        }, FADE_MS);
+      }, IDLE_MS);
+    };
+
+    clearIdleRef.current = clearIdle;
+    scheduleIdleRef.current = scheduleIdle;
+    scheduleIdle();
+
+    return () => {
+      cancelled = true;
+      clearIdle();
+      window.clearTimeout(fadeTimer);
+    };
+  }, [testimonials.length]);
+
+  const pause = () => {
+    pausedRef.current = true;
+    setPaused(true);
+    clearIdleRef.current();
+  };
+
+  const resume = () => {
+    if (!pausedRef.current) {
       return;
     }
 
-    const fadeTimer = window.setTimeout(() => {
-      setIndex((current) => nextIndex(current, testimonials.length));
-      setVisible(true);
-    }, reduceMotion ? 0 : FADE_MS);
+    pausedRef.current = false;
+    setPaused(false);
+    scheduleIdleRef.current();
+  };
 
-    return () => window.clearTimeout(fadeTimer);
-  }, [reduceMotion, testimonials.length, visible]);
+  const resumeIfLeaving = (event: FocusEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      resume();
+    }
+  };
 
   if (testimonials.length === 0) {
     return null;
   }
 
-  const pause = () => {
-    setPaused(true);
-  };
-
-  const resumeIfLeaving = (event: FocusEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.contains(event.relatedTarget)) {
-      setPaused(false);
-    }
-  };
-
   return (
     <div
       className="testimonial-card"
       tabIndex={0}
-      onMouseEnter={pause}
-      onMouseLeave={() => setPaused(false)}
+      data-paused={paused ? "true" : "false"}
+      onPointerEnter={pause}
+      onPointerLeave={resume}
       onFocus={pause}
       onBlur={resumeIfLeaving}
     >
