@@ -13,6 +13,8 @@ export const site = {
     "Build your AI product from idea to production. Senior-led. Scalable when needed.",
   calendarUrl:
     "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3drXi2j_NDP1NqGMdu1qbA9mU7uF20M3rMGBQZCv9MeqUmMDAS7qYl6SiCpECQK16l_QV7iqW7?gv=true",
+  toptalBadgeUrl:
+    "https://www.toptal.com/developers/resume/giorgi-mdivani#N5k9PA",
 } as const;
 
 export const navLinks = [

@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import { Avatar } from "@/components/avatar";
-=======
 import { ProfileLinks } from "@/components/profile-links";
->>>>>>> f9c4728 (feat(about): add professional profile links for Giorgi)
 import { stack } from "@/lib/content";
 import { site } from "@/lib/site";
 

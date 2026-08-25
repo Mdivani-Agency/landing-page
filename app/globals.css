@@ -550,6 +550,89 @@ body {
   gap: 2.4rem;
 }
 
+.about-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2.4rem;
+}
+
+.toptal-badge {
+  --toptal-hex: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%);
+  display: inline-block;
+  color: #204ecf;
+  text-decoration: none;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.toptal-badge-frame {
+  display: inline-block;
+  background: #25a9ef;
+  padding: 6px;
+  clip-path: var(--toptal-hex);
+}
+
+.toptal-badge-inner {
+  width: 200px;
+  padding: 24px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 20% -10%, #00c3ff -80%, #fff 30%),
+    radial-gradient(circle at -20% 20%, #00c3ff -80%, #fff 30%),
+    radial-gradient(circle at 70% 100%, #00c3ff -80%, #fff 30%),
+    radial-gradient(circle at 120% 80%, #00c3ff -80%, #fff 30%);
+  background-blend-mode: multiply;
+  clip-path: var(--toptal-hex);
+  box-shadow: 0 28px 50px rgba(6, 30, 96, 0.35);
+}
+
+.toptal-badge-stars {
+  width: 64px;
+  height: auto;
+}
+
+.toptal-badge-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1;
+  color: #204ecf;
+}
+
+.toptal-badge-rule {
+  width: 120px;
+  height: 1px;
+  background: #25a9ef;
+}
+
+.toptal-badge-kicker {
+  font-size: 16px;
+  margin-bottom: -6px;
+  color: #204ecf;
+}
+
+.toptal-badge-wordmark {
+  width: 100px;
+  height: auto;
+}
+
+.toptal-badge-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 20px;
+  border-radius: 6px;
+  background: #296bff;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .portrait-panel {
   display: flex;
   flex-direction: column;
@@ -726,6 +809,7 @@ body {
 .btn-ghost:focus-visible,
 .text-link:focus-visible,
 .profile-links a:focus-visible,
+.toptal-badge:focus-visible,
 .nav a:focus-visible,
 .mobile-nav a:focus-visible {
   outline: 2px solid var(--text-secondary);
@@ -748,12 +832,22 @@ body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .about-grid {
-    grid-template-columns: 28rem 1fr;
+  .portrait-panel {
+    width: 22rem;
+    min-height: 24rem;
   }
 }
 
 @media (min-width: 1024px) {
+  .about-grid {
+    grid-template-columns: minmax(20rem, max-content) 1fr;
+    align-items: center;
+  }
+
+  .about-identity {
+    justify-content: flex-start;
+  }
+
   .capability-grid {
     grid-template-columns: 1.2fr 1fr 1fr;
   }
