@@ -829,9 +829,122 @@ a.toptal-badge {
 .profile-links a:focus-visible,
 .toptal-badge:focus-visible,
 .nav a:focus-visible,
-.mobile-nav a:focus-visible {
+.mobile-nav a:focus-visible,
+.testimonial-linkedin:focus-visible,
+.testimonial-pause:focus-visible {
   outline: 2px solid var(--text-secondary);
   outline-offset: 3px;
+}
+
+.testimonial-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.6rem;
+  padding: 2.4rem;
+}
+
+.testimonial-stack {
+  display: grid;
+}
+
+.testimonial-quote {
+  grid-area: 1 / 1;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.testimonial-quote.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.testimonial-quote blockquote {
+  margin: 0;
+  font-family: var(--font-serif), "Fraunces", serif;
+  font-size: var(--text-md);
+  font-weight: 450;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.testimonial-quote blockquote p + p {
+  margin-top: 1.6rem;
+}
+
+.testimonial-caption {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.6rem;
+  margin-top: 2.4rem;
+}
+
+.testimonial-author {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.testimonial-role {
+  margin-top: 0.4rem;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.testimonial-linkedin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 2.4rem;
+  min-height: 2.4rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.testimonial-linkedin:hover {
+  color: var(--text-primary);
+}
+
+.testimonial-linkedin-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.testimonial-pause {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+  min-height: 2.4rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-xs);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.testimonial-pause:hover {
+  color: var(--text-secondary);
+}
+
+.testimonial-pause-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-quote {
+    transition: none;
+  }
 }
 
 @media (min-width: 768px) {

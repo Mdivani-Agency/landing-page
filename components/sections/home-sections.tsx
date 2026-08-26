@@ -7,6 +7,7 @@ import { Hero } from "@/components/sections/hero";
 import { HowIWork } from "@/components/sections/how-i-work";
 import { SelectedWork } from "@/components/sections/selected-work";
 import { StudioModel } from "@/components/sections/studio-model";
+import { Testimonials } from "@/components/sections/testimonials";
 import { WhatIBuild } from "@/components/sections/what-i-build";
 
 export function HomeSections() {
@@ -19,6 +20,7 @@ export function HomeSections() {
       <AboutGiorgi />
       <StudioModel />
       <HowIWork />
+      <Testimonials />
       <Founders />
       <Geography />
       <FinalCta />
