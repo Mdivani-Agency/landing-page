@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState, type FocusEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FocusEvent,
+  type PointerEvent,
+} from "react";
 import { LinkedInMark } from "@/components/linkedin-mark";
 import type { Testimonial } from "@/lib/content";
 
 const IDLE_MS = 5000;
 const FADE_MS = 400;
+
+type PauseReason = "hover" | "focus" | "sticky";
 
 type TestimonialsRotatorProps = {
   testimonials: readonly Testimonial[];
@@ -19,16 +27,45 @@ function nextIndex(current: number, length: number) {
   return (current + 1 + Math.floor(Math.random() * (length - 1))) % length;
 }
 
+function PauseIcon() {
+  return (
+    <svg
+      className="testimonial-pause-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect x="6" y="5" width="4" height="14" fill="currentColor" />
+      <rect x="14" y="5" width="4" height="14" fill="currentColor" />
+    </svg>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg
+      className="testimonial-pause-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M8 5v14l11-7z" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) {
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
   const [paused, setPaused] = useState(false);
+  const [sticky, setSticky] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
 
   const indexRef = useRef(index);
   const pausedRef = useRef(paused);
   const reduceMotionRef = useRef(reduceMotion);
   const fadingRef = useRef(false);
+  const reasonsRef = useRef(new Set<PauseReason>());
   const clearIdleRef = useRef(() => {});
   const scheduleIdleRef = useRef(() => {});
 
@@ -114,26 +151,66 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
     };
   }, [testimonials.length]);
 
-  const pause = () => {
-    pausedRef.current = true;
-    setPaused(true);
-    clearIdleRef.current();
-  };
+  const applyPaused = () => {
+    const next = reasonsRef.current.size > 0;
+    pausedRef.current = next;
+    setPaused(next);
 
-  const resume = () => {
-    if (!pausedRef.current) {
+    if (next) {
+      clearIdleRef.current();
       return;
     }
 
-    pausedRef.current = false;
-    setPaused(false);
     scheduleIdleRef.current();
   };
 
-  const resumeIfLeaving = (event: FocusEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.contains(event.relatedTarget)) {
-      resume();
+  const addReason = (reason: PauseReason) => {
+    if (reasonsRef.current.has(reason)) {
+      return;
     }
+
+    reasonsRef.current.add(reason);
+    applyPaused();
+  };
+
+  const removeReason = (reason: PauseReason) => {
+    if (!reasonsRef.current.has(reason)) {
+      return;
+    }
+
+    reasonsRef.current.delete(reason);
+    applyPaused();
+  };
+
+  const toggleSticky = () => {
+    if (reasonsRef.current.has("sticky")) {
+      reasonsRef.current.delete("sticky");
+      setSticky(false);
+    } else {
+      reasonsRef.current.add("sticky");
+      setSticky(true);
+    }
+
+    applyPaused();
+  };
+
+  const resumeFocusIfLeaving = (event: FocusEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      removeReason("focus");
+    }
+  };
+
+  const onCardPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse") {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Element) || target.closest("a, button")) {
+      return;
+    }
+
+    toggleSticky();
   };
 
   if (testimonials.length === 0) {
@@ -143,12 +220,14 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
   return (
     <div
       className="testimonial-card"
-      tabIndex={0}
+      role="region"
+      aria-label="Client testimonials"
       data-paused={paused ? "true" : "false"}
-      onPointerEnter={pause}
-      onPointerLeave={resume}
-      onFocus={pause}
-      onBlur={resumeIfLeaving}
+      onPointerEnter={() => addReason("hover")}
+      onPointerLeave={() => removeReason("hover")}
+      onPointerDown={onCardPointerDown}
+      onFocus={() => addReason("focus")}
+      onBlur={resumeFocusIfLeaving}
     >
       <div className="testimonial-stack">
         {testimonials.map((testimonial, itemIndex) => {
@@ -181,7 +260,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
                   className="testimonial-linkedin"
                   href={testimonial.linkedinUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   <LinkedInMark className="testimonial-linkedin-icon" />
                   <span className="sr-only">
@@ -193,6 +272,16 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
           );
         })}
       </div>
+      <button
+        type="button"
+        className="testimonial-pause"
+        aria-pressed={sticky}
+        aria-label={sticky ? "Resume testimonials" : "Pause testimonials"}
+        onClick={toggleSticky}
+      >
+        {sticky ? <PlayIcon /> : <PauseIcon />}
+        {sticky ? "Resume" : "Pause"}
+      </button>
     </div>
   );
 }

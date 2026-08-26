@@ -830,8 +830,8 @@ a.toptal-badge {
 .toptal-badge:focus-visible,
 .nav a:focus-visible,
 .mobile-nav a:focus-visible,
-.testimonial-card:focus-visible,
-.testimonial-linkedin:focus-visible {
+.testimonial-linkedin:focus-visible,
+.testimonial-pause:focus-visible {
   outline: 2px solid var(--text-secondary);
   outline-offset: 3px;
 }
@@ -900,6 +900,8 @@ a.toptal-badge {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  min-width: 2.4rem;
+  min-height: 2.4rem;
   color: var(--text-secondary);
   text-decoration: none;
 }
@@ -911,6 +913,32 @@ a.toptal-badge {
 .testimonial-linkedin-icon {
   width: 2rem;
   height: 2rem;
+}
+
+.testimonial-pause {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+  min-height: 2.4rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-xs);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.testimonial-pause:hover {
+  color: var(--text-secondary);
+}
+
+.testimonial-pause-icon {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
