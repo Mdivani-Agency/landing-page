@@ -90,7 +90,25 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
       return;
     }
 
-    const onFocusIn = () => {
+    const onFocusIn = (event: globalThis.FocusEvent) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest(".testimonial-pause")) {
+        if (!reasonsRef.current.has("focus")) {
+          return;
+        }
+
+        reasonsRef.current.delete("focus");
+        const next = reasonsRef.current.size > 0;
+        pausedRef.current = next;
+        setPaused(next);
+
+        if (!next) {
+          scheduleIdleRef.current();
+        }
+
+        return;
+      }
+
       if (reasonsRef.current.has("focus")) {
         return;
       }
