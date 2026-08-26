@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FocusEvent,
-  type PointerEvent,
-} from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { LinkedInMark } from "@/components/linkedin-mark";
 import type { Testimonial } from "@/lib/content";
 
@@ -66,6 +60,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
   const reduceMotionRef = useRef(reduceMotion);
   const fadingRef = useRef(false);
   const reasonsRef = useRef(new Set<PauseReason>());
+  const cardRef = useRef<HTMLDivElement>(null);
   const clearIdleRef = useRef(() => {});
   const scheduleIdleRef = useRef(() => {});
 
@@ -87,6 +82,50 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
     sync();
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) {
+      return;
+    }
+
+    const onFocusIn = () => {
+      if (reasonsRef.current.has("focus")) {
+        return;
+      }
+
+      reasonsRef.current.add("focus");
+      pausedRef.current = true;
+      setPaused(true);
+      clearIdleRef.current();
+    };
+
+    const onFocusOut = (event: globalThis.FocusEvent) => {
+      if (card.contains(event.relatedTarget as Node | null)) {
+        return;
+      }
+
+      if (!reasonsRef.current.has("focus")) {
+        return;
+      }
+
+      reasonsRef.current.delete("focus");
+      const next = reasonsRef.current.size > 0;
+      pausedRef.current = next;
+      setPaused(next);
+
+      if (!next) {
+        scheduleIdleRef.current();
+      }
+    };
+
+    card.addEventListener("focusin", onFocusIn);
+    card.addEventListener("focusout", onFocusOut);
+    return () => {
+      card.removeEventListener("focusin", onFocusIn);
+      card.removeEventListener("focusout", onFocusOut);
+    };
   }, []);
 
   useEffect(() => {
@@ -194,12 +233,6 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
     applyPaused();
   };
 
-  const resumeFocusIfLeaving = (event: FocusEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.contains(event.relatedTarget)) {
-      removeReason("focus");
-    }
-  };
-
   const onCardPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse") {
       return;
@@ -219,17 +252,18 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
 
   return (
     <div
+      ref={cardRef}
       className="testimonial-card"
       role="region"
       aria-label="Client testimonials"
       data-paused={paused ? "true" : "false"}
-      onPointerEnter={() => addReason("hover")}
-      onPointerLeave={() => removeReason("hover")}
       onPointerDown={onCardPointerDown}
-      onFocus={() => addReason("focus")}
-      onBlur={resumeFocusIfLeaving}
     >
-      <div className="testimonial-stack">
+      <div
+        className="testimonial-stack"
+        onPointerEnter={() => addReason("hover")}
+        onPointerLeave={() => removeReason("hover")}
+      >
         {testimonials.map((testimonial, itemIndex) => {
           const isActive = itemIndex === index;
           const isVisible = isActive && visible;
