@@ -21,33 +21,6 @@ function nextIndex(current: number, length: number) {
   return (current + 1 + Math.floor(Math.random() * (length - 1))) % length;
 }
 
-function PauseIcon() {
-  return (
-    <svg
-      className="testimonial-pause-icon"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <rect x="6" y="5" width="4" height="14" fill="currentColor" />
-      <rect x="14" y="5" width="4" height="14" fill="currentColor" />
-    </svg>
-  );
-}
-
-function PlayIcon() {
-  return (
-    <svg
-      className="testimonial-pause-icon"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M8 5v14l11-7z" fill="currentColor" />
-    </svg>
-  );
-}
-
 export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) {
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
@@ -296,11 +269,6 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
               aria-hidden={!isActive}
               inert={!isActive || undefined}
             >
-              <blockquote>
-                {paragraphs.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </blockquote>
               <figcaption className="testimonial-caption">
                 <div className="testimonial-byline">
                   <p className="testimonial-author">{testimonial.author}</p>
@@ -320,20 +288,15 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
                   </span>
                 </a>
               </figcaption>
+              <blockquote>
+                {paragraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </blockquote>
             </figure>
           );
         })}
       </div>
-      <button
-        type="button"
-        className="testimonial-pause"
-        aria-pressed={sticky}
-        aria-label={sticky ? "Resume testimonials" : "Pause testimonials"}
-        onClick={toggleSticky}
-      >
-        {sticky ? <PlayIcon /> : <PauseIcon />}
-        {sticky ? "Resume" : "Pause"}
-      </button>
     </div>
   );
 }

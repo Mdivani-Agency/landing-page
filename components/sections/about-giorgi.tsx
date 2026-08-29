@@ -2,13 +2,18 @@ import { AboutIdentity } from "@/components/about-identity";
 import { ProfileLinks } from "@/components/profile-links";
 import { stack } from "@/lib/content";
 
-export function AboutGiorgi() {
+interface AboutGiorgiProps {
+  title: string;
+  eyebrow?: string;
+}
+
+export function AboutGiorgi({ title, eyebrow }: AboutGiorgiProps) {
   return (
     <section id="about" className="band" aria-labelledby="about-heading">
       <header className="band-header">
-        <p className="eyebrow">Directly with Giorgi</p>
+        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
         <h2 id="about-heading" className="section-title">
-          You hire the engineer, not a sales process.
+          {title}
         </h2>
       </header>
       <div className="about-grid">

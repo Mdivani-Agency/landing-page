@@ -14,15 +14,11 @@ export function HomeSections() {
   return (
     <>
       <Hero />
-      <WhatIBuild />
-      <Greenfield />
-      <SelectedWork />
-      <AboutGiorgi />
-      <StudioModel />
-      <HowIWork />
+      <AboutGiorgi eyebrow="Work with Giorgi" title="You hire the engineer, not a sales process." />
       <Testimonials />
+      <WhatIBuild />
+      <StudioModel />
       <Founders />
-      <Geography />
       <FinalCta />
     </>
   );

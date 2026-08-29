@@ -4,20 +4,20 @@ import { site } from "@/lib/site";
 
 export function AboutIdentity() {
   return (
-    <figure className="portrait-panel">
+    <figure className="portrait-panel relative">
       <div className="portrait-avatar">
         <Avatar
           src="/assets/images/giorgi.jpg"
           alt={site.personName}
           fallback={site.personName}
         />
-        <ToptalBadge />
       </div>
       <figcaption className="portrait-caption">
         {site.personName}
         <br />
         {site.personRole}
       </figcaption>
+      <ToptalBadge />
     </figure>
   );
 }

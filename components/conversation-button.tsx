@@ -28,7 +28,7 @@ export function ConversationButton({
         openCalendar();
       }}
       title="Start a conversation about your product"
-      className={`${variantClass} ${className}`.trim()}
+      className={`${variantClass} ${className} max-w-fit`.trim()}
     >
       {children}
     </button>

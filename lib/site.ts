@@ -18,13 +18,8 @@ export const site = {
 } as const;
 
 export const navLinks = [
-  { href: "/work", label: "Work", title: "Selected work" },
-  { href: "/ai-engineering", label: "AI Engineering", title: "AI engineering" },
-  {
-    href: "/product-development",
-    label: "Product Development",
-    title: "Product development",
-  },
+  { href: "/work", label: "Selected Work", title: "Selected work" },
+  { href: "/how-i-work", label: "How I Work", title: "How I work" },
   { href: "/about", label: "About", title: "About Giorgi Mdivani" },
 ] as const;
 

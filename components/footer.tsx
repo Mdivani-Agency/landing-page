@@ -7,7 +7,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="site-footer">
+    <footer className="site-container site-footer">
       <div className="flex flex-col md:flex-row md:justify-between mb-10 gap-6">
         <section className="flex flex-col gap-2 max-w-md">
           <Logo />

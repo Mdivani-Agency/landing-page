@@ -14,8 +14,7 @@ export function Testimonials() {
           What collaborators say after shipping with Giorgi.
         </h2>
         <p className="band-copy">
-          Published recommendations from people who built with him — one quote
-          at a time.
+          Published recommendations from people who built with him.
         </p>
       </header>
       <TestimonialsRotator testimonials={testimonials} />

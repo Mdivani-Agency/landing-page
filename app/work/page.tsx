@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function WorkPage() {
   return (
-    <article>
+    <article className="space-y-16 divide-y divide-gray-100">
       <PageIntro
         eyebrow="Work"
         title="Selected work"
