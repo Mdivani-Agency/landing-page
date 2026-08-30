@@ -7,6 +7,7 @@ import {
   getPostBySlug,
   listPublishedSlugs,
 } from "@/lib/blog";
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/blog-seo";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 3600;
@@ -32,6 +33,9 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
     title: post.title,
     description: post.description,
     path: `/blog/${post.slug}`,
+    type: "article",
+    publishedTime: post.publishedAt?.toISOString(),
+    modifiedTime: post.updatedAt.toISOString(),
   });
 }
 
@@ -49,6 +53,18 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <article>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleJsonLd(post)),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd(post)),
+        }}
+      />
       <header className="flex flex-col items-start gap-1.5 pt-3">
         <Eyebrow>Blog</Eyebrow>
         {publishedLabel ? (

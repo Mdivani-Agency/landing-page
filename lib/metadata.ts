@@ -15,6 +15,9 @@ type PageMetadataOptions = {
   socialDescription?: string;
   /** Skips the root "%s | Mdivani" template, for a title that already names the brand. */
   exactTitle?: boolean;
+  type?: "website" | "article";
+  publishedTime?: string;
+  modifiedTime?: string;
 };
 
 export function createPageMetadata({
@@ -23,6 +26,9 @@ export function createPageMetadata({
   path,
   socialDescription = description,
   exactTitle = false,
+  type = "website",
+  publishedTime,
+  modifiedTime,
 }: PageMetadataOptions): Metadata {
   return {
     title: exactTitle ? { absolute: title } : title,
@@ -36,7 +42,14 @@ export function createPageMetadata({
       url: path,
       siteName: site.name,
       images: [socialImage],
-      type: "website",
+      type,
+      ...(type === "article"
+        ? {
+            publishedTime,
+            modifiedTime,
+            authors: [site.personName],
+          }
+        : {}),
     },
     twitter: {
       card: "summary_large_image",

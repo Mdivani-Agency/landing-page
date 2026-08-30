@@ -30,6 +30,25 @@ describe("createPageMetadata", () => {
     });
   });
 
+  it("marks blog posts as Open Graph articles with published time", () => {
+    const metadata = createPageMetadata({
+      title: "From idea to a production AI product",
+      description: "First slice",
+      path: "/blog/idea-to-production-ai",
+      type: "article",
+      publishedTime: "2026-08-01T09:00:00.000Z",
+      modifiedTime: "2026-08-02T09:00:00.000Z",
+    });
+
+    expect(metadata.openGraph).toMatchObject({
+      type: "article",
+      url: "/blog/idea-to-production-ai",
+      publishedTime: "2026-08-01T09:00:00.000Z",
+      modifiedTime: "2026-08-02T09:00:00.000Z",
+      authors: [site.personName],
+    });
+  });
+
   it("uses the social description override only for social cards", () => {
     const metadata = createPageMetadata({
       title: "About",
