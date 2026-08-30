@@ -1,0 +1,65 @@
+# Lint, test, and build are required checks for every push and merge request.
+# Production deploys happen from this pipeline via the Vercel CLI, and the
+# Vercel Git integration is disabled for the production branch in vercel.json,
+# so a red pipeline can never reach production.
+
+image: node:22
+
+stages:
+  - check
+  - deploy
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Avoid duplicate branch + MR pipelines for the same commit.
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+variables:
+  # Keep the Yarn 4 download cache inside the project dir so GitLab can cache it.
+  YARN_ENABLE_GLOBAL_CACHE: "false"
+
+default:
+  cache:
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - .yarn/cache
+  before_script:
+    - node .yarn/releases/yarn-4.9.2.cjs install --immutable
+
+lint:
+  stage: check
+  script:
+    - node .yarn/releases/yarn-4.9.2.cjs lint
+
+test:
+  stage: check
+  script:
+    - node .yarn/releases/yarn-4.9.2.cjs test
+
+build:
+  stage: check
+  script:
+    - node .yarn/releases/yarn-4.9.2.cjs build
+
+# Deploys the default branch to production after lint, test, and build pass.
+# Requires VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID CI/CD variables.
+deploy_production:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  needs:
+    - lint
+    - test
+    - build
+  environment:
+    name: production
+    url: https://mdivani.agency
+  script:
+    - npx --yes vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+    - npx --yes vercel build --prod --token=$VERCEL_TOKEN
+    - npx --yes vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN

@@ -13,6 +13,30 @@ The marketing site deploys from this repo as a Next.js app on Vercel. Eleventy a
 
 Do not set a dashboard Install Command that runs classic Yarn 1.
 
+## CI-gated production deploys (MDI-68)
+
+Production deploys are gated on the GitLab pipeline in `.gitlab-ci.yml`:
+
+- `lint`, `test`, and `build` run as required jobs on every push and merge
+  request.
+- `deploy_production` runs only on the default branch, only after all three
+  check jobs pass, and deploys with the Vercel CLI
+  (`vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`).
+- `vercel.json` sets `git.deploymentEnabled` to `false` for `development` and
+  `main`, so the Vercel Git integration no longer auto-deploys the production
+  branch. Other branches still get preview deploys from the Git integration.
+
+Required GitLab CI/CD variables (Settings → CI/CD → Variables, masked):
+
+| Name | Value |
+| --- | --- |
+| `VERCEL_TOKEN` | Vercel account token with deploy access to the project |
+| `VERCEL_ORG_ID` | From the Vercel project settings (`vercel link` writes it to `.vercel/project.json`) |
+| `VERCEL_PROJECT_ID` | Same source as `VERCEL_ORG_ID` |
+
+If the Vercel production branch moves from `development` to `main`, also move
+the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).
+
 ## Environment variables (dashboard, not git)
 
 | Name | Value |
