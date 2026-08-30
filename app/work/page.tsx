@@ -1,4 +1,7 @@
+import { Eyebrow } from "@/components/eyebrow";
 import { PageIntro } from "@/components/page-intro";
+import { Section } from "@/components/section";
+import { SectionTitle } from "@/components/section-header";
 import { selectedWork } from "@/lib/content";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -18,21 +21,15 @@ export default function WorkPage() {
         lede="Engagements Giorgi has owned or led in production. Outcomes below are from public descriptions of that work — not invented testimonials."
       />
       {selectedWork.map((item) => (
-        <section
+        <Section
           key={item.slug}
           id={item.slug}
-          className="flex flex-col gap-1.5"
-          aria-labelledby={`${item.slug}-heading`}
+          labelledBy={`${item.slug}-heading`}
         >
-          <p className="mb-1.5 text-xs uppercase tracking-caps text-secondary">
+          <Eyebrow>
             {item.client} · {item.role}
-          </p>
-          <h2
-            id={`${item.slug}-heading`}
-            className="max-w-[22ch] font-serif text-heading"
-          >
-            {item.title}
-          </h2>
+          </Eyebrow>
+          <SectionTitle id={`${item.slug}-heading`}>{item.title}</SectionTitle>
           {item.tagline ? (
             <p className="max-w-[72rem] text-md leading-[1.55] text-muted">
               {item.tagline}
@@ -87,7 +84,7 @@ export default function WorkPage() {
             </div>
           </dl>
           <p className="text-xs text-muted">{item.stack.join(" · ")}</p>
-        </section>
+        </Section>
       ))}
     </article>
   );

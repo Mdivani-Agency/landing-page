@@ -1,3 +1,7 @@
+import { Card, CardText, CardTitle } from "@/components/card";
+import { Section } from "@/components/section";
+import { SectionHeader } from "@/components/section-header";
+
 const reasons = [
   {
     title: "A first product, not a staff-aug bench",
@@ -15,38 +19,21 @@ const reasons = [
 
 export function Founders() {
   return (
-    <section
-      id="founders"
-      className="flex flex-col gap-1.5"
-      aria-labelledby="founders-heading"
-    >
-      <header className="flex flex-col gap-1.5">
-        <p className="mb-1.5 text-xs uppercase tracking-caps text-secondary">
-          Who this is for
-        </p>
-        <h2
-          id="founders-heading"
-          className="max-w-[22ch] font-serif text-heading"
-        >
-          Startup founders building something new.
-        </h2>
-        <p className="max-w-[62rem] text-md leading-[1.55] text-muted">
-          This is the work people actually book.
-        </p>
-      </header>
+    <Section id="founders" labelledBy="founders-heading">
+      <SectionHeader
+        eyebrow="Who this is for"
+        headingId="founders-heading"
+        title="Startup founders building something new."
+        copy="This is the work people actually book."
+      />
       <div className="grid gap-2 md:grid-cols-3">
         {reasons.map((reason) => (
-          <article
-            key={reason.title}
-            className="rounded-card border border-subtle bg-card p-3"
-          >
-            <h3 className="mb-1.5 font-serif text-title font-medium">
-              {reason.title}
-            </h3>
-            <p className="text-sm leading-4 text-muted">{reason.body}</p>
-          </article>
+          <Card key={reason.title}>
+            <CardTitle>{reason.title}</CardTitle>
+            <CardText>{reason.body}</CardText>
+          </Card>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }

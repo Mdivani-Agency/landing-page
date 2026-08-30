@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ConversationButton } from "@/components/conversation-button";
+import { Eyebrow } from "@/components/eyebrow";
 import { site } from "@/lib/site";
 
 export function Hero() {
@@ -9,9 +10,9 @@ export function Hero() {
       className="flex min-h-[calc(100vh-12rem)] flex-col pt-5"
       aria-labelledby="hero-heading"
     >
-      <p className="mb-1.5 text-xs uppercase tracking-caps text-secondary">
+      <Eyebrow>
         {site.personName} · {site.personRole}
-      </p>
+      </Eyebrow>
       <h1 id="hero-heading" className="max-w-[18ch] font-serif text-display">
         Build your AI product from idea to production.
       </h1>
