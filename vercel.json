@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "installCommand": "node .yarn/releases/yarn-4.9.2.cjs install --immutable"
+  "installCommand": "node .yarn/releases/yarn-4.9.2.cjs install --immutable",
+  "git": {
+    "deploymentEnabled": {
+      "development": false,
+      "main": false
+    }
+  }
 }
