@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { Card } from "@/components/card";
 import { LinkedInIcon } from "@/components/icons";
 import type { Testimonial } from "@/lib/content";
 
@@ -242,9 +243,9 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
   }
 
   return (
-    <div
+    <Card
+      as="div"
       ref={cardRef}
-      className="rounded-card border border-subtle bg-card p-3"
       role="region"
       aria-label="Client testimonials"
       data-paused={paused ? "true" : "false"}
@@ -298,6 +299,6 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

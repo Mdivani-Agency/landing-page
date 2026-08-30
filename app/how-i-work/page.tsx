@@ -1,4 +1,5 @@
 import { PageIntro } from "@/components/page-intro";
+import { Section } from "@/components/section";
 import { capabilities } from "@/lib/content";
 import { createPageMetadata } from "@/lib/metadata";
 import { HowIWork } from "@/components/sections/how-i-work";
@@ -22,14 +23,11 @@ export default function AiEngineeringPage() {
         title="Product first, reliability next."
         lede="I design and ship LLM features, agents, and knowledge systems for founders who need them in production — evaluated, observable, and wired into the rest of the stack."
       />
-      <section
-        className="flex flex-col gap-1.5 space-y-16"
-        aria-labelledby="ai-how-heading"
-      >
+      <Section className="space-y-16" labelledBy="ai-how-heading">
         <HowIWork />
         <Greenfield />
         <WhatIBuild />
-      </section>
+      </Section>
     </article>
   );
 }
