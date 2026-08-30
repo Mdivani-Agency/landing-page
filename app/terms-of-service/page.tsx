@@ -1,13 +1,12 @@
-import type { Metadata } from "next";
 import { TermsOfServiceContent } from "@/components/legal/terms-of-service";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Terms of Service | Mdivani",
-  },
+export const metadata = createPageMetadata({
+  title: "Terms of Service",
   description:
     "Terms of Service for Mdio (Mdivani Agency) software development services.",
-};
+  path: "/terms-of-service",
+});
 
 export default function TermsOfServicePage() {
   return (

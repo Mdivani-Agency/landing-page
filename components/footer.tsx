@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LinkedInIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
 import { MailLink } from "@/components/mail-link";
 import { footerLinks, site, socialLinks } from "@/lib/site";
@@ -23,7 +24,7 @@ export function Footer() {
               <Link
                 key={link.href}
                 title={link.title}
-                className="text-md font-regular"
+                className="inline-flex items-center gap-1 text-md font-regular"
                 href={link.href}
               >
                 {link.label}
@@ -35,11 +36,12 @@ export function Footer() {
               <a
                 key={link.href}
                 title={link.title}
-                className="text-md font-regular"
+                className="inline-flex items-center gap-1 text-md font-regular"
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
               >
+                <LinkedInIcon className="size-2 shrink-0" />
                 {link.label}
               </a>
             ))}

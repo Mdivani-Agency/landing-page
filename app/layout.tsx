@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer";
 import { GradientBackground } from "@/components/gradient-background";
 import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
+import { socialImage } from "@/lib/metadata";
 import { profileLinks, site } from "@/lib/site";
 import "./globals.css";
 
@@ -37,8 +38,14 @@ export const metadata: Metadata = {
     description: site.ogDescription,
     url: site.url,
     siteName: site.name,
-    images: [{ url: "/assets/images/logo.png" }],
+    images: [socialImage],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: site.ogTitle,
+    description: site.ogDescription,
+    images: [socialImage.url],
   },
 };
 

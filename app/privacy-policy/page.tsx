@@ -1,13 +1,12 @@
-import type { Metadata } from "next";
 import { PrivacyPolicyContent } from "@/components/legal/privacy-policy";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Privacy Policy | Mdivani",
-  },
+export const metadata = createPageMetadata({
+  title: "Privacy Policy",
   description:
     "How Mdivani collects, uses, and protects information on mdivani.agency.",
-};
+  path: "/privacy-policy",
+});
 
 export default function PrivacyPolicyPage() {
   return (

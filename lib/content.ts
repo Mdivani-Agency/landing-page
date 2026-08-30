@@ -158,17 +158,22 @@ export const testimonials = [
   },
 ] satisfies readonly Testimonial[];
 
-export const stack = [
-  "TypeScript",
-  "Node.js",
+export const expertise = [
+  "AI Engineering",
+  "Software & Product Architecture",
+  "Technical Leadership",
+  "AWS Cloud Architecture",
+  "Serverless & Distributed Systems",
+  "Full-Stack Product Engineering",
+  "LLM Applications & Agentic Systems",
+  "Data & API Architecture",
+  "DevOps & Infrastructure as Code",
+  "TypeScript / Node.js",
   "Python",
-  "React",
-  "Next.js",
-  "React Native",
-  "AWS Lambda",
-  "DynamoDB",
-  "PostgreSQL",
-  "Terraform",
-  "OpenAI",
-  "RAG / agents",
+  "React / Next.js / React Native",
 ] as const;
+
+export const profileDescriptions = {
+  primary: "Typical background on a call: greenfield SaaS, an AI feature that has to survive real users, or a first cloud architecture that will not need a rewrite in six months.",
+  secondary: "Toptal-vetted software engineer, selected for its network of the top 3% of freelance developers. I help founders architect and ship production-ready AI, SaaS, cloud, web, and mobile products.",
+} as const;

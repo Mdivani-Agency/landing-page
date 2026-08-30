@@ -43,11 +43,11 @@ export const profileLinks = [
     label: "Upwork",
     title: "Giorgi Mdivani on Upwork",
   },
-  {
-    href: "https://www.toptal.com/developers/resume/giorgi-mdivani",
-    label: "Toptal",
-    title: "Giorgi Mdivani on Toptal",
-  },
+  // {
+  //   href: "https://www.toptal.com/developers/resume/giorgi-mdivani",
+  //   label: "Toptal",
+  //   title: "Giorgi Mdivani on Toptal",
+  // },
   {
     href: "https://github.com/mdivani",
     label: "GitHub",

@@ -1,17 +1,18 @@
-import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { capabilities } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 import { HowIWork } from "@/components/sections/how-i-work";
 import { Greenfield } from "@/components/sections/greenfield";
 import { WhatIBuild } from "@/components/sections/what-i-build";
 
 const capability = capabilities[0];
 
-export const metadata: Metadata = {
-  title: "How I Work",
+export const metadata = createPageMetadata({
+  title: "AI Product Development Process",
   description:
     "How Giorgi Mdivani works with founders to build AI products in production. Product first, reliability next.",
-};
+  path: "/how-i-work",
+});
 
 export default function AiEngineeringPage() {
   return (

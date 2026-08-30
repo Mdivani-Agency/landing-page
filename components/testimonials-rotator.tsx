@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { LinkedInMark } from "@/components/linkedin-mark";
+import { LinkedInIcon } from "@/components/icons";
 import type { Testimonial } from "@/lib/content";
 
 const IDLE_MS = 5000;
@@ -282,7 +282,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <LinkedInMark className="h-2 w-2 mr-0.5" />
+                  <LinkedInIcon className="h-2 w-2 mr-0.5" />
                   <p className="text-xs text-secondary leading-none">{testimonial.title || "View LinkedIn profile"}</p>
                   <span className="sr-only">
                     {testimonial.author} on LinkedIn

@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { selectedWork } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Selected Work",
+export const metadata = createPageMetadata({
+  title: "AI & Software Engineering Case Studies",
   description:
     "Selected production work by Giorgi Mdivani — AI search for clinicians, aviation document intelligence, and investment analytics.",
-};
+  path: "/work",
+});
 
 export default function WorkPage() {
   return (

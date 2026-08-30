@@ -1,13 +1,14 @@
 import { AboutIdentity } from "@/components/about-identity";
 import { ProfileLinks } from "@/components/profile-links";
-import { stack } from "@/lib/content";
+import { expertise } from "@/lib/content";
 
 interface AboutGiorgiProps {
   title: string;
   eyebrow?: string;
+  description: string;
 }
 
-export function AboutGiorgi({ title, eyebrow }: AboutGiorgiProps) {
+export function AboutGiorgi({ title, eyebrow, description }: AboutGiorgiProps) {
   return (
     <section
       id="about"
@@ -28,19 +29,13 @@ export function AboutGiorgi({ title, eyebrow }: AboutGiorgiProps) {
         <AboutIdentity />
         <div className="flex flex-col gap-2 text-md leading-[1.55] text-muted">
           <p>
-            I’m a senior software and AI engineer with more than a decade
-            shipping production systems — AWS serverless, TypeScript, and the
-            product surface around them. I started Mdivani Agency so founders
-            could work with me directly, then scale delivery without changing
-            who owns the architecture.
+            I’m a senior software and AI engineer with more than a decade shipping production systems — AWS serverless, TypeScript, and the product surface around them. I started Mdivani Agency so founders could work with me directly, then scale delivery without changing who owns the architecture.
           </p>
           <p>
-            Typical background on a call: greenfield SaaS, an AI feature that
-            has to survive real users, or a first cloud architecture that will
-            not need a rewrite in six months.
+            {description}
           </p>
           <ul className="flex list-none flex-wrap gap-1">
-            {stack.map((item) => (
+            {expertise.map((item) => (
               <li
                 key={item}
                 className="rounded-full border border-subtle px-1.5 py-[0.6rem] text-xs text-primary"
@@ -49,8 +44,8 @@ export function AboutGiorgi({ title, eyebrow }: AboutGiorgiProps) {
               </li>
             ))}
           </ul>
-          <ProfileLinks />
         </div>
+        <ProfileLinks className="col-span-full" />
       </div>
     </section>
   );
