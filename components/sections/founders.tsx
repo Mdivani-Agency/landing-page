@@ -15,21 +15,35 @@ const reasons = [
 
 export function Founders() {
   return (
-    <section id="founders" className="band" aria-labelledby="founders-heading">
-      <header className="band-header">
-        <p className="eyebrow">Who this is for</p>
-        <h2 id="founders-heading" className="section-title">
+    <section
+      id="founders"
+      className="flex flex-col gap-1.5"
+      aria-labelledby="founders-heading"
+    >
+      <header className="flex flex-col gap-1.5">
+        <p className="mb-1.5 text-xs uppercase tracking-caps text-secondary">
+          Who this is for
+        </p>
+        <h2
+          id="founders-heading"
+          className="max-w-[22ch] font-serif text-heading"
+        >
           Startup founders building something new.
         </h2>
-        <p className="band-copy">
+        <p className="max-w-[62rem] text-md leading-[1.55] text-muted">
           This is the work people actually book.
         </p>
       </header>
-      <div className="split-cards three">
+      <div className="grid gap-2 md:grid-cols-3">
         {reasons.map((reason) => (
-          <article key={reason.title} className="capability-card">
-            <h3>{reason.title}</h3>
-            <p>{reason.body}</p>
+          <article
+            key={reason.title}
+            className="rounded-card border border-subtle bg-card p-3"
+          >
+            <h3 className="mb-1.5 font-serif text-title font-medium">
+              {reason.title}
+            </h3>
+            <p className="text-sm leading-4 text-muted">{reason.body}</p>
           </article>
         ))}
       </div>

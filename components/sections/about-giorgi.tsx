@@ -9,16 +9,24 @@ interface AboutGiorgiProps {
 
 export function AboutGiorgi({ title, eyebrow }: AboutGiorgiProps) {
   return (
-    <section id="about" className="band" aria-labelledby="about-heading">
-      <header className="band-header">
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <h2 id="about-heading" className="section-title">
+    <section
+      id="about"
+      className="flex flex-col gap-1.5"
+      aria-labelledby="about-heading"
+    >
+      <header className="flex flex-col gap-1.5">
+        {eyebrow && (
+          <p className="mb-1.5 text-xs uppercase tracking-caps text-secondary">
+            {eyebrow}
+          </p>
+        )}
+        <h2 id="about-heading" className="max-w-[22ch] font-serif text-heading">
           {title}
         </h2>
       </header>
-      <div className="about-grid">
+      <div className="grid gap-3 md:grid-cols-[28rem_1fr]">
         <AboutIdentity />
-        <div className="about-copy">
+        <div className="flex flex-col gap-2 text-md leading-[1.55] text-muted">
           <p>
             I’m a senior software and AI engineer with more than a decade
             shipping production systems — AWS serverless, TypeScript, and the
@@ -31,9 +39,14 @@ export function AboutGiorgi({ title, eyebrow }: AboutGiorgiProps) {
             has to survive real users, or a first cloud architecture that will
             not need a rewrite in six months.
           </p>
-          <ul className="stack-list">
+          <ul className="flex list-none flex-wrap gap-1">
             {stack.map((item) => (
-              <li key={item}>{item}</li>
+              <li
+                key={item}
+                className="rounded-full border border-subtle px-1.5 py-[0.6rem] text-xs text-primary"
+              >
+                {item}
+              </li>
             ))}
           </ul>
           <ProfileLinks />

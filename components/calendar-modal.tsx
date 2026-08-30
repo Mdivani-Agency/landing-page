@@ -111,7 +111,7 @@ export function CalendarModal() {
   return (
     <dialog
       ref={overlayRef}
-      className={`modal-overlay self-center md:items-center${isOpen ? " show" : ""}`}
+      className="fixed inset-0 z-[1000] m-0 hidden h-screen w-screen max-h-none max-w-none items-end justify-center self-center overflow-hidden border-none bg-black/50 p-0 open:flex md:items-center [&::backdrop]:bg-black/50"
       aria-labelledby="calendar-modal-title"
       id="my-modal"
       onClose={() => {
@@ -122,18 +122,18 @@ export function CalendarModal() {
     >
       <div
         id="modal-dialog"
-        className={`modal-dialog transition duration-300 md:w-[90vw]${
+        className={`relative h-[80vh] w-screen rounded-[5px] bg-white shadow-[0_0_10px_rgba(0,0,0,0.3)] transition duration-300 md:w-[90vw]${
           isOpen ? "" : " translate-y-[100%] md:scale-[.55] md:opacity-0"
         }`}
       >
-        <div className="modal-content h-full">
+        <div className="h-full">
           <h2 id="calendar-modal-title" className="sr-only">
             Schedule a call
           </h2>
           <button
             ref={closeButtonRef}
             type="button"
-            className="modal-close right-2"
+            className="absolute -top-5 right-2 cursor-pointer border-none text-lg text-primary"
             data-dismiss="modal"
             aria-label="Close"
             onClick={closeCalendar}
