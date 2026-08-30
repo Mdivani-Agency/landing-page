@@ -22,17 +22,30 @@ Production deploys are gated on the GitLab pipeline in `.gitlab-ci.yml`:
 - `deploy_production` runs only on the default branch, only after all three
   check jobs pass, and deploys with the Vercel CLI
   (`vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`).
+  The CLI version is pinned in `devDependencies` and authenticates via the
+  `VERCEL_TOKEN` environment variable (never `--token` on argv). A
+  `resource_group` serializes deploys so an older pipeline cannot overwrite a
+  newer one.
 - `vercel.json` sets `git.deploymentEnabled` to `false` for `development` and
   `main`, so the Vercel Git integration no longer auto-deploys the production
   branch. Other branches still get preview deploys from the Git integration.
 
-Required GitLab CI/CD variables (Settings → CI/CD → Variables, masked):
+Required GitLab CI/CD variables (Settings → CI/CD → Variables). The project is
+public, so each variable must be **protected**, **masked**, and scoped to the
+**`production` environment** — masking alone only redacts logs, while
+protection + environment scoping keep the token out of feature-branch and
+merge-request pipelines entirely (the deploy job declares
+`environment: name: production`):
 
 | Name | Value |
 | --- | --- |
 | `VERCEL_TOKEN` | Vercel account token with deploy access to the project |
 | `VERCEL_ORG_ID` | From the Vercel project settings (`vercel link` writes it to `.vercel/project.json`) |
 | `VERCEL_PROJECT_ID` | Same source as `VERCEL_ORG_ID` |
+
+The default branch must stay a protected branch so protected variables are
+available to `deploy_production`. Enable the GitLab MR setting **Pipelines must
+succeed** to make the check jobs merge-blocking as well.
 
 If the Vercel production branch moves from `development` to `main`, also move
 the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).

@@ -12,6 +12,10 @@ stages:
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Always run a branch pipeline on the default branch, even when an MR is
+    # open from it (e.g. development -> main): deploy_production only runs in
+    # branch pipelines, so suppressing it would freeze production deploys.
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     # Avoid duplicate branch + MR pipelines for the same commit.
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
@@ -33,23 +37,32 @@ default:
 
 lint:
   stage: check
+  interruptible: true
   script:
     - node .yarn/releases/yarn-4.9.2.cjs lint
 
 test:
   stage: check
+  interruptible: true
   script:
     - node .yarn/releases/yarn-4.9.2.cjs test
 
 build:
   stage: check
+  interruptible: true
   script:
     - node .yarn/releases/yarn-4.9.2.cjs build
 
 # Deploys the default branch to production after lint, test, and build pass.
-# Requires VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID CI/CD variables.
+# Requires VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID CI/CD variables
+# (protected, masked, and scoped to the "production" environment). The Vercel
+# CLI is pinned in devDependencies and reads VERCEL_TOKEN from the environment,
+# keeping the token off the process argv.
 deploy_production:
   stage: deploy
+  # Serialize production deploys so an older pipeline can never finish after
+  # (and overwrite) a newer one.
+  resource_group: vercel-production
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:
@@ -60,6 +73,6 @@ deploy_production:
     name: production
     url: https://mdivani.agency
   script:
-    - npx --yes vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-    - npx --yes vercel build --prod --token=$VERCEL_TOKEN
-    - npx --yes vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+    - node .yarn/releases/yarn-4.9.2.cjs run vercel pull --yes --environment=production
+    - node .yarn/releases/yarn-4.9.2.cjs run vercel build --prod
+    - node .yarn/releases/yarn-4.9.2.cjs run vercel deploy --prebuilt --prod
