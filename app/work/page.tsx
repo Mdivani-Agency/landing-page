@@ -20,34 +20,51 @@ export default function WorkPage() {
         <section
           key={item.slug}
           id={item.slug}
-          className="band work-detail"
+          className="flex flex-col gap-1.5"
           aria-labelledby={`${item.slug}-heading`}
         >
-          <p className="eyebrow">
+          <p className="mb-1.5 text-xs uppercase tracking-caps text-secondary">
             {item.client} · {item.role}
           </p>
-          <h2 id={`${item.slug}-heading`} className="section-title">
+          <h2
+            id={`${item.slug}-heading`}
+            className="max-w-[22ch] font-serif text-heading"
+          >
             {item.title}
           </h2>
-          <dl className="work-dl">
+          <dl className="grid gap-2.5">
             <div>
-              <dt>Problem</dt>
-              <dd>{item.problem}</dd>
+              <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
+                Problem
+              </dt>
+              <dd className="text-sm leading-[1.55] text-muted">
+                {item.problem}
+              </dd>
             </div>
             <div>
-              <dt>What was built</dt>
-              <dd>{item.built}</dd>
+              <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
+                What was built
+              </dt>
+              <dd className="text-sm leading-[1.55] text-muted">{item.built}</dd>
             </div>
             <div>
-              <dt>Technical / AI challenge</dt>
-              <dd>{item.challenge}</dd>
+              <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
+                Technical / AI challenge
+              </dt>
+              <dd className="text-sm leading-[1.55] text-muted">
+                {item.challenge}
+              </dd>
             </div>
             <div>
-              <dt>Giorgi’s role and outcome</dt>
-              <dd>{item.outcome}</dd>
+              <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
+                Giorgi’s role and outcome
+              </dt>
+              <dd className="text-sm leading-[1.55] text-muted">
+                {item.outcome}
+              </dd>
             </div>
           </dl>
-          <p className="work-stack">{item.stack.join(" · ")}</p>
+          <p className="text-xs text-muted">{item.stack.join(" · ")}</p>
         </section>
       ))}
     </article>

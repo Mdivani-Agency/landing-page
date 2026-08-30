@@ -52,19 +52,24 @@ export function Header() {
   return (
     <header
       id="header"
-      className={`header fixed top-0 left-0 z-50${hidden ? " hide-header" : ""}`}
+      className={`fixed top-0 left-0 z-50 w-full bg-[rgba(10,10,10,0.5)] shadow-[0_2px_12px_rgba(255,249,249,0.1)] backdrop-blur-[5px] transition-all duration-300 motion-reduce:transition-none${hidden ? " -translate-y-full opacity-0" : ""}`}
     >
-      <div className="site-container header-bar">
+      <div className="mx-auto flex w-full max-w-site items-center justify-between px-2">
         <Logo onClick={closeMobileNav} />
-        <nav aria-label="Primary" className="nav hidden lg:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-4 py-2.5 lg:flex">
           {navLinks.map((link) => (
-            <Link key={link.href} title={link.title} href={link.href}>
+            <Link
+              key={link.href}
+              title={link.title}
+              href={link.href}
+              className="text-sm font-normal text-primary no-underline hover:opacity-60"
+            >
               {link.label}
             </Link>
           ))}
         </nav>
         <div className="hidden lg:block">
-          <ConversationButton className="btn-conversation-sm">
+          <ConversationButton size="sm">
             Start a conversation
           </ConversationButton>
         </div>
@@ -101,7 +106,7 @@ export function Header() {
         id="mobile-nav"
         className={`${mobileOpen ? "flex" : "hidden"} absolute inset-0 z-10 flex-col bg-black h-screen lg:hidden`}
       >
-        <div className="site-container flex flex-col w-full h-full items-center justify-end gap-4 pb-4">
+        <div className="mx-auto flex h-full w-full max-w-site flex-col items-center justify-end gap-4 px-2 pb-4">
           <div className="w-full flex justify-between items-center mb-auto">
             <Logo onClick={closeMobileNav} />
             <button
@@ -128,13 +133,14 @@ export function Header() {
               </svg>
             </button>
           </div>
-          <nav aria-label="Primary" className="mobile-nav flex flex-col w-full">
+          <nav aria-label="Primary" className="flex flex-col w-full">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 title={link.title}
                 href={link.href}
                 onClick={closeMobileNav}
+                className="w-full border-b border-gray-700 px-2.5 py-[0.5rem] text-right text-sm font-normal text-primary no-underline"
               >
                 {link.label}
               </Link>

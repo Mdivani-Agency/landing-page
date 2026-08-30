@@ -16,19 +16,30 @@ export default function StartupDevelopmentPage() {
         title="From idea to a product in production."
         lede="For founders without an existing engineering team. I take the work from definition and architecture through the first launch — and bring additional engineers when the slice is bigger than one person."
       />
-      <section className="band" aria-labelledby="startup-steps-heading">
-        <h2 id="startup-steps-heading" className="section-title">
+      <section
+        className="flex flex-col gap-1.5"
+        aria-labelledby="startup-steps-heading"
+      >
+        <h2
+          id="startup-steps-heading"
+          className="max-w-[22ch] font-serif text-heading"
+        >
           The path
         </h2>
-        <ol className="process-list">
+        <ol className="grid list-none gap-2">
           {processSteps.map((step, index) => (
-            <li key={step.title}>
-              <span className="stage-index">
+            <li
+              key={step.title}
+              className="flex items-start gap-2 border-t border-subtle pt-2"
+            >
+              <span className="min-w-4 text-xs tracking-label text-secondary">
                 {String(index + 1).padStart(2, "0")}
               </span>
               <div>
-                <h3>{step.title}</h3>
-                <p>{step.body}</p>
+                <h3 className="mb-1.5 font-serif text-title font-medium">
+                  {step.title}
+                </h3>
+                <p className="text-sm leading-4 text-muted">{step.body}</p>
               </div>
             </li>
           ))}
