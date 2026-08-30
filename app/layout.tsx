@@ -9,6 +9,7 @@ import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
 import { socialImage } from "@/lib/metadata";
 import { profileLinks, site } from "@/lib/site";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next"
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <GradientBackground />
           <Analytics />
         </Providers>
+        <VercelAnalytics />
       </body>
     </html>
   );
