@@ -2,7 +2,7 @@ import { site } from "@/lib/site";
 
 export function TermsOfServiceContent() {
   return (
-    <article className="article">
+    <article className="text-sm font-thin [&_a]:font-medium [&_a]:text-secondary [&_a]:underline [&_h1]:text-lg [&_h1]:font-semibold [&_header]:my-2.5 [&_header]:text-md [&_section]:mb-2.5 [&_section_h2]:mb-0.5 [&_section_h2]:font-bold [&_ul]:list-disc [&_ul]:pl-2.5">
       <header>
         <h1>Terms of Service for Mdio (Mdivani Agency)</h1>
         <p>

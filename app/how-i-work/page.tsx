@@ -21,7 +21,10 @@ export default function AiEngineeringPage() {
         title="Product first, reliability next."
         lede="I design and ship LLM features, agents, and knowledge systems for founders who need them in production — evaluated, observable, and wired into the rest of the stack."
       />
-      <section className="band space-y-16" aria-labelledby="ai-how-heading">
+      <section
+        className="flex flex-col gap-1.5 space-y-16"
+        aria-labelledby="ai-how-heading"
+      >
         <HowIWork />
         <Greenfield />
         <WhatIBuild />

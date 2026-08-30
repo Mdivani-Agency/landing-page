@@ -35,7 +35,7 @@ export function Avatar({ src, alt, fallback, className = "" }: AvatarProps) {
 
   return (
     <span
-      className={`avatar ${className}`.trim()}
+      className={`relative block aspect-square w-full overflow-hidden rounded-full bg-[rgba(159,212,200,0.12)] ${className}`.trim()}
       role={showImage ? undefined : "img"}
       aria-label={showImage ? undefined : alt}
     >
@@ -45,11 +45,14 @@ export function Avatar({ src, alt, fallback, className = "" }: AvatarProps) {
           alt={alt}
           fill
           sizes="(min-width: 768px) 28rem, 100vw"
-          className="avatar-image"
+          className="object-cover object-[center_15%]"
           onError={() => setHasError(true)}
         />
       ) : (
-        <span className="avatar-fallback" aria-hidden="true">
+        <span
+          className="absolute inset-0 flex items-center justify-center font-serif text-3xl leading-none text-primary"
+          aria-hidden="true"
+        >
           {initials}
         </span>
       )}

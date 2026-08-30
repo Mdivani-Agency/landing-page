@@ -74,7 +74,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Providers>
           <div id="page-chrome" className="relative z-10 overflow-hidden">
             <Header />
-            <main className="site-container site-main">{children}</main>
+            <main className="mx-auto mt-11 flex w-full max-w-site flex-col gap-10 px-2 pb-10">
+              {children}
+            </main>
             <Footer />
           </div>
           <CalendarModal />

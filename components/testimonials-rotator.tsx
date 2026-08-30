@@ -244,14 +244,14 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
   return (
     <div
       ref={cardRef}
-      className="testimonial-card"
+      className="rounded-card border border-subtle bg-card p-3"
       role="region"
       aria-label="Client testimonials"
       data-paused={paused ? "true" : "false"}
       onPointerDown={onCardPointerDown}
     >
       <div
-        className="testimonial-stack"
+        className="grid"
         onPointerEnter={() => addReason("hover")}
         onPointerLeave={() => removeReason("hover")}
       >
@@ -263,32 +263,39 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
           return (
             <figure
               key={testimonial.author}
-              className={["testimonial-quote", isVisible ? "is-visible" : ""]
-                .filter(Boolean)
-                .join(" ")}
+              className={[
+                "m-0 transition-[opacity,visibility] duration-[400ms] [grid-area:1/1] motion-reduce:transition-none",
+                isVisible
+                  ? "visible opacity-100"
+                  : "pointer-events-none invisible opacity-0",
+              ].join(" ")}
               aria-hidden={!isActive}
               inert={!isActive || undefined}
             >
-              <figcaption className="testimonial-caption">
-                <div className="testimonial-byline">
-                  <p className="testimonial-author">{testimonial.author}</p>
+              <figcaption className="flex items-center gap-1">
+                <div>
+                  <p className="text-md font-semibold text-primary">
+                    {testimonial.author}
+                  </p>
                   {testimonial.title ? (
-                    <p className="testimonial-role">{testimonial.title}</p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {testimonial.title}
+                    </p>
                   ) : null}
                 </div>
                 <a
-                  className="testimonial-linkedin"
+                  className="inline-flex min-h-3 min-w-3 shrink-0 items-center justify-center text-secondary no-underline hover:text-primary"
                   href={testimonial.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <LinkedInMark className="testimonial-linkedin-icon" />
+                  <LinkedInMark className="h-2.5 w-2.5" />
                   <span className="sr-only">
                     {testimonial.author} on LinkedIn
                   </span>
                 </a>
               </figcaption>
-              <blockquote>
+              <blockquote className="m-0 font-serif text-sm font-normal leading-1 text-muted [&_p+p]:mt-2">
                 {paragraphs.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
