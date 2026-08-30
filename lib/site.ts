@@ -21,6 +21,7 @@ export const navLinks = [
   { href: "/work", label: "Selected Work", title: "Selected work" },
   { href: "/how-i-work", label: "How I Work", title: "How I work" },
   { href: "/about", label: "About", title: "About Giorgi Mdivani" },
+  { href: "/blog", label: "Blog", title: "Blog" },
   { href: "/inquiry", label: "Contact", title: "Contact" },
 ] as const;
 

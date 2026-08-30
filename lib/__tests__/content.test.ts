@@ -119,6 +119,7 @@ describe("site config", () => {
     }
 
     expect(navHrefs).toContain("/inquiry");
+    expect(navHrefs).toContain("/blog");
     expect(footerHrefs).not.toContain("/startup-development");
   });
 
@@ -130,6 +131,7 @@ describe("site config", () => {
 
     expect(sitemapUrls).toEqual(expectedUrls);
     expect(sitemapUrls).toContain(`${site.url}/how-i-work`);
+    expect(sitemapUrls).toContain(`${site.url}/blog`);
     expect(sitemapUrls).not.toContain(`${site.url}/ai-engineering`);
     expect(sitemapUrls).not.toContain(`${site.url}/product-development`);
     expect(sitemapUrls).not.toContain(`${site.url}/startup-development`);
