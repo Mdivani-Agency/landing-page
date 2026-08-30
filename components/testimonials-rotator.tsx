@@ -272,24 +272,18 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
               aria-hidden={!isActive}
               inert={!isActive || undefined}
             >
-              <figcaption className="flex items-center gap-1">
-                <div>
-                  <p className="text-md font-semibold text-primary">
-                    {testimonial.author}
-                  </p>
-                  {testimonial.title ? (
-                    <p className="mt-0.5 text-xs text-muted">
-                      {testimonial.title}
-                    </p>
-                  ) : null}
-                </div>
+              <figcaption className="flex flex-col items-start mb-1">
+                <p className="text-md font-semibold text-primary">
+                  {testimonial.author}
+                </p>
                 <a
                   className="inline-flex min-h-3 min-w-3 shrink-0 items-center justify-center text-secondary no-underline hover:text-primary"
                   href={testimonial.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <LinkedInMark className="h-2.5 w-2.5" />
+                  <LinkedInMark className="h-2 w-2 mr-0.5" />
+                  <p className="text-xs text-secondary leading-none">{testimonial.title || "View LinkedIn profile"}</p>
                   <span className="sr-only">
                     {testimonial.author} on LinkedIn
                   </span>
