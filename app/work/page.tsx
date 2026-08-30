@@ -5,7 +5,7 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "AI & Software Engineering Case Studies",
   description:
-    "Selected production work by Giorgi Mdivani — AI search for clinicians, aviation document intelligence, and investment analytics.",
+    "Selected production work by Giorgi Mdivani across insurance compliance, AI search for clinicians, aviation document intelligence, and investment analytics.",
   path: "/work",
 });
 
@@ -33,6 +33,11 @@ export default function WorkPage() {
           >
             {item.title}
           </h2>
+          {item.tagline ? (
+            <p className="max-w-[72rem] text-md leading-[1.55] text-muted">
+              {item.tagline}
+            </p>
+          ) : null}
           <dl className="grid gap-2.5">
             <div>
               <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
@@ -50,18 +55,34 @@ export default function WorkPage() {
             </div>
             <div>
               <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
-                Technical / AI challenge
+                {item.challenges ? "Technical challenges" : "Technical / AI challenge"}
               </dt>
               <dd className="text-sm leading-[1.55] text-muted">
-                {item.challenge}
+                {item.challenges ? (
+                  <ul className="list-disc space-y-1 pl-2.5">
+                    {item.challenges.map((challenge) => (
+                      <li key={challenge}>{challenge}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  item.challenge
+                )}
               </dd>
             </div>
             <div>
               <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
-                Giorgi’s role and outcome
+                {item.achievements ? "Achievements" : "Giorgi’s role and outcome"}
               </dt>
               <dd className="text-sm leading-[1.55] text-muted">
-                {item.outcome}
+                {item.achievements ? (
+                  <ul className="list-disc space-y-1 pl-2.5">
+                    {item.achievements.map((achievement) => (
+                      <li key={achievement}>{achievement}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  item.outcome
+                )}
               </dd>
             </div>
           </dl>

@@ -74,7 +74,101 @@ export const processSteps = [
   },
 ] as const;
 
-export const selectedWork = [
+export type SelectedWork = {
+  href: string;
+  slug: string;
+  client: string;
+  role: string;
+  title: string;
+  tagline?: string;
+  problem: string;
+  built: string;
+  challenge: string;
+  challenges?: readonly string[];
+  outcome: string;
+  achievements?: readonly string[];
+  stack: readonly string[];
+};
+
+export const selectedWork: readonly SelectedWork[] = [
+  {
+    href: "/work#metis",
+    slug: "metis",
+    client: "METIS / Lloyd’s MGA",
+    role: "AI Engineer / Fractional technical lead",
+    title: "Operational compliance platform for a Lloyd’s MGA",
+    tagline:
+      "METIS turns Lloyd’s MGA compliance workflows—SMCR, product approval, maturity, and evidence—into an auditable, RLS-backed web platform.",
+    problem:
+      "Regulated workflows lived across spreadsheets, ad-hoc forms, and tribal knowledge. The business needed one platform where status, approvals, evidence, and accountability were enforced in the database—not only in the UI—so audits, handoffs, and daily operations stayed consistent.",
+    built:
+      "A Next.js and Supabase application covering SMCR, Product Approval Process, principle-level maturity tracking, broker management, evidence libraries, action items, and in-app and email notifications. Postgres, Row Level Security, RPCs, triggers, and Edge Functions keep workflows transactional and access controlled, while a unified document and template model supports PAP obligations, Fair Value, Consumer Duty, Target Market, and maturity assessments.",
+    challenge:
+      "Encoding concurrent, multi-step regulated workflows while enforcing business rules through Postgres, RLS, RPCs, and reliable event-driven notifications.",
+    challenges: [
+      "Encoded the multi-step PAP workflow so product status is derived from completed steps rather than manually edited, while remaining race-safe under concurrent approvals.",
+      "Unified assessments and obligations in one document engine without breaking existing workflows, permissions, seeds, or templates.",
+      "Enforced Row Level Security, grants, and GraphQL access so clients cannot bypass business rules, routing privileged operations through RPCs.",
+      "Built event-driven notifications from domain events through an outbox to email, with environment guards that prevent non-production environments from messaging real users.",
+      "Kept production and development seed overlays, migrations, and Edge Function secrets aligned so deployments remained operable.",
+    ],
+    outcome:
+      "Shipped a production-ready system of record for governance, approvals, evidence, and actions, backed by reusable domain models, hardened workflows, and role-based end-to-end coverage.",
+    achievements: [
+      "Shipped a production-ready governance platform spanning SMCR, PAP, maturity, brokers, evidence, and actions.",
+      "Consolidated fragmented assessment surfaces into a reusable template and document architecture.",
+      "Hardened product and document creation so critical launch artefacts, including the concept note, cannot silently fail.",
+      "Stabilised Edge Function service authentication and notification delivery, including email allowlisting for safe non-production use.",
+      "Established migration-first documentation, incremental seeding, CI, and role-based Playwright coverage as part of the delivery pipeline.",
+    ],
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "Supabase",
+      "PostgreSQL",
+      "Row Level Security",
+      "Edge Functions",
+    ],
+  },
+  {
+    href: "/work#flighter",
+    slug: "flighter",
+    client: "Flighter Group",
+    role: "Full-stack / fractional technical lead",
+    title: "Aviation onboarding and document intelligence",
+    tagline:
+      "Flighter turns aviation applicant onboarding, document verification, compliance review, signatures, and approvals into one secure, auditable workflow.",
+    problem:
+      "Applicant onboarding, identity checks, certificates, employment history, compliance reviews, and approvals were handled across email, shared drives, and manual processes. The business needed one reliable workflow for collecting evidence, validating aviation credentials, coordinating human review, and maintaining a consistent audit trail.",
+    built:
+      "A production onboarding and certification platform with secure authentication, encrypted document storage, AI-assisted extraction and validation, event-driven processing, human approval gates, and third-party electronic signatures. I owned the product architecture, frontend, backend, cloud infrastructure, document-processing workflows, integrations, deployment pipeline, and technical delivery.",
+    challenge:
+      "Automating sensitive, multi-stage aviation compliance workflows without sacrificing data security, auditability, reliability, or required human oversight.",
+    challenges: [
+      "Extracted and validated structured information from varied identity, employment, and aviation documents while routing uncertain results through human review.",
+      "Designed resilient, idempotent workflows that could recover safely from retries, partial failures, and concurrent updates without skipping a compliance step.",
+      "Protected sensitive applicant data through layered access controls, encryption, tenant isolation, and audit trails aligned with SOC 2 readiness.",
+      "Integrated a third-party electronic signature service into asynchronous document and approval lifecycles, including status reconciliation and failure recovery.",
+      "Kept frontend, backend, cloud infrastructure, environments, and deployment automation aligned as the product and its regulated workflows evolved.",
+    ],
+    outcome:
+      "Launched a secure production platform that shortened onboarding, reduced repetitive compliance work, and created a consistent source of truth for applicant evidence, certification data, reviews, and approvals.",
+    achievements: [
+      "Shipped the complete product from architecture through production across applicant onboarding, document collection, compliance review, signatures, and approval.",
+      "Reduced onboarding turnaround and manual checking by automating document extraction, validation, reminders, and workflow progression.",
+      "Replaced fragmented records with consistent certification data, centralised evidence, and an auditable history of decisions and actions.",
+      "Combined automation with explicit human approval gates so operational efficiency did not weaken compliance controls.",
+      "Established repeatable cloud infrastructure and deployment practices that supported ongoing product development and operational reliability.",
+    ],
+    stack: [
+      "TypeScript",
+      "React",
+      "AWS",
+      "Serverless Architecture",
+      "Infrastructure as Code",
+      "AI Document Processing",
+    ],
+  },
   {
     href: "/work#eolas",
     slug: "eolas",
@@ -92,22 +186,6 @@ export const selectedWork = [
     stack: ["React Native", "React", "AWS", "GraphQL", "OpenAI"],
   },
   {
-    href: "/work#flighter",
-    slug: "flighter",
-    client: "Flighter Group",
-    role: "Full-stack / fractional technical lead",
-    title: "Aviation onboarding and document intelligence",
-    problem:
-      "Aviation onboarding was slow and manual: certificates, identity documents, and compliance checks lived in email and shared drives.",
-    built:
-      "Serverless multi-stage onboarding on AWS — S3/KMS storage, Lambda validation, EventBridge workflows, and AI-assisted document processing.",
-    challenge:
-      "Sensitive aviation data, SOC 2 readiness, and automation that does not skip a required human check.",
-    outcome:
-      "Faster applicant processing, less manual compliance work, and a path to consistent certification data.",
-    stack: ["TypeScript", "AWS Lambda", "DynamoDB", "Terraform", "AI agents"],
-  },
-  {
     href: "/work#localglobe",
     slug: "localglobe",
     client: "Phoenix Court / LocalGlobe",
@@ -123,7 +201,7 @@ export const selectedWork = [
       "Reported 30% higher engagement on insights, 40% less analysis time, and 60% faster deploys after the pipeline work.",
     stack: ["React", "Node.js", "Python", "OpenAI", "AWS"],
   },
-] as const;
+];
 
 export type Testimonial = {
   body: string;

@@ -16,9 +16,9 @@ export function SelectedWork() {
           Products Giorgi has taken into production.
         </h2>
         <p className="max-w-[62rem] text-md leading-[1.55] text-muted">
-          Public engagements — hospital software, aviation compliance, and
-          investment analytics. Each one needed senior ownership, not a layered
-          agency bench.
+          Public engagements — insurance governance, hospital software,
+          aviation compliance, and investment analytics. Each one needed senior
+          ownership, not a layered agency bench.
         </p>
       </header>
       <div className="grid gap-2 md:grid-cols-2">
