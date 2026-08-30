@@ -35,8 +35,10 @@ Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIR
 
 Leftover Eleventy paths redirect permanently:
 
-- `/hero`, `/contact` → `/`
+- `/hero` → `/`
 - `/pravicy-statement` → `/privacy-policy`
+
+`/contact` is a real page (inquiry form → `POST /api/contact`).
 
 ## Vercel
 

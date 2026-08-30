@@ -7,9 +7,16 @@ type PageIntroProps = {
   title: string;
   lede: string;
   children?: ReactNode;
+  showConversationButton?: boolean;
 };
 
-export function PageIntro({ eyebrow, title, lede, children }: PageIntroProps) {
+export function PageIntro({
+  eyebrow,
+  title,
+  lede,
+  children,
+  showConversationButton = true,
+}: PageIntroProps) {
   return (
     <header className="flex flex-col items-start pt-3">
       <Eyebrow>{eyebrow}</Eyebrow>
@@ -18,7 +25,9 @@ export function PageIntro({ eyebrow, title, lede, children }: PageIntroProps) {
         {lede}
       </p>
       {children}
-      <ConversationButton>Let’s talk about your product</ConversationButton>
+      {showConversationButton ? (
+        <ConversationButton>Let’s talk about your product</ConversationButton>
+      ) : null}
     </header>
   );
 }

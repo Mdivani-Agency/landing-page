@@ -74,6 +74,8 @@ describe("site config", () => {
     for (const href of navHrefs) {
       expect(footerHrefs).toContain(href);
     }
+
+    expect(navHrefs).toContain("/contact");
   });
 
   it("points the calendar at a secure Google Calendar booking page", () => {
