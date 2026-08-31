@@ -46,7 +46,7 @@ describe("POST /api/contact", () => {
     send.mockReset();
     send.mockResolvedValue({ data: { id: "email_1" }, error: null });
     vi.stubEnv("RESEND_API_KEY", "re_test");
-    vi.stubEnv("CONTACT_FROM_EMAIL", "noreply@mdivani.agency");
+    vi.stubEnv("CONTACT_FROM_EMAIL", "noreply@sales.mdivani.agency");
     vi.stubEnv("CONTACT_TO_EMAIL", "giorgi@mdivani.agency");
   });
 
@@ -62,7 +62,7 @@ describe("POST /api/contact", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ ok: true });
     expect(send).toHaveBeenCalledWith({
-      from: "Mdivani Website <noreply@mdivani.agency>",
+      from: "Mdivani Website <noreply@sales.mdivani.agency>",
       to: "giorgi@mdivani.agency",
       replyTo: "ada@example.com",
       subject: `New inquiry from Ada Lovelace — ${PROJECT_TYPES[0]}`,

@@ -222,13 +222,13 @@ describe("readContactEnv", () => {
     expect(
       readContactEnv({
         RESEND_API_KEY: " re_test ",
-        CONTACT_FROM_EMAIL: " noreply@mdivani.agency ",
+        CONTACT_FROM_EMAIL: " noreply@sales.mdivani.agency ",
         CONTACT_TO_EMAIL: " giorgi@mdivani.agency ",
       }),
     ).toEqual({
       ok: true,
       apiKey: "re_test",
-      fromEmail: "noreply@mdivani.agency",
+      fromEmail: "noreply@sales.mdivani.agency",
       toEmail: "giorgi@mdivani.agency",
     });
   });
