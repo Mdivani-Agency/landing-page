@@ -4,7 +4,12 @@ import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CalendarModal } from "@/components/calendar-modal";
 import { CalendarProvider } from "@/components/calendar-provider";
-import { ConversationButton } from "@/components/conversation-button";
+import {
+  ContactCtaLink,
+  ConversationButton,
+} from "@/components/conversation-button";
+import { Hero } from "@/components/sections/hero";
+import { FinalCta } from "@/components/sections/final-cta";
 import { site } from "@/lib/site";
 
 function renderWithCalendar(ui: ReactNode) {
@@ -62,6 +67,52 @@ describe("ConversationButton", () => {
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(screen.getByTitle("Google Calendar")).toBeInTheDocument();
+  });
+});
+
+describe("ContactCtaLink", () => {
+  it("goes to /contact and does not open the calendar", async () => {
+    const user = userEvent.setup();
+
+    renderWithCalendar(
+      <>
+        <ContactCtaLink>Let’s talk about your product</ContactCtaLink>
+        <CalendarModal />
+      </>,
+    );
+
+    const link = screen.getByRole("link", {
+      name: "Let’s talk about your product",
+    });
+    expect(link).toHaveAttribute("href", "/contact");
+    expect(link).toHaveAttribute("title", "Tell me about your project");
+
+    await user.click(link);
+
+    expect(screen.queryByTitle("Google Calendar")).not.toBeInTheDocument();
+  });
+});
+
+describe("homepage CTAs", () => {
+  it("send the hero and closing CTAs to /contact", () => {
+    render(
+      <>
+        <Hero />
+        <FinalCta />
+      </>,
+    );
+
+    const links = screen.getAllByRole("link", {
+      name: "Let’s talk about your product",
+    });
+
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      expect(link).toHaveAttribute("href", "/contact");
+    }
+    expect(
+      screen.queryByRole("button", { name: "Let’s talk about your product" }),
+    ).not.toBeInTheDocument();
   });
 });
 

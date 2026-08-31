@@ -1,14 +1,25 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { useCalendar } from "@/components/calendar-provider";
 
+type CtaVariant = "primary" | "ghost";
+type CtaSize = "md" | "sm";
+
 type ConversationButtonProps = {
   children: ReactNode;
-  variant?: "primary" | "ghost";
-  size?: "md" | "sm";
+  variant?: CtaVariant;
+  size?: CtaSize;
   className?: string;
   onClick?: () => void;
+};
+
+type ContactCtaLinkProps = {
+  children: ReactNode;
+  variant?: CtaVariant;
+  size?: CtaSize;
+  className?: string;
 };
 
 const baseClass =
@@ -23,6 +34,18 @@ const sizeClasses = {
   md: "min-h-6 px-3 text-sm",
   sm: "min-h-5 px-[1.8rem] text-xs",
 } as const;
+
+export function ctaButtonClassName({
+  variant = "primary",
+  size = "md",
+  className = "",
+}: {
+  variant?: CtaVariant;
+  size?: CtaSize;
+  className?: string;
+} = {}): string {
+  return `${baseClass} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`.trim();
+}
 
 export function ConversationButton({
   children,
@@ -41,9 +64,26 @@ export function ConversationButton({
         openCalendar();
       }}
       title="Start a conversation about your product"
-      className={`${baseClass} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`.trim()}
+      className={ctaButtonClassName({ variant, size, className })}
     >
       {children}
     </button>
+  );
+}
+
+export function ContactCtaLink({
+  children,
+  variant = "primary",
+  size = "md",
+  className = "",
+}: ContactCtaLinkProps) {
+  return (
+    <Link
+      href="/contact"
+      title="Tell me about your project"
+      className={ctaButtonClassName({ variant, size, className })}
+    >
+      {children}
+    </Link>
   );
 }
