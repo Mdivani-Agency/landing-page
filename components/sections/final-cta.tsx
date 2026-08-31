@@ -1,4 +1,4 @@
-import { ConversationButton } from "@/components/conversation-button";
+import { ContactCtaLink } from "@/components/conversation-button";
 import { Eyebrow } from "@/components/eyebrow";
 import { Section } from "@/components/section";
 import { SectionCopy, SectionTitle } from "@/components/section-header";
@@ -13,10 +13,11 @@ export function FinalCta() {
       <Eyebrow>Next</Eyebrow>
       <SectionTitle id="cta-heading">Tell me what you’re building.</SectionTitle>
       <SectionCopy>
-        A conversation, not a quote form. Bring the idea, the constraint, and
-        the date you want something in users’ hands.
+        Share a bit of context — the idea, the constraint, and when you want
+        something in users’ hands. I reply to every inquiry within 1–2 business
+        days.
       </SectionCopy>
-      <ConversationButton>Let’s talk about your product</ConversationButton>
+      <ContactCtaLink>Let’s talk about your product</ContactCtaLink>
     </Section>
   );
 }

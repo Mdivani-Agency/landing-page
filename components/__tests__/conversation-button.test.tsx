@@ -4,7 +4,14 @@ import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CalendarModal } from "@/components/calendar-modal";
 import { CalendarProvider } from "@/components/calendar-provider";
-import { ConversationButton } from "@/components/conversation-button";
+import {
+  ContactCtaLink,
+  ConversationButton,
+} from "@/components/conversation-button";
+import { Header } from "@/components/header";
+import { PageIntro } from "@/components/page-intro";
+import { FinalCta } from "@/components/sections/final-cta";
+import { Hero } from "@/components/sections/hero";
 import { site } from "@/lib/site";
 
 function renderWithCalendar(ui: ReactNode) {
@@ -20,10 +27,7 @@ describe("ConversationButton", () => {
     renderWithCalendar(<ConversationButton>Book a call</ConversationButton>);
 
     const button = screen.getByRole("button", { name: "Book a call" });
-    expect(button).toHaveAttribute(
-      "title",
-      "Start a conversation about your product",
-    );
+    expect(button).toHaveAttribute("title", "Book a call");
     expect(button).toHaveClass("bg-primary", "min-h-6");
   });
 
@@ -62,6 +66,74 @@ describe("ConversationButton", () => {
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(screen.getByTitle("Google Calendar")).toBeInTheDocument();
+  });
+});
+
+describe("ContactCtaLink", () => {
+  it("goes to /inquiry and does not open the calendar", async () => {
+    const user = userEvent.setup();
+
+    renderWithCalendar(
+      <>
+        <ContactCtaLink>Let’s talk about your product</ContactCtaLink>
+        <CalendarModal />
+      </>,
+    );
+
+    const link = screen.getByRole("link", {
+      name: "Let’s talk about your product",
+    });
+    expect(link).toHaveAttribute("href", "/inquiry");
+    expect(link).toHaveAttribute("title", "Tell me about your project");
+
+    await user.click(link);
+
+    expect(screen.queryByTitle("Google Calendar")).not.toBeInTheDocument();
+  });
+});
+
+describe("page CTAs", () => {
+  it("send hero, closing, and inner-page intros to /inquiry", () => {
+    render(
+      <>
+        <Hero />
+        <FinalCta />
+        <PageIntro
+          eyebrow="Work"
+          title="Selected work"
+          lede="Example inner page."
+        />
+      </>,
+    );
+
+    const links = screen.getAllByRole("link", {
+      name: "Let’s talk about your product",
+    });
+
+    expect(links).toHaveLength(3);
+    for (const link of links) {
+      expect(link).toHaveAttribute("href", "/inquiry");
+    }
+    expect(
+      screen.queryByRole("button", { name: "Let’s talk about your product" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps only the header Book a call button as the calendar opener", () => {
+    renderWithCalendar(<Header />);
+
+    expect(
+      screen.queryByRole("button", { name: "Start a conversation" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Book a call" }),
+    ).not.toBeInTheDocument();
+
+    const bookButtons = screen.getAllByRole("button", { name: "Book a call" });
+    expect(bookButtons.length).toBeGreaterThanOrEqual(1);
+    for (const button of bookButtons) {
+      expect(button).toHaveAttribute("title", "Book a call");
+    }
   });
 });
 
