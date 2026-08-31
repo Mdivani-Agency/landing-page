@@ -103,14 +103,39 @@ function checkWithMemory(key: string, now: number): RateLimitResult {
 }
 
 /**
+ * REST credentials from either the official Upstash names or the pair the
+ * Vercel KV / Upstash integration writes (`KV_REST_API_*`). The TCP URLs
+ * (`KV_URL`, `REDIS_URL`) and the read-only token are ignored.
+ */
+export function readRateLimitStoreEnv(
+  env: Record<string, string | undefined> = process.env,
+): { restUrl: string; restToken: string } | null {
+  const restUrl = (
+    env.UPSTASH_REDIS_REST_URL ??
+    env.KV_REST_API_URL ??
+    ""
+  ).trim();
+  const restToken = (
+    env.UPSTASH_REDIS_REST_TOKEN ??
+    env.KV_REST_API_TOKEN ??
+    ""
+  ).trim();
+
+  if (!restUrl || !restToken) {
+    return null;
+  }
+
+  return { restUrl, restToken };
+}
+
+/**
  * Fixed-window rate limit per client IP for POST /api/contact.
  *
- * Uses Upstash Redis over REST when UPSTASH_REDIS_REST_URL /
- * UPSTASH_REDIS_REST_TOKEN are set (e.g. the Vercel Upstash integration), so
- * the counter holds across serverless isolates. Without those variables it
- * falls back to a best-effort in-memory window, which only protects within a
- * single long-lived isolate (fine for `yarn dev`, weak in production — set the
- * Upstash variables there).
+ * Uses Upstash Redis over REST when either UPSTASH_REDIS_REST_URL/TOKEN or
+ * the Vercel KV aliases (KV_REST_API_URL/TOKEN) are set, so the counter
+ * holds across serverless isolates. Without those variables it falls back
+ * to a best-effort in-memory window, which only protects within a single
+ * long-lived isolate (fine for `yarn dev`, weak in production).
  *
  * Store failures fail open: an outage must not block real inquiries.
  */
@@ -120,12 +145,11 @@ export async function checkContactRateLimit(
   now: number = Date.now(),
 ): Promise<RateLimitResult> {
   const key = `contact:rate:${ip}`;
-  const restUrl = env.UPSTASH_REDIS_REST_URL?.trim();
-  const restToken = env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  const store = readRateLimitStoreEnv(env);
 
-  if (restUrl && restToken) {
+  if (store) {
     try {
-      return await checkWithUpstash(restUrl, restToken, key);
+      return await checkWithUpstash(store.restUrl, store.restToken, key);
     } catch (error) {
       console.error("contact: rate limit store failed", error);
       return { allowed: true };

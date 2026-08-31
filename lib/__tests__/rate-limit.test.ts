@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CONTACT_RATE_LIMIT_MAX_REQUESTS,
   CONTACT_RATE_LIMIT_WINDOW_SECONDS,
+  readRateLimitStoreEnv,
 } from "@/lib/rate-limit";
 
 async function importRateLimit() {
@@ -26,6 +27,46 @@ describe("getClientIp", () => {
       "203.0.113.9",
     );
     expect(getClientIp(new Headers())).toBe("unknown");
+  });
+});
+
+describe("readRateLimitStoreEnv", () => {
+  it("prefers UPSTASH_* names and ignores TCP / read-only vars", () => {
+    expect(
+      readRateLimitStoreEnv({
+        UPSTASH_REDIS_REST_URL: " https://upstash.example ",
+        UPSTASH_REDIS_REST_TOKEN: " upstash-token ",
+        KV_REST_API_URL: "https://kv.example",
+        KV_REST_API_TOKEN: "kv-token",
+      }),
+    ).toEqual({
+      restUrl: "https://upstash.example",
+      restToken: "upstash-token",
+    });
+  });
+
+  it("falls back to KV_REST_API_* and ignores unused integration vars", () => {
+    expect(
+      readRateLimitStoreEnv({
+        KV_REST_API_URL: "https://kv.upstash.io",
+        KV_REST_API_TOKEN: "kv-token",
+        KV_REST_API_READ_ONLY_TOKEN: "ro",
+        KV_URL: "rediss://unused",
+        REDIS_URL: "rediss://unused",
+      }),
+    ).toEqual({
+      restUrl: "https://kv.upstash.io",
+      restToken: "kv-token",
+    });
+  });
+
+  it("returns null when only TCP URLs are present", () => {
+    expect(
+      readRateLimitStoreEnv({
+        KV_URL: "rediss://unused",
+        REDIS_URL: "rediss://unused",
+      }),
+    ).toBeNull();
   });
 });
 
@@ -128,6 +169,33 @@ describe("checkContactRateLimit (Upstash REST)", () => {
     expect(error).toHaveBeenCalledWith(
       "contact: rate limit store failed",
       expect.any(Error),
+    );
+  });
+
+  it("accepts the KV_REST_API_* names from the Vercel integration", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(Response.json([{ result: 1 }, { result: 1 }]));
+    vi.stubGlobal("fetch", fetchMock);
+    const { checkContactRateLimit } = await importRateLimit();
+
+    await expect(
+      checkContactRateLimit("1.2.3.4", {
+        KV_REST_API_URL: "https://kv.upstash.io",
+        KV_REST_API_TOKEN: "kv-token",
+        KV_REST_API_READ_ONLY_TOKEN: "unused",
+        KV_URL: "rediss://unused",
+        REDIS_URL: "rediss://unused",
+      }),
+    ).resolves.toEqual({ allowed: true });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://kv.upstash.io/pipeline",
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer kv-token",
+        }),
+      }),
     );
   });
 });
