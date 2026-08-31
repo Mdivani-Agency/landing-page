@@ -63,7 +63,7 @@ export function ConversationButton({
         onClick?.();
         openCalendar();
       }}
-      title="Start a conversation about your product"
+      title="Book a call"
       className={ctaButtonClassName({ variant, size, className })}
     >
       {children}

@@ -8,8 +8,10 @@ import {
   ContactCtaLink,
   ConversationButton,
 } from "@/components/conversation-button";
-import { Hero } from "@/components/sections/hero";
+import { Header } from "@/components/header";
+import { PageIntro } from "@/components/page-intro";
 import { FinalCta } from "@/components/sections/final-cta";
+import { Hero } from "@/components/sections/hero";
 import { site } from "@/lib/site";
 
 function renderWithCalendar(ui: ReactNode) {
@@ -25,10 +27,7 @@ describe("ConversationButton", () => {
     renderWithCalendar(<ConversationButton>Book a call</ConversationButton>);
 
     const button = screen.getByRole("button", { name: "Book a call" });
-    expect(button).toHaveAttribute(
-      "title",
-      "Start a conversation about your product",
-    );
+    expect(button).toHaveAttribute("title", "Book a call");
     expect(button).toHaveClass("bg-primary", "min-h-6");
   });
 
@@ -93,12 +92,17 @@ describe("ContactCtaLink", () => {
   });
 });
 
-describe("homepage CTAs", () => {
-  it("send the hero and closing CTAs to /contact", () => {
+describe("page CTAs", () => {
+  it("send hero, closing, and inner-page intros to /contact", () => {
     render(
       <>
         <Hero />
         <FinalCta />
+        <PageIntro
+          eyebrow="Work"
+          title="Selected work"
+          lede="Example inner page."
+        />
       </>,
     );
 
@@ -106,13 +110,30 @@ describe("homepage CTAs", () => {
       name: "Let’s talk about your product",
     });
 
-    expect(links).toHaveLength(2);
+    expect(links).toHaveLength(3);
     for (const link of links) {
       expect(link).toHaveAttribute("href", "/contact");
     }
     expect(
       screen.queryByRole("button", { name: "Let’s talk about your product" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("keeps only the header Book a call button as the calendar opener", () => {
+    renderWithCalendar(<Header />);
+
+    expect(
+      screen.queryByRole("button", { name: "Start a conversation" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Book a call" }),
+    ).not.toBeInTheDocument();
+
+    const bookButtons = screen.getAllByRole("button", { name: "Book a call" });
+    expect(bookButtons.length).toBeGreaterThanOrEqual(1);
+    for (const button of bookButtons) {
+      expect(button).toHaveAttribute("title", "Book a call");
+    }
   });
 });
 

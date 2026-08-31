@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ConversationButton } from "@/components/conversation-button";
+import { ContactCtaLink } from "@/components/conversation-button";
 import { Eyebrow } from "@/components/eyebrow";
 
 type PageIntroProps = {
@@ -26,7 +26,7 @@ export function PageIntro({
       </p>
       {children}
       {showConversationButton ? (
-        <ConversationButton>Let’s talk about your product</ConversationButton>
+        <ContactCtaLink>Let’s talk about your product</ContactCtaLink>
       ) : null}
     </header>
   );

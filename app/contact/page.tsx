@@ -16,7 +16,7 @@ export default function ContactPage() {
       <PageIntro
         eyebrow="Contact"
         title="Tell me about your project."
-        lede="Share a bit of context and I will reply within 1–2 business days. If a call is a better fit, you can still book time from any other page."
+        lede="Share a bit of context and I will reply within 1–2 business days. Prefer a live conversation? Book a call from the header."
         showConversationButton={false}
       />
       <Section labelledBy="contact-form-heading" className="max-w-[72rem]">
