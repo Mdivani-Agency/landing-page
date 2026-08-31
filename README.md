@@ -35,8 +35,13 @@ Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIR
 
 Leftover Eleventy paths redirect permanently:
 
-- `/hero`, `/contact` → `/`
+- `/hero` → `/`
 - `/pravicy-statement` → `/privacy-policy`
+
+`/inquiry` is the contact form (posts to `POST /api/contact`). `/contact`
+temporarily redirects there — do not make that redirect permanent; a
+cached 308 from the old Eleventy `/contact` → `/` mapping is why the
+form does not live at `/contact`.
 
 ## Vercel
 
