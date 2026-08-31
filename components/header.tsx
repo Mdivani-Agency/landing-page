@@ -69,9 +69,7 @@ export function Header() {
           ))}
         </nav>
         <div className="hidden lg:block">
-          <ConversationButton size="sm">
-            Start a conversation
-          </ConversationButton>
+          <ConversationButton size="sm">Book a call</ConversationButton>
         </div>
         <button
           type="button"
@@ -148,7 +146,7 @@ export function Header() {
           </nav>
           <div className="w-full pb-6">
             <ConversationButton className="w-full" onClick={closeMobileNav}>
-              Start a conversation
+              Book a call
             </ConversationButton>
           </div>
         </div>
