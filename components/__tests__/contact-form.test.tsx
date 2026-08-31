@@ -209,6 +209,38 @@ describe("ContactForm", () => {
     });
   });
 
+  it("allows a second submit after a 400 once the lock is released", async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetch)
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => ({
+          ok: false,
+          errors: { name: "Enter your name (2–100 characters)." },
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ ok: true }),
+      } as Response);
+
+    render(<ContactForm />);
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole("button", { name: "Send inquiry" }));
+
+    expect(
+      await screen.findByText("Enter your name (2–100 characters)."),
+    ).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole("button", { name: "Send inquiry" }));
+
+    expect(await screen.findByRole("status")).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
   it("ignores a second submit while a request is in flight", async () => {
     const user = userEvent.setup();
     let resolveFetch: (value: Response) => void = () => {};

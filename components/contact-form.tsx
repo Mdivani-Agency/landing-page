@@ -164,6 +164,7 @@ export function ContactForm() {
         form: "Something went wrong. Please try again or email us directly.",
       });
     } finally {
+      submittingRef.current = false;
       setPending(false);
     }
   }
