@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { PROJECT_TYPES, TIMELINES } from "@/lib/contact";
+import {
+  CONTACT_MAX_BODY_BYTES,
+  PROJECT_TYPES,
+  TIMELINES,
+} from "@/lib/contact";
+import { CONTACT_RATE_LIMIT_MAX_REQUESTS } from "@/lib/rate-limit";
 
 const { send } = vi.hoisted(() => ({ send: vi.fn() }));
 
@@ -41,7 +46,7 @@ describe("POST /api/contact", () => {
     send.mockReset();
     send.mockResolvedValue({ data: { id: "email_1" }, error: null });
     vi.stubEnv("RESEND_API_KEY", "re_test");
-    vi.stubEnv("CONTACT_FROM_EMAIL", "noreply@mdivani.org");
+    vi.stubEnv("CONTACT_FROM_EMAIL", "noreply@mdivani.agency");
     vi.stubEnv("CONTACT_TO_EMAIL", "giorgi@mdivani.agency");
   });
 
@@ -57,7 +62,7 @@ describe("POST /api/contact", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ ok: true });
     expect(send).toHaveBeenCalledWith({
-      from: "Mdivani Website <noreply@mdivani.org>",
+      from: "Mdivani Website <noreply@mdivani.agency>",
       to: "giorgi@mdivani.agency",
       replyTo: "ada@example.com",
       subject: `New inquiry from Ada Lovelace — ${PROJECT_TYPES[0]}`,
@@ -95,12 +100,59 @@ describe("POST /api/contact", () => {
 
   it("rejects non-JSON content types", async () => {
     const { POST } = await importRoute();
-    const response = await POST(
-      postRequest(validPayload, { "Content-Type": "text/plain" }),
-    );
+
+    for (const contentType of ["text/plain", "text/plain; application/json"]) {
+      const response = await POST(
+        postRequest(validPayload, { "Content-Type": contentType }),
+      );
+
+      expect(response.status).toBe(400);
+    }
+
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it("rejects an oversized body even without a Content-Length header", async () => {
+    const { POST } = await importRoute();
+    const oversized = {
+      ...validPayload,
+      description: "x".repeat(CONTACT_MAX_BODY_BYTES + 1),
+    };
+    const request = postRequest(oversized);
+
+    expect(request.headers.get("content-length")).toBeNull();
+
+    const response = await POST(request);
 
     expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      errors: { form: "Request is too large." },
+    });
     expect(send).not.toHaveBeenCalled();
+  });
+
+  it("returns 429 once a client exceeds the rate limit", async () => {
+    const { POST } = await importRoute();
+    const headers = {
+      "Content-Type": "application/json",
+      "x-forwarded-for": "203.0.113.7",
+    };
+
+    for (let i = 0; i < CONTACT_RATE_LIMIT_MAX_REQUESTS; i += 1) {
+      const response = await POST(postRequest(validPayload, headers));
+      expect(response.status).toBe(200);
+    }
+
+    const blocked = await POST(postRequest(validPayload, headers));
+
+    expect(blocked.status).toBe(429);
+    expect(Number(blocked.headers.get("Retry-After"))).toBeGreaterThan(0);
+    await expect(blocked.json()).resolves.toEqual({
+      ok: false,
+      errors: { form: "Too many requests. Please wait a minute and try again." },
+    });
+    expect(send).toHaveBeenCalledTimes(CONTACT_RATE_LIMIT_MAX_REQUESTS);
   });
 
   it("returns a generic 500 when env vars are missing", async () => {

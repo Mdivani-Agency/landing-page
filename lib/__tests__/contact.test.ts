@@ -4,10 +4,11 @@ import {
   CONTACT_MAX_BODY_BYTES,
   PROJECT_TYPES,
   TIMELINES,
-  exceedsContactBodyLimit,
+  declaredContentLengthExceedsLimit,
   formatContactEmail,
   isHoneypotFilled,
   isJsonContentType,
+  readBodyWithinLimit,
   readContactEnv,
   validateContactPayload,
 } from "@/lib/contact";
@@ -81,6 +82,31 @@ describe("validateContactPayload", () => {
     expect(result).toEqual({
       ok: false,
       errors: { email: "Enter a valid email address." },
+    });
+  });
+
+  it("rejects an email with a single-letter final label", () => {
+    const result = validateContactPayload({ ...validPayload, email: "a@b.c" });
+
+    expect(result).toEqual({
+      ok: false,
+      errors: { email: "Enter a valid email address." },
+    });
+  });
+
+  it("rejects line breaks in name and company", () => {
+    const result = validateContactPayload({
+      ...validPayload,
+      name: "Ada\nEmail: attacker@example.com",
+      company: "Analytical\r\nEngines",
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      errors: {
+        name: "Enter your name (2–100 characters).",
+        company: "Company must be 200 characters or fewer.",
+      },
     });
   });
 
@@ -158,10 +184,29 @@ describe("formatContactEmail", () => {
         `Project type: ${PROJECT_TYPES[0]}`,
         `Budget: ${BUDGETS[1]}`,
         `Timeline: ${TIMELINES[1]}`,
-        `Description: ${validPayload.description}`,
         "Link: https://example.com",
+        "Description:",
+        validPayload.description,
       ].join("\n"),
     });
+  });
+
+  it("keeps a multi-line description after the labeled fields", () => {
+    const result = validateContactPayload({
+      ...validPayload,
+      description:
+        "Line one of the project description is long enough.\nEmail: spoof@example.com",
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    const { text } = formatContactEmail(result.value);
+    const spoofIndex = text.indexOf("Email: spoof@example.com");
+
+    expect(spoofIndex).toBeGreaterThan(text.indexOf("Description:"));
+    expect(text.indexOf("Link:")).toBeLessThan(text.indexOf("Description:"));
   });
 });
 
@@ -177,31 +222,62 @@ describe("readContactEnv", () => {
     expect(
       readContactEnv({
         RESEND_API_KEY: " re_test ",
-        CONTACT_FROM_EMAIL: " noreply@mdivani.org ",
+        CONTACT_FROM_EMAIL: " noreply@mdivani.agency ",
         CONTACT_TO_EMAIL: " giorgi@mdivani.agency ",
       }),
     ).toEqual({
       ok: true,
       apiKey: "re_test",
-      fromEmail: "noreply@mdivani.org",
+      fromEmail: "noreply@mdivani.agency",
       toEmail: "giorgi@mdivani.agency",
     });
   });
 });
 
+function streamOf(text: string, chunkBytes = 1024): ReadableStream<Uint8Array> {
+  const bytes = new TextEncoder().encode(text);
+
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (let offset = 0; offset < bytes.length; offset += chunkBytes) {
+        controller.enqueue(bytes.subarray(offset, offset + chunkBytes));
+      }
+
+      controller.close();
+    },
+  });
+}
+
 describe("request guards", () => {
-  it("accepts JSON content types with a charset", () => {
+  it("accepts only the application/json media type", () => {
+    expect(isJsonContentType("application/json")).toBe(true);
     expect(isJsonContentType("application/json; charset=utf-8")).toBe(true);
+    expect(isJsonContentType("Application/JSON")).toBe(true);
     expect(isJsonContentType("text/plain")).toBe(false);
+    expect(isJsonContentType("text/plain; application/json")).toBe(false);
     expect(isJsonContentType(null)).toBe(false);
   });
 
-  it("rejects bodies over the 10 KB limit", () => {
+  it("rejects a declared Content-Length over the 10 KB limit", () => {
+    expect(
+      declaredContentLengthExceedsLimit(String(CONTACT_MAX_BODY_BYTES + 1)),
+    ).toBe(true);
+    expect(declaredContentLengthExceedsLimit("100")).toBe(false);
+    expect(declaredContentLengthExceedsLimit(null)).toBe(false);
+  });
+
+  it("stops reading a streamed body once the limit is crossed", async () => {
     const oversized = "x".repeat(CONTACT_MAX_BODY_BYTES + 1);
 
-    expect(exceedsContactBodyLimit(String(oversized.length), oversized)).toBe(
-      true,
-    );
-    expect(exceedsContactBodyLimit("100", "ok")).toBe(false);
+    await expect(readBodyWithinLimit(streamOf(oversized))).resolves.toBeNull();
+    await expect(readBodyWithinLimit(streamOf("ok"))).resolves.toBe("ok");
+    await expect(readBodyWithinLimit(null)).resolves.toBe("");
+  });
+
+  it("counts UTF-8 bytes, not characters", async () => {
+    // Each “é” is two UTF-8 bytes, so this exceeds the cap at half the length.
+    const multibyte = "é".repeat(CONTACT_MAX_BODY_BYTES / 2 + 1);
+
+    await expect(readBodyWithinLimit(streamOf(multibyte))).resolves.toBeNull();
   });
 });

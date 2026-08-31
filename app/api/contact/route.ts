@@ -1,15 +1,19 @@
 import { Resend } from "resend";
 import {
-  exceedsContactBodyLimit,
+  declaredContentLengthExceedsLimit,
   formatContactEmail,
   isHoneypotFilled,
   isJsonContentType,
+  readBodyWithinLimit,
   readContactEnv,
   validateContactPayload,
 } from "@/lib/contact";
+import { checkContactRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const GENERIC_SEND_ERROR =
   "Something went wrong. Please try again or email us directly.";
+const RATE_LIMIT_ERROR =
+  "Too many requests. Please wait a minute and try again.";
 
 function json(status: number, body: unknown) {
   return Response.json(body, { status });
@@ -24,13 +28,29 @@ function sendFailed() {
 }
 
 export async function POST(request: Request) {
+  const rate = await checkContactRateLimit(getClientIp(request.headers));
+
+  if (!rate.allowed) {
+    return Response.json(
+      { ok: false, errors: { form: RATE_LIMIT_ERROR } },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rate.retryAfterSeconds) },
+      },
+    );
+  }
+
   if (!isJsonContentType(request.headers.get("content-type"))) {
     return badRequest({ form: "Send a JSON body." });
   }
 
-  const bodyText = await request.text();
+  if (declaredContentLengthExceedsLimit(request.headers.get("content-length"))) {
+    return badRequest({ form: "Request is too large." });
+  }
 
-  if (exceedsContactBodyLimit(request.headers.get("content-length"), bodyText)) {
+  const bodyText = await readBodyWithinLimit(request.body);
+
+  if (bodyText === null) {
     return badRequest({ form: "Request is too large." });
   }
 

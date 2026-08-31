@@ -52,7 +52,11 @@ export type ContactValidationResult =
   | { ok: true; value: ValidatedContact }
   | { ok: false; errors: ContactErrors };
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Pragmatic, not RFC-complete: requires a single @, no whitespace, and a
+// final label of at least two letters so addresses like "a@b.c" fail here
+// as a field error instead of later at Resend as a generic 500.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
+const LINE_BREAK_PATTERN = /[\r\n]/;
 const MAX_BODY_BYTES = 10 * 1024;
 
 export const CONTACT_MAX_BODY_BYTES = MAX_BODY_BYTES;
@@ -155,7 +159,10 @@ export function validateContactPayload(data: unknown): ContactValidationResult {
     "Enter your name (2–100 characters).",
   );
 
-  if (name !== undefined && (name.length < 2 || name.length > 100)) {
+  if (
+    name !== undefined &&
+    (name.length < 2 || name.length > 100 || LINE_BREAK_PATTERN.test(name))
+  ) {
     errors.name = "Enter your name (2–100 characters).";
   }
 
@@ -180,7 +187,10 @@ export function validateContactPayload(data: unknown): ContactValidationResult {
     "Company must be 200 characters or fewer.",
   );
 
-  if (company !== undefined && company.length > 200) {
+  if (
+    company !== undefined &&
+    (company.length > 200 || LINE_BREAK_PATTERN.test(company))
+  ) {
     errors.company = "Company must be 200 characters or fewer.";
   }
 
@@ -274,6 +284,12 @@ export function formatContactEmail(value: ValidatedContact): {
   subject: string;
   text: string;
 } {
+  // Validation already rejects CR/LF in name; collapsing here keeps the
+  // subject a single line even if that ever changes.
+  const subjectName = value.name.replace(/\s+/g, " ").trim();
+
+  // Description is the only multi-line field, so it goes last as a block —
+  // its lines cannot be mistaken for one of the labeled fields above.
   const lines = [
     `Name: ${value.name}`,
     `Email: ${value.email}`,
@@ -281,12 +297,13 @@ export function formatContactEmail(value: ValidatedContact): {
     `Project type: ${value.projectType}`,
     `Budget: ${value.budget ?? "—"}`,
     `Timeline: ${value.timeline}`,
-    `Description: ${value.description}`,
     `Link: ${value.link ?? "—"}`,
+    "Description:",
+    value.description,
   ];
 
   return {
-    subject: `New inquiry from ${value.name} — ${value.projectType}`,
+    subject: `New inquiry from ${subjectName} — ${value.projectType}`,
     text: lines.join("\n"),
   };
 }
@@ -332,20 +349,70 @@ export function isJsonContentType(contentType: string | null): boolean {
     return false;
   }
 
-  return contentType.toLowerCase().includes("application/json");
+  // Compare the media type only; a substring match would accept values like
+  // "text/plain; application/json", which browsers may send without a CORS
+  // preflight. Parameters such as charset stay allowed.
+  const mediaType = contentType.split(";")[0]?.trim().toLowerCase();
+  return mediaType === "application/json";
 }
 
-export function exceedsContactBodyLimit(
+export function declaredContentLengthExceedsLimit(
   contentLength: string | null,
-  bodyText: string,
 ): boolean {
-  if (contentLength) {
-    const parsed = Number(contentLength);
-
-    if (Number.isFinite(parsed) && parsed > MAX_BODY_BYTES) {
-      return true;
-    }
+  if (!contentLength) {
+    return false;
   }
 
-  return new TextEncoder().encode(bodyText).length > MAX_BODY_BYTES;
+  const parsed = Number(contentLength);
+  return Number.isFinite(parsed) && parsed > MAX_BODY_BYTES;
+}
+
+/**
+ * Reads the request body while counting bytes, so an oversized body is
+ * rejected as soon as the limit is crossed instead of after it has been
+ * buffered in full (a missing or understated Content-Length header cannot
+ * bypass the cap). Returns null when the limit is exceeded.
+ */
+export async function readBodyWithinLimit(
+  body: ReadableStream<Uint8Array> | null,
+  maxBytes: number = MAX_BODY_BYTES,
+): Promise<string | null> {
+  if (!body) {
+    return "";
+  }
+
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      totalBytes += value.byteLength;
+
+      if (totalBytes > maxBytes) {
+        await reader.cancel();
+        return null;
+      }
+
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const combined = new Uint8Array(totalBytes);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    combined.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return new TextDecoder().decode(combined);
 }
