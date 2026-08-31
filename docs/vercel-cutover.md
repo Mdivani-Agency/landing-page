@@ -56,6 +56,19 @@ the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).
 | --- | --- |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `G-PJ84DYZ4WS` |
 | `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | optional alias; leave unset if the GA var is set |
+| `RESEND_API_KEY` | Resend API key for `POST /api/contact` (server-only, MDI-77) |
+| `CONTACT_FROM_EMAIL` | From address on the Resend-verified `sales.mdivani.agency` domain, e.g. `noreply@sales.mdivani.agency` (the display name lives in code) |
+| `CONTACT_TO_EMAIL` | Inbox that receives inquiries, e.g. `giorgi@mdivani.agency` |
+| `KV_REST_API_URL` | REST URL from the Vercel Upstash / KV integration (used to rate-limit `POST /api/contact`). `UPSTASH_REDIS_REST_URL` is an equivalent alias. |
+| `KV_REST_API_TOKEN` | Matching write-capable REST token (`UPSTASH_REDIS_REST_TOKEN` is the alias). Do not use `KV_REST_API_READ_ONLY_TOKEN`. |
+
+The contact variables are server-only — never prefix them with
+`NEXT_PUBLIC_`. The Vercel Upstash Redis integration also writes
+`KV_URL`, `REDIS_URL`, and `KV_REST_API_READ_ONLY_TOKEN`; those are unused
+by this app. Without a REST URL+token pair the route falls back to a
+best-effort in-memory rate limit that does not hold across serverless
+isolates, so keep the integration vars on Production before enabling
+sends (or add an equivalent Vercel Firewall rule for `/api/contact`).
 
 Local `.env` / `.env.example` stay empty so `yarn dev` does not send analytics.
 
