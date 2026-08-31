@@ -1,6 +1,7 @@
 # Technical Debt Register
 
-Last audited: 2026-08-31
+Last audited: 2026-08-31  
+Last updated: 2026-08-31 (reconciled with current CI, routing, and form work)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -11,7 +12,7 @@ user impact, accessibility, search indexing, security, and maintenance cost.
 - `yarn install --immutable`: passes, with peer-dependency warnings.
 - `yarn lint`: passes.
 - `yarn tsc --noEmit`: passes.
-- `yarn test` on the required Node.js 22 runtime: 14 files and 100 tests pass.
+- `yarn test` on the required Node.js 22 runtime: 15 files and 113 tests pass.
 - `yarn build` on Node.js 22: passes.
 - `yarn npm audit --environment production`: no production audit findings.
 - Full dependency audit: multiple vulnerable build/development transitive
@@ -26,55 +27,52 @@ Severity guide:
   risk.
 - **Low**: cleanup or consistency work with limited immediate user impact.
 
-## High priority
+## Resolved
 
 ### TD-001 — Capability cards link to routes that do not exist
 
-**Severity:** High  
-**Area:** Routing / UX / SEO
-
-`lib/content.ts:4` links AI Engineering to `/ai-engineering`, and
-`lib/content.ts:22` links Product Engineering to `/product-development`.
-`components/sections/what-i-build.tsx:34-36` renders both links, but neither
-route exists under `app/`, and `next.config.mjs` does not redirect them.
-
-**Impact:** Visitors and crawlers reach 404 pages from prominent homepage
-cards.
-
-**Remediation:** Add the intended pages, retarget the cards to existing routes,
-or add permanent redirects. Add a route-integrity test so internal content
-links cannot point to missing pages.
+Resolved by retargeting AI and Product Engineering cards to `/how-i-work`.
+Retired `/ai-engineering`, `/product-development`, and `/startup-development`
+permanently redirect to `/how-i-work`.
 
 ### TD-002 — Sitemap is out of sync with actual routes
 
-**Severity:** High  
-**Area:** SEO / Routing
-
-`app/sitemap.ts:9-18` publishes the nonexistent `/ai-engineering` and
-`/product-development` routes. It omits the live `/how-i-work` route referenced
-by `lib/site.ts:22`.
-
-**Impact:** Search engines are directed to 404 pages and are not explicitly
-given one of the primary navigation pages.
-
-**Remediation:** Correct the immediate entries, then generate navigation and
-sitemap entries from one typed route registry. Test each sitemap URL against
-the application route set.
+Resolved. `app/sitemap.ts` is generated from `navLinks` and `legalLinks` and
+now includes `/how-i-work`. Ghost marketing URLs are no longer published.
 
 ### TD-003 — The About page has no page-level heading
 
-**Severity:** High  
-**Area:** Accessibility / SEO
+Resolved. `/about` passes `headingAs="h1"` into `AboutGiorgi`. The homepage
+About section remains an `<h2>` under the hero heading.
 
-`app/about/page.tsx` renders `AboutGiorgi`, whose heading is produced by
-`SectionHeader` as an `<h2>` (`components/section-header.tsx:9-13`). There is no
-`<h1>` on `/about`.
+### TD-006 — `/how-i-work` contains stale migration code and a broken landmark
 
-**Impact:** The document outline starts at level two, weakening navigation for
-screen-reader users and the page's primary search signal.
+Resolved. Unused `capabilities` import removed, page renamed to
+`HowIWorkPage`, and the unlabeled wrapper section replaced with a layout
+`div`.
 
-**Remediation:** Add `PageIntro` to `/about`, allow `AboutGiorgi` to select its
-heading level, or render its route-level title as `<h1>`.
+### TD-009 — Route and sitemap integrity are not covered by tests
+
+Partially resolved. `lib/__tests__/content.test.ts` now requires capability
+hrefs and sitemap URLs to match `publicPagePaths`. Remaining gap: the suite
+does not scan `app/**/page.tsx` or assert the retired-path redirects.
+
+### TD-010 — Contact backend has no user-facing form
+
+Resolved independently of this cleanup. `/inquiry` hosts the contact form and
+posts to `POST /api/contact`. `/contact` temporarily redirects to `/inquiry`.
+
+### TD-023 — `lucide-react` is declared but unused
+
+Resolved. The package is used for header, conversation, and greenfield icons.
+
+### TD-008 — No repository CI enforces the existing quality gates
+
+Resolved. `.gitlab-ci.yml` runs lint, test, and build on merge requests and
+pushes, then deploys production from the default branch via the Vercel CLI
+after those checks pass. Remaining CI gaps are tracked as TD-039.
+
+## High priority
 
 ### TD-004 — Mobile navigation is not a complete accessible modal
 
@@ -112,23 +110,6 @@ non-interactive while hidden using `inert`/visibility handling. Do not use
 
 ## Medium priority
 
-### TD-006 — `/how-i-work` contains stale migration code and a broken landmark
-
-**Severity:** Medium  
-**Area:** Accessibility / Maintainability
-
-`app/how-i-work/page.tsx:3,9` retains an unused `capabilities` import and
-`capability` variable. The exported function is still named
-`AiEngineeringPage`. The wrapper at `app/how-i-work/page.tsx:26` uses
-`aria-labelledby="ai-how-heading"`, but that ID does not exist; its children
-already render their own named sections.
-
-**Impact:** The outer section is an unnamed landmark, and stale names obscure
-the route's current purpose.
-
-**Remediation:** Replace the outer `Section` with a non-landmark layout wrapper,
-remove the dead variable/import, and rename the page component.
-
 ### TD-007 — Build/development dependency audit reports known vulnerabilities
 
 **Severity:** Medium  
@@ -147,53 +128,6 @@ sources, but the maintenance backlog is real.
 **Remediation:** Upgrade direct build dependencies, regenerate the lockfile,
 review remaining transitive paths, and run production plus full audits in CI.
 Do not use resolutions blindly; confirm upstream compatibility.
-
-### TD-008 — No repository CI enforces the existing quality gates
-
-**Severity:** Medium  
-**Area:** Delivery
-
-The repository has lint, build, and test scripts in `package.json`, and 100
-tests currently pass, but there is no GitLab CI file or other repository
-workflow.
-
-**Impact:** A branch can be merged without running lint, tests, route checks, or
-the production build. Vercel build output alone does not cover all checks.
-
-**Remediation:** Add GitLab CI on Node.js 22 with immutable install, lint,
-type-check, tests, production build, and production dependency audit.
-
-### TD-009 — Route and sitemap integrity are not covered by tests
-
-**Severity:** Medium  
-**Area:** Testing
-
-`lib/__tests__/content.test.ts` checks that capability URLs start with `/`, but
-does not verify that they resolve. There is no sitemap test. The current suite
-therefore passes with TD-001 and TD-002 present.
-
-**Impact:** Broken internal routes and search-index regressions can pass all
-automated checks.
-
-**Remediation:** Maintain a typed route registry and test content links,
-navigation links, redirects, sitemap entries, and generated routes against it.
-
-### TD-010 — Contact backend has no user-facing form
-
-**Severity:** Medium, pending product decision  
-**Area:** Incomplete feature / Maintenance
-
-`app/api/contact/route.ts`, `lib/contact.ts`, `lib/rate-limit.ts`, Resend, and
-their environment variables and tests implement a substantial contact backend.
-No contact form component calls `/api/contact`, while `/contact` permanently
-redirects to `/`.
-
-**Impact:** The project maintains server code, credentials, rate limiting, and
-tests for functionality visitors cannot use.
-
-**Remediation:** If the form is in progress, track and finish the frontend and
-its accessible error/success behavior. Otherwise remove the dormant API and
-dependencies until there is a committed product need.
 
 ### TD-011 — Contact abuse protection depends on deployment configuration
 
@@ -384,34 +318,22 @@ specific sections that require it.
 
 ## Low priority
 
-### TD-022 — Dead components, duplicated SVG sources, and unused assets remain
+### TD-022 — Duplicated SVG sources and unused assets remain
 
 **Severity:** Low  
 **Area:** Repository hygiene
 
-- `components/sections/geography.tsx` and
-  `components/sections/selected-work.tsx` are not imported.
 - `components/svg/socials/*.svg` duplicates paths already in
   `components/icons.tsx` and is not imported.
 - Only the favicon, logo, and Giorgi portrait are referenced from the tracked
   `public/assets` set; numerous migration-era images remain.
 
 Unreferenced public assets do not increase browser transfer unless requested,
-but they add repository and deployment noise.
+but they add repository and deployment noise. The unused `Geography` and
+`SelectedWork` sections were removed.
 
 **Remediation:** Confirm no external URL depends on each public asset, then
-delete unused files or restore the intended sections.
-
-### TD-023 — `lucide-react` is declared but unused
-
-**Severity:** Low  
-**Area:** Dependencies
-
-`package.json` includes `lucide-react`, but there are no imports; the project
-uses local SVG components instead.
-
-**Remediation:** Remove the dependency or deliberately standardize generic UI
-icons on it.
+delete unused files.
 
 ### TD-024 — Compiler incremental output is tracked
 
@@ -419,12 +341,14 @@ icons on it.
 **Area:** Git hygiene
 
 `tsconfig.tsbuildinfo` is tracked, while `.gitignore` does not ignore
-`*.tsbuildinfo`. Running type-check or build modifies it.
+`*.tsbuildinfo`. Running type-check or build modifies it. `.DS_Store` is also
+tracked and not ignored.
 
-**Impact:** Routine validation produces noisy working-tree changes and merge
-conflicts.
+**Impact:** Routine validation and Finder metadata produce noisy working-tree
+changes and merge conflicts.
 
-**Remediation:** Ignore `*.tsbuildinfo` and remove the file from the Git index.
+**Remediation:** Ignore `*.tsbuildinfo` and `.DS_Store`, then remove both from
+the Git index.
 
 ### TD-025 — Styling contains silent and duplicated conventions
 
@@ -601,8 +525,9 @@ confirming no active environment relies on it.
 There is no `app/not-found.tsx`; the application uses Next.js's generic 404
 page.
 
-**Impact:** Mistyped or retired URLs lose the site's navigation, tone, and
-conversion path. This is more visible while TD-001 remains unresolved.
+**Impact:** Mistyped URLs lose the site's navigation, tone, and conversion
+path. Retired marketing URLs now redirect, so this mainly affects unknown
+paths.
 
 **Remediation:** Add a small branded not-found page linking to the homepage,
 selected work, and How I Work.
@@ -622,31 +547,72 @@ sequence.
 **Remediation:** Add `role="list"` to preserve cross-browser semantics, and
 retain the existing visual numbering.
 
+### TD-039 — CI does not run typecheck or a dependency audit
+
+**Severity:** Medium  
+**Area:** Delivery
+
+`.gitlab-ci.yml` runs lint, test, and build on Node 22. It does not run a
+standalone `tsc --noEmit` or `yarn npm audit`. `README.md` documents
+`dev`/`build`/`start`/`lint` only and omits `test` and the GitLab pipeline.
+
+**Impact:** Type errors that slip past ESLint, and known build-time
+vulnerabilities, will not fail a merge. Contributors may miss how to run the
+suite locally.
+
+**Remediation:** Add a typecheck script and CI job, add a production audit job
+(and optionally a scheduled full audit), and document `yarn test` plus CI in
+the README.
+
+### TD-040 — Tests fail unless the local Node version is 22
+
+**Severity:** Low  
+**Area:** Tooling
+
+`package.json` pins `engines.node` to `22.x` and CI uses `node:22`, but
+`engineStrict` is unset. Vitest 4 / Vite 8 fail to start on Node 21
+(`ERR_INVALID_ARG_VALUE` in Rolldown `styleText`).
+
+**Impact:** A developer on Node 21 cannot run tests even after an immutable
+install.
+
+**Remediation:** Enable `engineStrict` or add a pre-test Node version check.
+Keep the README requirement visible next to the test script.
+
+### TD-041 — Two capability cards link to the same page
+
+**Severity:** Low  
+**Area:** Information architecture
+
+`lib/content.ts` now points both AI Engineering and Product Engineering at
+`/how-i-work`. Those routes exist, so this is not a 404.
+
+**Impact:** Homepage cards have weaker destination scent; both “Explore”
+links land on the same page.
+
+**Remediation:** Link to distinct in-page anchors on `/how-i-work`, or accept
+the overlap as intentional.
+
 ## Decisions to confirm
 
 These are not automatically defects:
 
-1. **Contact API:** confirm whether the form UI is actively in progress before
-   removing any backend code.
-2. **Dual analytics:** confirm whether Vercel Analytics is for operational
+1. **Dual analytics:** confirm whether Vercel Analytics is for operational
    telemetry and GA4 for marketing attribution.
-3. **Rate-limit fail-open:** confirm that inquiry availability is intentionally
+2. **Rate-limit fail-open:** confirm that inquiry availability is intentionally
    prioritized over abuse protection during Redis outages.
-4. **Unused Selected Work and Geography sections:** confirm whether they are
-   intentionally staged for later homepage use.
-5. **“Mdio” naming:** confirm whether it is a legal entity name rather than
+3. **“Mdio” naming:** confirm whether it is a legal entity name rather than
    stale branding.
 
 ## Recommended remediation order
 
-1. Fix capability links and synchronize the sitemap (TD-001, TD-002).
-2. Fix route-level accessibility: About heading, mobile navigation, hidden
-   header, How I Work landmark, and skip link (TD-003–TD-006, TD-021).
-3. Add route-integrity tests and CI enforcement (TD-008, TD-009).
-4. Decide and finish/remove the contact frontend; verify production rate-limit
-   configuration (TD-010, TD-011).
-5. Simplify and harden testimonial and calendar interactions (TD-012–TD-014).
-6. Decide analytics/consent and add security headers (TD-015, TD-016).
-7. Optimize delivery assets and profile visual effects (TD-017, TD-018).
-8. Normalize content models and remove dead/generated repository artifacts
-   (TD-019, TD-022–TD-038).
+1. Fix remaining route-level accessibility: mobile navigation, hidden header,
+   and skip link (TD-004, TD-005, TD-021).
+2. Finish route-integrity coverage for redirects and generated `app/` pages
+   (remaining TD-009). Add CI typecheck and audit jobs (TD-039).
+3. Verify production rate-limit configuration (TD-011).
+4. Simplify and harden testimonial and calendar interactions (TD-012–TD-014).
+5. Decide analytics/consent and add security headers (TD-015, TD-016).
+6. Optimize delivery assets and profile visual effects (TD-017, TD-018).
+7. Normalize content models and remove dead/generated repository artifacts
+   (TD-019, TD-022, TD-024–TD-041).

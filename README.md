@@ -33,10 +33,11 @@ yarn lint     # ESLint (eslint-config-next)
 
 Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`. Copy `.env.example` and leave the values empty to run locally without tracking.
 
-Leftover Eleventy paths redirect permanently:
+Leftover Eleventy and retired marketing paths redirect permanently:
 
 - `/hero` → `/`
 - `/pravicy-statement` → `/privacy-policy`
+- `/ai-engineering`, `/product-development`, `/startup-development` → `/how-i-work`
 
 `/inquiry` is the contact form (posts to `POST /api/contact`). `/contact`
 temporarily redirects there — do not make that redirect permanent; a

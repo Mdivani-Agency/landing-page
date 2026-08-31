@@ -6,6 +6,7 @@ import { ConversationButton } from "@/components/conversation-button";
 import { Logo } from "@/components/logo";
 import { acquireScrollLock, releaseScrollLock } from "@/lib/scroll-lock";
 import { navLinks } from "@/lib/site";
+import { CalendarIcon } from "lucide-react";
 
 export function Header() {
   const [hidden, setHidden] = useState(false);
@@ -69,7 +70,10 @@ export function Header() {
           ))}
         </nav>
         <div className="hidden lg:block">
-          <ConversationButton size="sm">Book a call</ConversationButton>
+          <ConversationButton size="sm">
+            <CalendarIcon className="size-2.5 mr-1" />
+            Schedule a call
+          </ConversationButton>
         </div>
         <button
           type="button"
@@ -146,7 +150,7 @@ export function Header() {
           </nav>
           <div className="w-full pb-6">
             <ConversationButton className="w-full" onClick={closeMobileNav}>
-              Book a call
+              Schedule a call
             </ConversationButton>
           </div>
         </div>

@@ -11,11 +11,11 @@ export function HomeSections() {
   return (
     <>
       <Hero />
-      <AboutGiorgi eyebrow="Work with Giorgi" title="You hire the engineer, not a sales process." description={profileDescriptions.primary} />
-      <Testimonials />
       <WhatIBuild />
       <StudioModel />
       <Founders />
+      <Testimonials />
+      <AboutGiorgi eyebrow="Work with Giorgi" title={<>You hire the engineer, not a sales <br /> process.</>} description={profileDescriptions.primary} />
       <FinalCta />
     </>
   );

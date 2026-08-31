@@ -9,7 +9,7 @@ export function Testimonials() {
       <SectionHeader
         eyebrow="Testimonials"
         headingId="testimonials-heading"
-        title="What collaborators say after shipping with Giorgi."
+        title={<>What collaborators say after <br /> shipping with Giorgi.</>}
         copy="Published recommendations from people who built with him."
       />
       <TestimonialsRotator testimonials={testimonials} />

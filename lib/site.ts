@@ -24,13 +24,25 @@ export const navLinks = [
   { href: "/inquiry", label: "Contact", title: "Contact" },
 ] as const;
 
-export const footerLinks = [
-  ...navLinks,
+export const footerLinks = navLinks;
+
+export const legalLinks = [
   {
-    href: "/startup-development",
-    label: "Startup Development",
-    title: "Startup and greenfield product development",
+    href: "/privacy-policy",
+    label: "Privacy Policy",
+    title: "privacy policy",
   },
+  {
+    href: "/terms-of-service",
+    label: "Terms of Service",
+    title: "terms of service",
+  },
+] as const;
+
+export const publicPagePaths = [
+  "/",
+  ...navLinks.map((link) => link.href),
+  ...legalLinks.map((link) => link.href),
 ] as const;
 
 export const profileLinks = [

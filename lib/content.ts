@@ -1,7 +1,7 @@
 export const capabilities = [
   {
     id: "ai",
-    href: "/ai-engineering",
+    href: "/how-i-work",
     eyebrow: "Primary focus",
     title: "AI Engineering",
     summary:
@@ -19,7 +19,7 @@ export const capabilities = [
   },
   {
     id: "product",
-    href: "/product-development",
+    href: "/how-i-work",
     eyebrow: "Product",
     title: "Product Engineering",
     summary:

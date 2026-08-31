@@ -27,7 +27,7 @@ type StageListItemProps = {
 
 export function StageListItem({ index, title, body, children }: StageListItemProps) {
   return (
-    <li className="flex items-start gap-2 border-t border-subtle pt-2">
+    <li className="flex items-center gap-2 border-t border-subtle pt-2">
       <span className="min-w-4 text-xs tracking-label text-secondary">
         {String(index + 1).padStart(2, "0")}
       </span>

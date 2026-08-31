@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useCalendar } from "@/components/calendar-provider";
+import { MessageCircleIcon } from "lucide-react";
 
 type CtaVariant = "primary" | "ghost";
 type CtaSize = "md" | "sm";
@@ -83,6 +84,7 @@ export function ContactCtaLink({
       title="Tell me about your project"
       className={ctaButtonClassName({ variant, size, className })}
     >
+      <MessageCircleIcon className="size-2.5 mr-1" />
       {children}
     </Link>
   );

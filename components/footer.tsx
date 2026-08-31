@@ -2,7 +2,7 @@ import Link from "next/link";
 import { LinkedInIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
 import { MailLink } from "@/components/mail-link";
-import { footerLinks, site, socialLinks } from "@/lib/site";
+import { footerLinks, legalLinks, site, socialLinks } from "@/lib/site";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -50,20 +50,16 @@ export function Footer() {
       </div>
       <div className="flex flex-col md:flex-row gap-2 justify-between mb-4">
         <div className="flex items-center gap-4">
-          <Link
-            title="privacy policy"
-            className="text-xs font-regular"
-            href="/privacy-policy"
-          >
-            Privacy Policy
-          </Link>
-          <Link
-            title="terms of service"
-            className="text-xs font-regular"
-            href="/terms-of-service"
-          >
-            Terms of Service
-          </Link>
+          {legalLinks.map((link) => (
+            <Link
+              key={link.href}
+              title={link.title}
+              className="text-xs font-regular"
+              href={link.href}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
         <span className="text-xs font-regular">
           © {year} Mdivani Agency. All rights reserved.

@@ -27,6 +27,36 @@ const nextConfig = {
       // permanently redirected.
       { source: "/contact", destination: "/inquiry", permanent: false },
       { source: "/contact/", destination: "/inquiry", permanent: false },
+      {
+        source: "/ai-engineering",
+        destination: "/how-i-work",
+        permanent: true,
+      },
+      {
+        source: "/ai-engineering/",
+        destination: "/how-i-work",
+        permanent: true,
+      },
+      {
+        source: "/product-development",
+        destination: "/how-i-work",
+        permanent: true,
+      },
+      {
+        source: "/product-development/",
+        destination: "/how-i-work",
+        permanent: true,
+      },
+      {
+        source: "/startup-development",
+        destination: "/how-i-work",
+        permanent: true,
+      },
+      {
+        source: "/startup-development/",
+        destination: "/how-i-work",
+        permanent: true,
+      },
     ];
   },
 };

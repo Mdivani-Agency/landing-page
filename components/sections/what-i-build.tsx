@@ -11,7 +11,7 @@ export function WhatIBuild() {
       <SectionHeader
         eyebrow="What I build"
         headingId="build-heading"
-        title="AI first. Product and architecture beside it."
+        title={<>AI first. <br /> Product and architecture beside it.</>}
         copy="AI engineering is the sharpest edge. The same engagement can still cover the product, the cloud, and the first team around it."
       />
       <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr]">

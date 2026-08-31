@@ -16,7 +16,8 @@ export default function AboutPage() {
   return (
     <section className="space-y-16">
       <AboutGiorgi
-        title="Giorgi Mdivani, Founder and Lead AI Engineer at Mdivani Agency."
+        headingAs="h1"
+        title={<>Giorgi Mdivani, <br /> Founder and Lead AI Engineer</>}
         description={profileDescriptions.secondary}
       />
       <Testimonials />

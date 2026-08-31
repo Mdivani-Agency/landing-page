@@ -250,6 +250,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
       aria-label="Client testimonials"
       data-paused={paused ? "true" : "false"}
       onPointerDown={onCardPointerDown}
+      variant="featured"
     >
       <div
         className="grid"

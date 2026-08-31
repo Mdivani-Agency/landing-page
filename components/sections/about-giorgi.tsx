@@ -3,17 +3,29 @@ import { ProfileLinks } from "@/components/profile-links";
 import { Section } from "@/components/section";
 import { SectionHeader } from "@/components/section-header";
 import { expertise } from "@/lib/content";
+import { ReactNode } from "react";
 
 interface AboutGiorgiProps {
-  title: string;
+  title: string | ReactNode;
   eyebrow?: string;
+  headingAs?: "h1" | "h2";
   description: string;
 }
 
-export function AboutGiorgi({ title, eyebrow, description }: AboutGiorgiProps) {
+export function AboutGiorgi({
+  title,
+  eyebrow,
+  headingAs,
+  description,
+}: AboutGiorgiProps) {
   return (
     <Section id="about" labelledBy="about-heading">
-      <SectionHeader eyebrow={eyebrow} headingId="about-heading" title={title} />
+      <SectionHeader
+        eyebrow={eyebrow}
+        headingId="about-heading"
+        headingAs={headingAs}
+        title={title}
+      />
       <div className="grid gap-3 md:grid-cols-[28rem_1fr]">
         <AboutIdentity />
         <div className="flex flex-col gap-2 text-md leading-[1.55] text-muted">

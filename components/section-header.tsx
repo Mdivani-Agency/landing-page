@@ -1,16 +1,19 @@
 import type { ReactNode } from "react";
 import { Eyebrow } from "@/components/eyebrow";
 
+type HeadingLevel = "h1" | "h2";
+
 type SectionTitleProps = {
+  as?: HeadingLevel;
   id?: string;
   children: ReactNode;
 };
 
-export function SectionTitle({ id, children }: SectionTitleProps) {
+export function SectionTitle({ as: Tag = "h2", id, children }: SectionTitleProps) {
   return (
-    <h2 id={id} className="max-w-[22ch] font-serif text-heading">
+    <Tag id={id} className="font-serif text-heading">
       {children}
-    </h2>
+    </Tag>
   );
 }
 
@@ -27,6 +30,7 @@ export function SectionCopy({ children }: SectionCopyProps) {
 type SectionHeaderProps = {
   eyebrow?: ReactNode;
   headingId: string;
+  headingAs?: HeadingLevel;
   title: ReactNode;
   copy?: ReactNode;
 };
@@ -34,13 +38,16 @@ type SectionHeaderProps = {
 export function SectionHeader({
   eyebrow,
   headingId,
+  headingAs,
   title,
   copy,
 }: SectionHeaderProps) {
   return (
     <header className="flex flex-col gap-1.5">
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-      <SectionTitle id={headingId}>{title}</SectionTitle>
+      <SectionTitle as={headingAs} id={headingId}>
+        {title}
+      </SectionTitle>
       {copy && <SectionCopy>{copy}</SectionCopy>}
     </header>
   );

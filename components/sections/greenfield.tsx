@@ -2,6 +2,8 @@ import { Section } from "@/components/section";
 import { SectionHeader } from "@/components/section-header";
 import { StageList, StageListItem } from "@/components/stage-list";
 import { TextLink } from "@/components/text-link";
+import { BuildingIcon, LightbulbIcon, CodeIcon, PencilIcon, RocketIcon } from "lucide-react";
+import { Card } from "../card";
 
 const stages = [
   "Idea",
@@ -11,9 +13,17 @@ const stages = [
   "Launch",
 ] as const;
 
+const iconMap = {
+  "Idea": <LightbulbIcon className="size-2.5 mr-1" />,
+  "Definition": <PencilIcon className="size-2.5 mr-1" />,
+  "Architecture": <BuildingIcon className="size-2.5 mr-1" />,
+  "Build": <CodeIcon className="size-2.5 mr-1" />,
+  "Launch": <RocketIcon className="size-2.5 mr-1" />,
+} as const;
+
 export function Greenfield() {
   return (
-    <Section id="greenfield" labelledBy="greenfield-heading">
+    <Card as="section" id="greenfield" aria-labelledby="greenfield-heading" className="flex flex-col gap-4" variant="featured">
       <SectionHeader
         eyebrow="Starting from zero"
         headingId="greenfield-heading"
@@ -23,15 +33,10 @@ export function Greenfield() {
       <StageList className="md:grid-cols-3 lg:grid-cols-5">
         {stages.map((stage, index) => (
           <StageListItem key={stage} index={index}>
-            <span>{stage}</span>
+            <span className="text-sm font-medium flex items-center"><span className="size-2.5 mr-1">{iconMap[stage]}</span> {stage}</span>
           </StageListItem>
         ))}
       </StageList>
-      <p>
-        <TextLink href="/startup-development">
-          How greenfield engagements work
-        </TextLink>
-      </p>
-    </Section>
+    </Card>
   );
 }

@@ -5,7 +5,14 @@ import {
   selectedWork,
   testimonials,
 } from "@/lib/content";
-import { footerLinks, navLinks, site } from "@/lib/site";
+import sitemap from "@/app/sitemap";
+import {
+  footerLinks,
+  legalLinks,
+  navLinks,
+  publicPagePaths,
+  site,
+} from "@/lib/site";
 
 describe("capabilities", () => {
   it("exposes exactly one featured capability with unique ids", () => {
@@ -16,9 +23,9 @@ describe("capabilities", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("links every capability to an internal page", () => {
+  it("links every capability to a live internal page", () => {
     for (const capability of capabilities) {
-      expect(capability.href).toMatch(/^\//);
+      expect(publicPagePaths).toContain(capability.href);
       expect(capability.items.length).toBeGreaterThan(0);
     }
   });
@@ -76,6 +83,24 @@ describe("site config", () => {
     }
 
     expect(navHrefs).toContain("/inquiry");
+    expect(footerHrefs).not.toContain("/startup-development");
+  });
+
+  it("publishes only live public pages in the sitemap", () => {
+    const sitemapUrls = sitemap().map((entry) => entry.url);
+    const expectedUrls = publicPagePaths.map((path) =>
+      path === "/" ? site.url : `${site.url}${path}`,
+    );
+
+    expect(sitemapUrls).toEqual(expectedUrls);
+    expect(sitemapUrls).toContain(`${site.url}/how-i-work`);
+    expect(sitemapUrls).not.toContain(`${site.url}/ai-engineering`);
+    expect(sitemapUrls).not.toContain(`${site.url}/product-development`);
+    expect(sitemapUrls).not.toContain(`${site.url}/startup-development`);
+    expect(legalLinks.map((link) => link.href)).toEqual([
+      "/privacy-policy",
+      "/terms-of-service",
+    ]);
   });
 
   it("points the calendar at a secure Google Calendar booking page", () => {

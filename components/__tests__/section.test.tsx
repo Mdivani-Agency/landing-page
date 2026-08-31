@@ -61,6 +61,20 @@ describe("SectionHeader", () => {
       screen.getByRole("heading", { level: 2, name: "Just a title" }),
     ).toBeInTheDocument();
   });
+
+  it("can render a page-level heading", () => {
+    render(
+      <SectionHeader
+        headingAs="h1"
+        headingId="about-heading"
+        title="Giorgi Mdivani"
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Giorgi Mdivani" }),
+    ).toHaveAttribute("id", "about-heading");
+  });
 });
 
 describe("SectionTitle", () => {

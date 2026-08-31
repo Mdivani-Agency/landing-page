@@ -1,12 +1,8 @@
 import { PageIntro } from "@/components/page-intro";
-import { Section } from "@/components/section";
-import { capabilities } from "@/lib/content";
-import { createPageMetadata } from "@/lib/metadata";
-import { HowIWork } from "@/components/sections/how-i-work";
 import { Greenfield } from "@/components/sections/greenfield";
+import { HowIWork } from "@/components/sections/how-i-work";
 import { WhatIBuild } from "@/components/sections/what-i-build";
-
-const capability = capabilities[0];
+import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
   title: "AI Product Development Process",
@@ -15,19 +11,19 @@ export const metadata = createPageMetadata({
   path: "/how-i-work",
 });
 
-export default function AiEngineeringPage() {
+export default function HowIWorkPage() {
   return (
-    <article className="space-y-16 divide-y divide-gray-100">
+    <article className="space-y-16">
       <PageIntro
         eyebrow="How I Work"
         title="Product first, reliability next."
         lede="I design and ship LLM features, agents, and knowledge systems for founders who need them in production — evaluated, observable, and wired into the rest of the stack."
       />
-      <Section className="space-y-16" labelledBy="ai-how-heading">
-        <HowIWork />
-        <Greenfield />
+      <div className="space-y-16">
         <WhatIBuild />
-      </Section>
+        <Greenfield />
+        <HowIWork />
+      </div>
     </article>
   );
 }

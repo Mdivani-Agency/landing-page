@@ -119,19 +119,21 @@ describe("page CTAs", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("keeps only the header Book a call button as the calendar opener", () => {
+  it("keeps only the header Schedule a call button as the calendar opener", () => {
     renderWithCalendar(<Header />);
 
     expect(
       screen.queryByRole("button", { name: "Start a conversation" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("link", { name: "Book a call" }),
+      screen.queryByRole("link", { name: "Schedule a call" }),
     ).not.toBeInTheDocument();
 
-    const bookButtons = screen.getAllByRole("button", { name: "Book a call" });
-    expect(bookButtons.length).toBeGreaterThanOrEqual(1);
-    for (const button of bookButtons) {
+    const scheduleButtons = screen.getAllByRole("button", {
+      name: "Schedule a call",
+    });
+    expect(scheduleButtons.length).toBeGreaterThanOrEqual(1);
+    for (const button of scheduleButtons) {
       expect(button).toHaveAttribute("title", "Book a call");
     }
   });

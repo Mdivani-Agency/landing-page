@@ -1,6 +1,6 @@
+import { Card } from "@/components/card";
 import { Eyebrow } from "@/components/eyebrow";
 import { PageIntro } from "@/components/page-intro";
-import { Section } from "@/components/section";
 import { SectionTitle } from "@/components/section-header";
 import { selectedWork } from "@/lib/content";
 import { createPageMetadata } from "@/lib/metadata";
@@ -14,17 +14,20 @@ export const metadata = createPageMetadata({
 
 export default function WorkPage() {
   return (
-    <article className="space-y-16 divide-y divide-gray-100">
+    <article className="space-y-16">
       <PageIntro
         eyebrow="Work"
         title="Selected work"
         lede="Engagements Giorgi has owned or led in production. Outcomes below are from public descriptions of that work — not invented testimonials."
       />
       {selectedWork.map((item) => (
-        <Section
+        <Card
+          as="section"
           key={item.slug}
           id={item.slug}
-          labelledBy={`${item.slug}-heading`}
+          aria-labelledby={`${item.slug}-heading`}
+          className="flex flex-col gap-1.5"
+          variant="featured"
         >
           <Eyebrow>
             {item.client} · {item.role}
@@ -84,7 +87,7 @@ export default function WorkPage() {
             </div>
           </dl>
           <p className="text-xs text-muted">{item.stack.join(" · ")}</p>
-        </Section>
+        </Card>
       ))}
     </article>
   );
