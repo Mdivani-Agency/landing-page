@@ -56,6 +56,17 @@ the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).
 | --- | --- |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `G-PJ84DYZ4WS` |
 | `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | optional alias; leave unset if the GA var is set |
+| `RESEND_API_KEY` | Resend API key for `POST /api/contact` (server-only, MDI-77) |
+| `CONTACT_FROM_EMAIL` | From address on the Resend-verified `mdivani.agency` domain, e.g. `noreply@mdivani.agency` (the display name lives in code) |
+| `CONTACT_TO_EMAIL` | Inbox that receives inquiries, e.g. `giorgi@mdivani.agency` |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL used to rate-limit `POST /api/contact` |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token (server-only) |
+
+The contact variables are server-only — never prefix them with
+`NEXT_PUBLIC_`. Without the Upstash pair the route falls back to a
+best-effort in-memory rate limit that does not hold across serverless
+isolates, so set both before enabling production sends (or add an equivalent
+Vercel Firewall rule for `/api/contact`).
 
 Local `.env` / `.env.example` stay empty so `yarn dev` does not send analytics.
 

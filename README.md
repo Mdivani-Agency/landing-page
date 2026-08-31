@@ -47,4 +47,4 @@ Hosting notes: [`docs/vercel-cutover.md`](docs/vercel-cutover.md).
 - Build: `yarn build`
 - Node.js: **22.x** in Project Settings
 - Production Branch: `development` until Next.js is merged to `main`
-- Env (Production and Preview, not git): `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-PJ84DYZ4WS`
+- Env (Production and Preview, not git): `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-PJ84DYZ4WS`, plus the server-only contact form variables (`RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`) — see [`docs/vercel-cutover.md`](docs/vercel-cutover.md)
