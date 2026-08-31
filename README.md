@@ -38,7 +38,10 @@ Leftover Eleventy paths redirect permanently:
 - `/hero` → `/`
 - `/pravicy-statement` → `/privacy-policy`
 
-`/contact` is a real page (inquiry form → `POST /api/contact`).
+`/inquiry` is the contact form (posts to `POST /api/contact`). `/contact`
+temporarily redirects there — do not make that redirect permanent; a
+cached 308 from the old Eleventy `/contact` → `/` mapping is why the
+form does not live at `/contact`.
 
 ## Vercel
 

@@ -70,7 +70,7 @@ describe("ConversationButton", () => {
 });
 
 describe("ContactCtaLink", () => {
-  it("goes to /contact and does not open the calendar", async () => {
+  it("goes to /inquiry and does not open the calendar", async () => {
     const user = userEvent.setup();
 
     renderWithCalendar(
@@ -83,7 +83,7 @@ describe("ContactCtaLink", () => {
     const link = screen.getByRole("link", {
       name: "Let’s talk about your product",
     });
-    expect(link).toHaveAttribute("href", "/contact");
+    expect(link).toHaveAttribute("href", "/inquiry");
     expect(link).toHaveAttribute("title", "Tell me about your project");
 
     await user.click(link);
@@ -93,7 +93,7 @@ describe("ContactCtaLink", () => {
 });
 
 describe("page CTAs", () => {
-  it("send hero, closing, and inner-page intros to /contact", () => {
+  it("send hero, closing, and inner-page intros to /inquiry", () => {
     render(
       <>
         <Hero />
@@ -112,7 +112,7 @@ describe("page CTAs", () => {
 
     expect(links).toHaveLength(3);
     for (const link of links) {
-      expect(link).toHaveAttribute("href", "/contact");
+      expect(link).toHaveAttribute("href", "/inquiry");
     }
     expect(
       screen.queryByRole("button", { name: "Let’s talk about your product" }),

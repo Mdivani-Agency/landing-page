@@ -79,7 +79,7 @@ export function ContactCtaLink({
 }: ContactCtaLinkProps) {
   return (
     <Link
-      href="/contact"
+      href="/inquiry"
       title="Tell me about your project"
       className={ctaButtonClassName({ variant, size, className })}
     >

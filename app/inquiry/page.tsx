@@ -7,10 +7,10 @@ export const metadata = createPageMetadata({
   title: "Contact",
   description:
     "Tell Giorgi about your product — project type, timeline, and what you want to build. Inquiries get a reply within 1–2 business days.",
-  path: "/contact",
+  path: "/inquiry",
 });
 
-export default function ContactPage() {
+export default function InquiryPage() {
   return (
     <article>
       <PageIntro
