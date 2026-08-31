@@ -32,8 +32,10 @@ const emptyValues = {
   timeline: "",
   description: "",
   link: "",
-  website: "",
+  companyFax: "",
 };
+
+const HONEYPOT_INPUT_ID = "contact-company-fax";
 
 const inputClass =
   "w-full rounded-card border border-subtle bg-card p-2 text-sm text-primary placeholder:text-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-secondary";
@@ -78,6 +80,8 @@ export function ContactForm() {
   const [pending, setPending] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
   const successRef = useRef<HTMLDivElement>(null);
+  const submittingRef = useRef(false);
+  const focusFirstErrorRef = useRef(false);
 
   useEffect(() => {
     if (succeeded) {
@@ -85,14 +89,34 @@ export function ContactForm() {
     }
   }, [succeeded]);
 
+  useEffect(() => {
+    if (!focusFirstErrorRef.current) {
+      return;
+    }
+
+    const firstInvalid = FIELD_ORDER.find((field) => errors[field]);
+    if (firstInvalid) {
+      document.getElementById(fieldId(firstInvalid))?.focus();
+    }
+
+    focusFirstErrorRef.current = false;
+  }, [errors]);
+
   function updateField(name: keyof typeof emptyValues, value: string) {
     setValues((current) => ({ ...current, [name]: value }));
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (pending || submittingRef.current) {
+      return;
+    }
+
+    submittingRef.current = true;
     setPending(true);
     setErrors({});
+    focusFirstErrorRef.current = false;
 
     try {
       const response = await fetch("/api/contact", {
@@ -107,7 +131,7 @@ export function ContactForm() {
           timeline: values.timeline,
           description: values.description,
           link: values.link,
-          website: values.website,
+          website: values.companyFax,
         }),
       });
 
@@ -125,11 +149,8 @@ export function ContactForm() {
       }
 
       if (response.status === 400 && data.errors) {
+        focusFirstErrorRef.current = true;
         setErrors(data.errors);
-        const firstInvalid = FIELD_ORDER.find((field) => data.errors?.[field]);
-        if (firstInvalid) {
-          document.getElementById(fieldId(firstInvalid))?.focus();
-        }
         return;
       }
 
@@ -339,16 +360,18 @@ export function ContactForm() {
         <FieldError name="link" message={errors.link} />
       </div>
 
-      <div className="sr-only">
-        <label htmlFor="contact-website">Website</label>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-[9999px] h-0 w-0 overflow-hidden"
+      >
         <input
-          id="contact-website"
-          name="website"
+          id={HONEYPOT_INPUT_ID}
+          name="company_fax"
           type="text"
           tabIndex={-1}
           autoComplete="off"
-          value={values.website}
-          onChange={(event) => updateField("website", event.target.value)}
+          value={values.companyFax}
+          onChange={(event) => updateField("companyFax", event.target.value)}
         />
       </div>
 
