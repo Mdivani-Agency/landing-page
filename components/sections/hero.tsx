@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ConversationButton } from "@/components/conversation-button";
+import { ContactCtaLink } from "@/components/conversation-button";
 import { Eyebrow } from "@/components/eyebrow";
 import { site } from "@/lib/site";
 
@@ -22,7 +22,7 @@ export function Hero() {
         with me. I bring the team when needed.
       </p>
       <div className="mt-4 flex flex-wrap gap-1.5">
-        <ConversationButton>Let’s talk about your product</ConversationButton>
+        <ContactCtaLink>Let’s talk about your product</ContactCtaLink>
         <Link
           href="/work"
           className="inline-flex min-h-6 items-center justify-center rounded-full border border-subtle bg-transparent px-3 text-sm leading-[1.2] text-primary no-underline hover:opacity-[0.86]"
