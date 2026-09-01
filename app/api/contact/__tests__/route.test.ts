@@ -181,6 +181,9 @@ describe("POST /api/contact", () => {
       expect.objectContaining({
         message: "contact: missing env RESEND_API_KEY",
       }),
+      expect.objectContaining({
+        tags: { area: "contact" },
+      }),
     );
     expect(send).not.toHaveBeenCalled();
   });
@@ -203,7 +206,35 @@ describe("POST /api/contact", () => {
     expect(error).toHaveBeenCalledWith("contact: resend failed", {
       message: "secret",
     });
-    expect(captureException).toHaveBeenCalledWith({ message: "secret" });
+    expect(captureException).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Error",
+        message: "secret",
+      }),
+      expect.objectContaining({
+        tags: { area: "contact" },
+      }),
+    );
+    expect(captureException.mock.calls[0][0]).toBeInstanceOf(Error);
+  });
+
+  it("includes the Resend status code when reporting a send error", async () => {
+    send.mockResolvedValue({
+      data: null,
+      error: { message: "rate limited", statusCode: 429 },
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const { POST } = await importRoute();
+    const response = await POST(postRequest(validPayload));
+
+    expect(response.status).toBe(500);
+    expect(captureException).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "rate limited" }),
+      expect.objectContaining({
+        tags: { area: "contact" },
+        extra: { statusCode: 429 },
+      }),
+    );
   });
 });
 
