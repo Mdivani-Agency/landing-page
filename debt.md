@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-08-31 (reconciled with current CI, routing, and form work)
+Last updated: 2026-09-01 (Sentry review residuals)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -210,7 +210,9 @@ minimum-size close button inside the modal chrome.
 whenever a measurement ID exists (`components/analytics.tsx`) without a consent
 state. The privacy policy describes cookies generally but there is no consent
 implementation. `lib/analytics.ts` tracks only pathname identity and queues
-events at module scope.
+events at module scope. That `pendingEvents` array is unbounded: if `gtag`
+never becomes available, every click and page view keeps accumulating in
+memory.
 
 **Impact:** Two analytics systems create overlapping operational ownership.
 Depending on visitor jurisdiction and GA configuration, unconditional GA4 may
@@ -315,6 +317,40 @@ specific sections that require it.
 
 **Remediation:** Add a focus-visible skip link and a stable ID/focus target on
 `main`.
+
+### TD-042 — Sentry tunnel `/monitoring` has no rate limit
+
+**Severity:** Medium  
+**Area:** Reliability / Abuse prevention
+
+`next.config.mjs` sets `tunnelRoute: "/monitoring"` so browser events can
+bypass ad blockers. The public DSN already allows quota burn; the extra cost
+unique to the tunnel is unauthenticated Vercel invocations with no application
+rate limit (unlike `POST /api/contact`).
+
+**Impact:** A client can generate function invocations (and Sentry ingest
+volume) without going through the contact-form limiter.
+
+**Remediation:** Add a Vercel Firewall / rate-limit rule for `/monitoring`, or
+drop the tunnel if ad-block bypass is not required.
+
+### TD-043 — Calendar modal can close itself under React Strict Mode
+
+**Severity:** Medium  
+**Area:** Conversion reliability
+
+`components/calendar-modal.tsx:16-108` opens the dialog in an effect and
+closes it in the effect cleanup. The dialog `onClose` handler at lines
+117-121 calls `closeCalendar()` whenever `isOpen` is still true. React
+Strict Mode (and any future remount) runs that cleanup immediately, so
+opening the calendar can dismiss it before the iframe appears.
+
+**Impact:** Local `yarn dev` and any remount can make the primary conversion
+modal flash open then close.
+
+**Remediation:** Distinguish user-initiated `dialog.close()` from effect
+cleanup, or stop calling `closeCalendar()` from `onClose` when the effect is
+tearing down. Cover open/close with a focused test.
 
 ## Low priority
 
@@ -610,8 +646,10 @@ These are not automatically defects:
    and skip link (TD-004, TD-005, TD-021).
 2. Finish route-integrity coverage for redirects and generated `app/` pages
    (remaining TD-009). Add CI typecheck and audit jobs (TD-039).
-3. Verify production rate-limit configuration (TD-011).
-4. Simplify and harden testimonial and calendar interactions (TD-012–TD-014).
+3. Verify production rate-limit configuration (TD-011) and add a Firewall
+   rule for the Sentry tunnel (TD-042).
+4. Simplify and harden testimonial and calendar interactions (TD-012–TD-014,
+   TD-043).
 5. Decide analytics/consent and add security headers (TD-015, TD-016).
 6. Optimize delivery assets and profile visual effects (TD-017, TD-018).
 7. Normalize content models and remove dead/generated repository artifacts
