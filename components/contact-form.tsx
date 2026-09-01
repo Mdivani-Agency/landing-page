@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { TextLink } from "@/components/text-link";
+import { trackAdsConversionAboutUs } from "@/lib/analytics";
 import {
   BUDGETS,
   PROJECT_TYPES,
@@ -144,6 +145,7 @@ export function ContactForm() {
       }
 
       if (response.ok && data.ok) {
+        trackAdsConversionAboutUs();
         setSucceeded(true);
         return;
       }

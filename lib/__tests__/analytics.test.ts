@@ -68,6 +68,18 @@ describe("event queueing", () => {
     });
   });
 
+  it("sends the Google Ads contact conversion event", async () => {
+    const gtag = vi.fn();
+    window.gtag = gtag;
+
+    const { trackAdsConversionAboutUs } = await importAnalytics();
+    trackAdsConversionAboutUs();
+
+    expect(gtag).toHaveBeenCalledWith("event", "ads_conversion_About_Us_1", {
+      source: null,
+    });
+  });
+
   it("queues events until analytics is ready, then flushes in order", async () => {
     const { trackPageView, trackScheduleCallClick, markAnalyticsReady } =
       await importAnalytics();

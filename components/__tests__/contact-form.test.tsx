@@ -2,8 +2,13 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ContactForm } from "@/components/contact-form";
+import { trackAdsConversionAboutUs } from "@/lib/analytics";
 import { PROJECT_TYPES, TIMELINES } from "@/lib/contact";
 import { site } from "@/lib/site";
+
+vi.mock("@/lib/analytics", () => ({
+  trackAdsConversionAboutUs: vi.fn(),
+}));
 
 const validDescription =
   "We want to build an AI-assisted product for founders starting from an idea.";
@@ -40,6 +45,7 @@ function postedBody() {
 
 describe("ContactForm", () => {
   beforeEach(() => {
+    vi.mocked(trackAdsConversionAboutUs).mockClear();
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -140,6 +146,7 @@ describe("ContactForm", () => {
       }),
     );
     expect(postedBody()).toEqual(filledPayload);
+    expect(trackAdsConversionAboutUs).toHaveBeenCalledTimes(1);
   });
 
   it("shows a form-level error with a mailto fallback on 500", async () => {
@@ -166,6 +173,7 @@ describe("ContactForm", () => {
       "href",
       `mailto:${site.email}`,
     );
+    expect(trackAdsConversionAboutUs).not.toHaveBeenCalled();
   });
 
   it("shows the same form-level alert when fetch rejects", async () => {

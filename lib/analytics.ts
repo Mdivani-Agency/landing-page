@@ -61,3 +61,9 @@ export function trackScheduleCallClick(): void {
     source: getUtmSource(),
   });
 }
+
+export function trackAdsConversionAboutUs(): void {
+  enqueueEvent("ads_conversion_About_Us_1", {
+    source: getUtmSource(),
+  });
+}
