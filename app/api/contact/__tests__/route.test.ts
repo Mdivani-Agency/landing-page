@@ -6,12 +6,19 @@ import {
 } from "@/lib/contact";
 import { CONTACT_RATE_LIMIT_MAX_REQUESTS } from "@/lib/rate-limit";
 
-const { send } = vi.hoisted(() => ({ send: vi.fn() }));
+const { send, captureException } = vi.hoisted(() => ({
+  send: vi.fn(),
+  captureException: vi.fn(),
+}));
 
 vi.mock("resend", () => ({
   Resend: class {
     emails = { send };
   },
+}));
+
+vi.mock("@sentry/nextjs", () => ({
+  captureException,
 }));
 
 const validPayload = {
@@ -44,6 +51,7 @@ describe("POST /api/contact", () => {
   beforeEach(() => {
     vi.resetModules();
     send.mockReset();
+    captureException.mockReset();
     send.mockResolvedValue({ data: { id: "email_1" }, error: null });
     vi.stubEnv("RESEND_API_KEY", "re_test");
     vi.stubEnv("CONTACT_FROM_EMAIL", "noreply@sales.mdivani.agency");
@@ -169,6 +177,11 @@ describe("POST /api/contact", () => {
       },
     });
     expect(error).toHaveBeenCalledWith("contact: missing env", "RESEND_API_KEY");
+    expect(captureException).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "contact: missing env RESEND_API_KEY",
+      }),
+    );
     expect(send).not.toHaveBeenCalled();
   });
 
@@ -190,6 +203,7 @@ describe("POST /api/contact", () => {
     expect(error).toHaveBeenCalledWith("contact: resend failed", {
       message: "secret",
     });
+    expect(captureException).toHaveBeenCalledWith({ message: "secret" });
   });
 });
 

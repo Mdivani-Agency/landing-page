@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { Resend } from "resend";
 import {
   declaredContentLengthExceedsLimit,
@@ -81,6 +82,9 @@ export async function POST(request: Request) {
 
   if (!env.ok) {
     console.error("contact: missing env", env.missing.join(", "));
+    Sentry.captureException(
+      new Error(`contact: missing env ${env.missing.join(", ")}`),
+    );
     return sendFailed();
   }
 
@@ -98,10 +102,12 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("contact: resend failed", error);
+      Sentry.captureException(error);
       return sendFailed();
     }
   } catch (error) {
     console.error("contact: resend failed", error);
+    Sentry.captureException(error);
     return sendFailed();
   }
 
