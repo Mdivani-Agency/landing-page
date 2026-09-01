@@ -23,7 +23,7 @@ const iconMap = {
 
 export function Greenfield() {
   return (
-    <Card as="section" id="greenfield" aria-labelledby="greenfield-heading" className="flex flex-col gap-4" variant="featured">
+    <Card as="section" id="greenfield" aria-labelledby="greenfield-heading" className="gap-4" variant="featured">
       <SectionHeader
         eyebrow="Starting from zero"
         headingId="greenfield-heading"
