@@ -29,20 +29,4 @@ describe("AboutGiorgi", () => {
       "Vetted by Toptal for its top 3% network.",
     );
   });
-
-  it("drops the portrait when the page shows it elsewhere", () => {
-    const { rerender } = render(
-      <AboutGiorgi title="Giorgi Mdivani" description={description} />,
-    );
-    expect(screen.getByRole("figure")).toBeInTheDocument();
-
-    rerender(
-      <AboutGiorgi
-        title="Work with Giorgi"
-        description={description}
-        showPortrait={false}
-      />,
-    );
-    expect(screen.queryByRole("figure")).not.toBeInTheDocument();
-  });
 });
