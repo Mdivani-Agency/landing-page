@@ -122,6 +122,20 @@ describe("validateContactPayload", () => {
     });
   });
 
+  it("rejects a sub-$10k budget", () => {
+    expect(BUDGETS).not.toContain("< $10k");
+
+    const result = validateContactPayload({
+      ...validPayload,
+      budget: "< $10k",
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      errors: { budget: "Select a valid budget range." },
+    });
+  });
+
   it("rejects a description that is too short", () => {
     const result = validateContactPayload({
       ...validPayload,

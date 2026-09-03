@@ -17,9 +17,8 @@ export function Hero() {
         Build your AI product from idea to production.
       </h1>
       <p className="mt-3 max-w-[62rem] text-md leading-[1.55] text-muted">
-        I’m Giorgi Mdivani, a senior software engineer helping founders turn
-        ambitious ideas into production-ready software and AI products. You work
-        with me. I bring the team when needed.
+        Founders hire me to take an AI product from idea to production. You work
+        with me. I bring people when the build needs more than one senior.
       </p>
       <div className="mt-4 flex flex-wrap gap-1.5">
         <ContactCtaLink>Let’s talk about your product</ContactCtaLink>
