@@ -49,7 +49,19 @@ describe("selectedWork", () => {
 
     for (const work of selectedWork) {
       expect(work.href).toBe(`/work#${work.slug}`);
+      expect(work.name).not.toBe("");
       expect(work.stack.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("features two to three cases with a plain-language homepage outcome", () => {
+    const featured = selectedWork.filter((work) => work.homeOutcome);
+
+    expect(featured.length).toBeGreaterThanOrEqual(2);
+    expect(featured.length).toBeLessThanOrEqual(3);
+
+    for (const work of featured) {
+      expect(work.homeOutcome).not.toBe("");
     }
   });
 });

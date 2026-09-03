@@ -77,10 +77,13 @@ export const processSteps = [
 export type SelectedWork = {
   href: string;
   slug: string;
+  name: string;
   client: string;
   role: string;
   title: string;
   tagline?: string;
+  /** Plain-language outcome. Present on the cases featured on the homepage. */
+  homeOutcome?: string;
   problem: string;
   built: string;
   challenge: string;
@@ -94,9 +97,12 @@ export const selectedWork: readonly SelectedWork[] = [
   {
     href: "/work#metis",
     slug: "metis",
+    name: "METIS",
     client: "METIS / Lloyd’s MGA",
     role: "AI Engineer / Fractional technical lead",
     title: "Operational compliance platform for a Lloyd’s MGA",
+    homeOutcome:
+      "A regulated insurance business ran approvals, evidence, and accountability on spreadsheets. It now runs on one platform where every step is recorded and an audit can be answered from the system itself.",
     tagline:
       "METIS turns Lloyd’s MGA compliance workflows—SMCR, product approval, maturity, and evidence—into an auditable, RLS-backed web platform.",
     problem:
@@ -133,6 +139,7 @@ export const selectedWork: readonly SelectedWork[] = [
   {
     href: "/work#flighter",
     slug: "flighter",
+    name: "Flighter",
     client: "Flighter Group",
     role: "Full-stack / fractional technical lead",
     title: "Aviation onboarding and document intelligence",
@@ -172,9 +179,12 @@ export const selectedWork: readonly SelectedWork[] = [
   {
     href: "/work#eolas",
     slug: "eolas",
+    name: "Eolas",
     client: "Eolas Medical",
     role: "Senior full-stack engineer",
     title: "Hospital knowledge app with AI search",
+    homeOutcome:
+      "A production system used by hospitals and individual clinicians, with web and mobile clients on the same backend and AI search that stays inside patient-data access controls.",
     problem:
       "Clinicians needed one place for guidelines, private hospital documents, and onboarding — searchable, secure, and usable on web and mobile.",
     built:
@@ -188,9 +198,12 @@ export const selectedWork: readonly SelectedWork[] = [
   {
     href: "/work#localglobe",
     slug: "localglobe",
+    name: "Phoenix Court",
     client: "Phoenix Court / LocalGlobe",
     role: "Senior full-stack engineer",
     title: "AI analytics for investment teams",
+    homeOutcome:
+      "Reported 30% higher engagement on insights, 40% less time spent on analysis, and 60% faster deploys after the pipeline work.",
     problem:
       "Investment analysts were spending too long turning raw signals into something a partner could act on.",
     built:
