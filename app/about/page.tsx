@@ -5,6 +5,7 @@ import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
   title: "Giorgi Mdivani — founder & lead AI engineer",
+  exactTitle: true,
   description:
     "Giorgi Mdivani works directly with founders on AI and product engineering: the architecture, the first production build, and the team that joins when the roadmap outgrows one senior.",
   path: "/about",

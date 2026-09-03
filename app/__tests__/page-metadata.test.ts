@@ -23,6 +23,15 @@ describe("primary page metadata", () => {
     );
   });
 
+  it("names the brand once in the /about title", () => {
+    // Opting out of the root "%s | Mdivani" template: the surname already
+    // carries the brand, and it keeps <title> and the OG title identical.
+    expect(aboutMetadata.title).toEqual({
+      absolute: "Giorgi Mdivani — founder & lead AI engineer",
+    });
+    expect(titleText(aboutMetadata.title)).toBe(aboutMetadata.openGraph?.title);
+  });
+
   it("keeps marketplace names out of the / and /about titles and descriptions", () => {
     for (const metadata of [homeMetadata, aboutMetadata]) {
       expect(titleText(metadata.title)).not.toMatch(MARKETPLACE_PATTERN);
