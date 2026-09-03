@@ -15,7 +15,7 @@ export function HomeSections() {
       <WhatIBuild />
       <StudioModel />
       <CaseOutcomes />
-      <AboutGiorgi eyebrow="Work with Giorgi" title={<>You hire the engineer, not a sales <br /> process.</>} description={profileDescriptions.primary} />
+      <AboutGiorgi eyebrow="Work with Giorgi" title={<>You hire the engineer, not a sales <br /> process.</>} description={profileDescriptions.primary} showPortrait={false} />
       <FinalCta />
     </>
   );

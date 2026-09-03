@@ -8,6 +8,7 @@ type AvatarProps = {
   alt: string;
   fallback: string;
   className?: string;
+  priority?: boolean;
 };
 
 function getInitials(value: string) {
@@ -28,7 +29,13 @@ function getInitials(value: string) {
   return initials || trimmed.slice(0, 2).toUpperCase();
 }
 
-export function Avatar({ src, alt, fallback, className = "" }: AvatarProps) {
+export function Avatar({
+  src,
+  alt,
+  fallback,
+  className = "",
+  priority = false,
+}: AvatarProps) {
   const [hasError, setHasError] = useState(false);
   const showImage = Boolean(src) && !hasError;
   const initials = getInitials(fallback);
@@ -45,6 +52,7 @@ export function Avatar({ src, alt, fallback, className = "" }: AvatarProps) {
           alt={alt}
           fill
           sizes="(min-width: 768px) 28rem, 100vw"
+          priority={priority}
           className="object-cover object-[center_15%]"
           onError={() => setHasError(true)}
         />

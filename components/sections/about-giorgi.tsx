@@ -11,6 +11,7 @@ interface AboutGiorgiProps {
   headingAs?: "h1" | "h2";
   description: string;
   showToptalBadge?: boolean;
+  showPortrait?: boolean;
 }
 
 export function AboutGiorgi({
@@ -19,6 +20,7 @@ export function AboutGiorgi({
   headingAs,
   description,
   showToptalBadge = false,
+  showPortrait = true,
 }: AboutGiorgiProps) {
   return (
     <Section id="about" labelledBy="about-heading">
@@ -28,8 +30,12 @@ export function AboutGiorgi({
         headingAs={headingAs}
         title={title}
       />
-      <div className="grid gap-3 md:grid-cols-[28rem_1fr]">
-        <AboutIdentity showToptalBadge={showToptalBadge} />
+      <div
+        className={`grid gap-3 ${showPortrait ? "md:grid-cols-[28rem_1fr]" : ""}`.trim()}
+      >
+        {showPortrait ? (
+          <AboutIdentity showToptalBadge={showToptalBadge} />
+        ) : null}
         <div className="flex flex-col gap-2 text-md leading-[1.55] text-muted">
           <p>
             I’m a senior software and AI engineer with more than a decade shipping production systems — AWS serverless, TypeScript, and the product surface around them. I started Mdivani Agency so founders could work with me directly, then scale delivery without changing who owns the architecture.
