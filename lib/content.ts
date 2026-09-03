@@ -266,5 +266,5 @@ export const expertise = [
 
 export const profileDescriptions = {
   primary: "Typical background on a call: greenfield SaaS, an AI feature that has to survive real users, or a first cloud architecture that will not need a rewrite in six months.",
-  secondary: "Toptal-vetted software engineer, selected for its network of the top 3% of freelance developers. I help founders architect and ship production-ready AI, SaaS, cloud, web, and mobile products.",
+  secondary: "I help founders architect and ship production-ready AI, SaaS, cloud, web, and mobile products, and I stay the technical contact while the team grows around the work.",
 } as const;

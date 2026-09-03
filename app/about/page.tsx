@@ -17,7 +17,7 @@ export default function AboutPage() {
         headingAs="h1"
         title={<>Giorgi Mdivani, <br /> Founder and Lead AI Engineer</>}
         description={profileDescriptions.secondary}
-        showToptalBadge
+        showMarketplaceCredit
       />
       <Testimonials />
     </section>
