@@ -53,6 +53,7 @@ node_modules/
 # dotenv environment variables file
 .env
 .env.local
+.env.sentry-build-plugin
 
 # dataconnect generated files
 .dataconnect

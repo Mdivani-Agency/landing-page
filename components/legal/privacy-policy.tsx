@@ -8,7 +8,7 @@ export function PrivacyPolicyContent() {
           Privacy Policy for Mdio (Mdivani Agency)
         </h1>
         <p className="text-xs font-medium">
-          <strong>Last Updated: February 11, 2025</strong>
+          <strong>Last Updated: September 1, 2026</strong>
         </p>
       </header>
 
@@ -83,6 +83,14 @@ export function PrivacyPolicyContent() {
           services (e.g., hosting providers, analytics providers) and these
           parties may have access to your personal information but are obligated
           not to disclose or use it for any other purpose.
+        </p>
+        <h3>Error and performance monitoring</h3>
+        <p>
+          We use Sentry to capture application errors and a sample of
+          performance traces so we can diagnose failures. Sentry may receive
+          technical data such as the page URL, browser or runtime details, and
+          the stack trace for the error. We do not enable Sentry Session Replay
+          (session recording) on this Site.
         </p>
         <h3>Legal Requirements</h3>
         <p>

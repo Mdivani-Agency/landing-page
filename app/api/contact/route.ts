@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { Resend } from "resend";
 import {
   declaredContentLengthExceedsLimit,
@@ -25,6 +26,32 @@ function badRequest(errors: Record<string, string>) {
 
 function sendFailed() {
   return json(500, { ok: false, errors: { form: GENERIC_SEND_ERROR } });
+}
+
+function reportContactException(
+  error: unknown,
+  extra?: { statusCode?: number },
+) {
+  const exception =
+    error instanceof Error
+      ? error
+      : new Error(
+          typeof error === "object" &&
+            error != null &&
+            "message" in error &&
+            typeof error.message === "string" &&
+            error.message
+            ? error.message
+            : "resend failed",
+        );
+
+  Sentry.captureException(exception, {
+    tags: { area: "contact" },
+    extra:
+      typeof extra?.statusCode === "number"
+        ? { statusCode: extra.statusCode }
+        : undefined,
+  });
 }
 
 export async function POST(request: Request) {
@@ -81,6 +108,9 @@ export async function POST(request: Request) {
 
   if (!env.ok) {
     console.error("contact: missing env", env.missing.join(", "));
+    reportContactException(
+      new Error(`contact: missing env ${env.missing.join(", ")}`),
+    );
     return sendFailed();
   }
 
@@ -98,10 +128,17 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("contact: resend failed", error);
+      reportContactException(error, {
+        statusCode:
+          "statusCode" in error && typeof error.statusCode === "number"
+            ? error.statusCode
+            : undefined,
+      });
       return sendFailed();
     }
   } catch (error) {
     console.error("contact: resend failed", error);
+    reportContactException(error);
     return sendFailed();
   }
 

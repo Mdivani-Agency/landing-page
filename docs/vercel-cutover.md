@@ -61,6 +61,9 @@ the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).
 | `CONTACT_TO_EMAIL` | Inbox that receives inquiries, e.g. `giorgi@mdivani.agency` |
 | `KV_REST_API_URL` | REST URL from the Vercel Upstash / KV integration (used to rate-limit `POST /api/contact`). `UPSTASH_REDIS_REST_URL` is an equivalent alias. |
 | `KV_REST_API_TOKEN` | Matching write-capable REST token (`UPSTASH_REDIS_REST_TOKEN` is the alias). Do not use `KV_REST_API_READ_ONLY_TOKEN`. |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN for the `landing-page` project (browser). Same value as `SENTRY_DSN`. |
+| `SENTRY_DSN` | Sentry DSN for server and edge runtimes. |
+| `SENTRY_AUTH_TOKEN` | Build-only source map upload token (server-only). Create at https://mdio.sentry.io/settings/auth-tokens/ |
 
 The contact variables are server-only — never prefix them with
 `NEXT_PUBLIC_`. The Vercel Upstash Redis integration also writes
