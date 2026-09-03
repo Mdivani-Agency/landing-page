@@ -1,7 +1,7 @@
 import { PageIntro } from "@/components/page-intro";
+import { FinalCta } from "@/components/sections/final-cta";
 import { Greenfield } from "@/components/sections/greenfield";
 import { HowIWork } from "@/components/sections/how-i-work";
-import { WhatIBuild } from "@/components/sections/what-i-build";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
@@ -20,9 +20,9 @@ export default function HowIWorkPage() {
         lede="I design and ship LLM features, agents, and knowledge systems for founders who need them in production — evaluated, observable, and wired into the rest of the stack."
       />
       <div className="space-y-16">
-        <WhatIBuild />
         <Greenfield />
         <HowIWork />
+        <FinalCta />
       </div>
     </article>
   );
