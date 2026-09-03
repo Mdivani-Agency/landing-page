@@ -64,8 +64,11 @@ the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).
 | `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN for the `landing-page` project (browser). Same value as `SENTRY_DSN`. |
 | `SENTRY_DSN` | Sentry DSN for server and edge runtimes. |
 | `SENTRY_AUTH_TOKEN` | Build-only source map upload token (server-only). Create at https://mdio.sentry.io/settings/auth-tokens/ |
+| `SUPABASE_URL` | `https://fokgusrsmrhatfrdcasg.supabase.co` |
+| `SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` key for reads; resolves to the `anon` role and stays subject to row level security |
+| `SUPABASE_SECRET_KEY` | `sb_secret_…` key for server-side writes; bypasses row level security, so never expose it to the browser |
 
-The contact variables are server-only — never prefix them with
+The contact and Supabase variables are server-only — never prefix them with
 `NEXT_PUBLIC_`. The Vercel Upstash Redis integration also writes
 `KV_URL`, `REDIS_URL`, and `KV_REST_API_READ_ONLY_TOKEN`; those are unused
 by this app. Without a REST URL+token pair the route falls back to a
