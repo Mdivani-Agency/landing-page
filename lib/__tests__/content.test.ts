@@ -23,9 +23,10 @@ describe("capabilities", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("links every capability to a live internal page", () => {
+  it("describes each capability without linking off to a service page", () => {
     for (const capability of capabilities) {
-      expect(publicPagePaths).toContain(capability.href);
+      expect(capability).not.toHaveProperty("href");
+      expect(capability.summary).not.toBe("");
       expect(capability.items.length).toBeGreaterThan(0);
     }
   });
@@ -49,7 +50,19 @@ describe("selectedWork", () => {
 
     for (const work of selectedWork) {
       expect(work.href).toBe(`/work#${work.slug}`);
+      expect(work.name).not.toBe("");
       expect(work.stack.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("features two to three cases with a plain-language homepage outcome", () => {
+    const featured = selectedWork.filter((work) => work.homeOutcome);
+
+    expect(featured.length).toBeGreaterThanOrEqual(2);
+    expect(featured.length).toBeLessThanOrEqual(3);
+
+    for (const work of featured) {
+      expect(work.homeOutcome).not.toBe("");
     }
   });
 });
@@ -69,6 +82,29 @@ describe("testimonials", () => {
       );
       expect(testimonial.body).not.toBe("");
     }
+  });
+
+  it("leads with the recommendation about the current engagement", () => {
+    expect(testimonials[0].author).toBe("David Espinosa");
+  });
+
+  it("offers exactly one pull-quote, extracted verbatim from its body", () => {
+    const withPullQuote = testimonials.filter(
+      (testimonial) => testimonial.pullQuote,
+    );
+
+    expect(withPullQuote).toHaveLength(1);
+    expect(withPullQuote[0].author).toBe("David Espinosa");
+    expect(withPullQuote[0].body).toContain(withPullQuote[0].pullQuote);
+  });
+
+  it("quotes the older recommendations as published", () => {
+    const nick = testimonials.find(
+      (testimonial) => testimonial.author === "Nick Cousins",
+    );
+
+    expect(nick?.body).toContain("George");
+    expect(nick?.pullQuote).toBeUndefined();
   });
 });
 
