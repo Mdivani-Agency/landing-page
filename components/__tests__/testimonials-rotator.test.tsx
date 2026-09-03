@@ -140,4 +140,38 @@ describe("TestimonialsRotator", () => {
     fireEvent.pointerDown(region, { pointerType: "mouse" });
     expect(region).toHaveAttribute("data-paused", "false");
   });
+
+  it("waits for the quotes to be on screen before rotating", () => {
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+    let notify: ((entries: { isIntersecting: boolean }[]) => void) | undefined;
+
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        observe = observe;
+        disconnect = disconnect;
+        unobserve = vi.fn();
+        takeRecords = vi.fn();
+        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+          notify = callback;
+        }
+      },
+    );
+
+    render(<TestimonialsRotator testimonials={testimonials} />);
+    expect(observe).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      notify?.([{ isIntersecting: false }]);
+      vi.advanceTimersByTime((IDLE_MS + FADE_MS) * 3);
+    });
+    expectActiveFigure(0);
+
+    act(() => {
+      notify?.([{ isIntersecting: true }]);
+      vi.advanceTimersByTime(IDLE_MS + FADE_MS);
+    });
+    expectActiveFigure(1);
+  });
 });
