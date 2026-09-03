@@ -29,7 +29,7 @@ export default function WorkPage() {
           key={item.slug}
           id={item.slug}
           aria-labelledby={`${item.slug}-heading`}
-          className="flex flex-col gap-1.5"
+          className="gap-1.5"
           variant="featured"
         >
           <Eyebrow>

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, it } from "vitest";
-import { Card, CardText, CardTitle } from "@/components/card";
+import { Card, CardFooter, CardText, CardTitle } from "@/components/card";
 
 describe("Card", () => {
   it("renders an article with the card shell classes by default", () => {
@@ -11,6 +11,12 @@ describe("Card", () => {
     expect(card.tagName).toBe("ARTICLE");
     expect(card).toHaveClass("rounded-card", "border", "bg-card", "p-3", "border-subtle");
     expect(card).toHaveTextContent("Content");
+  });
+
+  it("stacks content in a full-height column so footers can sink", () => {
+    render(<Card data-testid="card">Content</Card>);
+
+    expect(screen.getByTestId("card")).toHaveClass("flex", "h-full", "flex-col");
   });
 
   it("renders a custom element and forwards a ref via the as prop", () => {
@@ -66,5 +72,19 @@ describe("CardText", () => {
     const text = screen.getByText("Body copy");
     expect(text.tagName).toBe("P");
     expect(text).toHaveClass("text-muted");
+  });
+});
+
+describe("CardFooter", () => {
+  it("pushes itself to the bottom of the card", () => {
+    render(<CardFooter>Footer</CardFooter>);
+
+    expect(screen.getByText("Footer")).toHaveClass("mt-auto");
+  });
+
+  it("appends a custom className", () => {
+    render(<CardFooter className="extra">Footer</CardFooter>);
+
+    expect(screen.getByText("Footer")).toHaveClass("mt-auto", "extra");
   });
 });

@@ -33,6 +33,8 @@ yarn lint     # ESLint (eslint-config-next)
 
 Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`. Copy `.env.example` and leave the values empty to run locally without tracking.
 
+Error monitoring uses Sentry (`@sentry/nextjs`). Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` to the project DSN. For readable production stack traces, add `SENTRY_AUTH_TOKEN` as a build-time secret (not `NEXT_PUBLIC_`) so source maps upload during `yarn build`.
+
 Leftover Eleventy and retired marketing paths redirect permanently:
 
 - `/hero` → `/`
