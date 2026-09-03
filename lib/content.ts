@@ -215,13 +215,23 @@ export type Testimonial = {
   author: string;
   title?: string;
   linkedinUrl: string;
+  /**
+   * Verbatim extract used for the homepage pull-quote. Quotes are published
+   * recommendations, so an extract has to be a contiguous span of the body —
+   * never a reworded version of it.
+   */
+  pullQuote?: string;
 };
 
+// David leads: the rotator opens on the first entry, and his recommendation is
+// the only one written about the current senior-partner engagement.
 export const testimonials = [
   {
     author: "David Espinosa",
     linkedinUrl: "https://www.linkedin.com/in/espinosa-david/",
     title: "CTO at Eolas Medical",
+    pullQuote:
+      "Giorgi is the best example of what a full-stack engineer should be. He can work in any part of a product's life cycle.",
     body: "Giorgi is the best example of what a full-stack engineer should be. He can work in any part of a product's life cycle. From its design, through the backend implementation, the creation of the infrastructure, as well as the visual layer where he can work great both on the web and on mobile.\n\nBut even so, what I will always remember most about having worked with him is how easy it is to work with him, always a pleasure, without a doubt he is a great team player.\n\nGiorgi would be an asset to any team and earns my highest recommendation.",
   },
   {

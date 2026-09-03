@@ -1,11 +1,17 @@
 import { Card, CardText, CardTitle } from "@/components/card";
 import { Eyebrow } from "@/components/eyebrow";
+import { PullQuote } from "@/components/pull-quote";
 import { Section } from "@/components/section";
 import { SectionHeader } from "@/components/section-header";
 import { TextLink } from "@/components/text-link";
-import { selectedWork } from "@/lib/content";
+import { selectedWork, testimonials } from "@/lib/content";
 
 const featuredCases = selectedWork.filter((item) => item.homeOutcome);
+
+// One quote under the cases, from the CTO of the product in the Eolas card.
+const leadTestimonial = testimonials.find(
+  (testimonial) => testimonial.pullQuote,
+);
 
 export function CaseOutcomes() {
   return (
@@ -28,6 +34,7 @@ export function CaseOutcomes() {
           </Card>
         ))}
       </div>
+      {leadTestimonial ? <PullQuote testimonial={leadTestimonial} /> : null}
     </Section>
   );
 }

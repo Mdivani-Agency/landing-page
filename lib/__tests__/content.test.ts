@@ -83,6 +83,29 @@ describe("testimonials", () => {
       expect(testimonial.body).not.toBe("");
     }
   });
+
+  it("leads with the recommendation about the current engagement", () => {
+    expect(testimonials[0].author).toBe("David Espinosa");
+  });
+
+  it("offers exactly one pull-quote, extracted verbatim from its body", () => {
+    const withPullQuote = testimonials.filter(
+      (testimonial) => testimonial.pullQuote,
+    );
+
+    expect(withPullQuote).toHaveLength(1);
+    expect(withPullQuote[0].author).toBe("David Espinosa");
+    expect(withPullQuote[0].body).toContain(withPullQuote[0].pullQuote);
+  });
+
+  it("quotes the older recommendations as published", () => {
+    const nick = testimonials.find(
+      (testimonial) => testimonial.author === "Nick Cousins",
+    );
+
+    expect(nick?.body).toContain("George");
+    expect(nick?.pullQuote).toBeUndefined();
+  });
 });
 
 describe("site config", () => {
