@@ -23,9 +23,10 @@ describe("capabilities", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("links every capability to a live internal page", () => {
+  it("describes each capability without linking off to a service page", () => {
     for (const capability of capabilities) {
-      expect(publicPagePaths).toContain(capability.href);
+      expect(capability).not.toHaveProperty("href");
+      expect(capability.summary).not.toBe("");
       expect(capability.items.length).toBeGreaterThan(0);
     }
   });

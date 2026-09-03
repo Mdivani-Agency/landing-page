@@ -1,7 +1,6 @@
 export const capabilities = [
   {
     id: "ai",
-    href: "/how-i-work",
     eyebrow: "The sharpest edge",
     title: "AI Engineering",
     summary:
@@ -19,7 +18,6 @@ export const capabilities = [
   },
   {
     id: "product",
-    href: "/how-i-work",
     eyebrow: "The product around it",
     title: "Product Engineering",
     summary:
@@ -35,7 +33,6 @@ export const capabilities = [
   },
   {
     id: "architecture",
-    href: "/about",
     eyebrow: "The decisions before it",
     title: "Architecture & Technical Leadership",
     summary:

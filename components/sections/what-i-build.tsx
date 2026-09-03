@@ -2,7 +2,6 @@ import { Card, CardText, CardTitle } from "@/components/card";
 import { Eyebrow } from "@/components/eyebrow";
 import { Section } from "@/components/section";
 import { SectionHeader } from "@/components/section-header";
-import { TextLink } from "@/components/text-link";
 import { capabilities } from "@/lib/content";
 
 export function WhatIBuild() {
@@ -26,14 +25,11 @@ export function WhatIBuild() {
             <Eyebrow variant="card">{capability.eyebrow}</Eyebrow>
             <CardTitle>{capability.title}</CardTitle>
             <CardText>{capability.summary}</CardText>
-            <ul className="my-2.5 flex flex-col gap-1 text-sm">
+            <ul className="mt-2.5 flex flex-col gap-1 text-sm">
               {capability.items.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <TextLink href={capability.href}>
-              Explore {capability.title}
-            </TextLink>
           </Card>
         ))}
       </div>
