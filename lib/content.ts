@@ -1,8 +1,7 @@
 export const capabilities = [
   {
     id: "ai",
-    href: "/how-i-work",
-    eyebrow: "Primary focus",
+    eyebrow: "The sharpest edge",
     title: "AI Engineering",
     summary:
       "Agents, RAG, document intelligence, and LLM features that belong in a real product — not a demo.",
@@ -19,8 +18,7 @@ export const capabilities = [
   },
   {
     id: "product",
-    href: "/how-i-work",
-    eyebrow: "Product",
+    eyebrow: "The product around it",
     title: "Product Engineering",
     summary:
       "Greenfield SaaS, web, mobile, and the backend that makes a first product shippable.",
@@ -35,8 +33,7 @@ export const capabilities = [
   },
   {
     id: "architecture",
-    href: "/about",
-    eyebrow: "Leadership",
+    eyebrow: "The decisions before it",
     title: "Architecture & Technical Leadership",
     summary:
       "The decisions before the first sprint: architecture, cloud, stack, and a roadmap you can hire against.",
@@ -77,15 +74,19 @@ export const processSteps = [
 export type SelectedWork = {
   href: string;
   slug: string;
+  name: string;
   client: string;
   role: string;
   title: string;
-  tagline?: string;
+  /** Condensed outcome. Present on the cases featured on the homepage. */
+  homeOutcome?: string;
+  // problem and outcome lead each case in plain language. Everything below
+  // them is implementation detail and renders inside "How it was built".
   problem: string;
+  outcome: string;
   built: string;
   challenge: string;
   challenges?: readonly string[];
-  outcome: string;
   achievements?: readonly string[];
   stack: readonly string[];
 };
@@ -94,13 +95,16 @@ export const selectedWork: readonly SelectedWork[] = [
   {
     href: "/work#metis",
     slug: "metis",
+    name: "METIS",
     client: "METIS / Lloyd’s MGA",
     role: "AI Engineer / Fractional technical lead",
     title: "Operational compliance platform for a Lloyd’s MGA",
-    tagline:
-      "METIS turns Lloyd’s MGA compliance workflows—SMCR, product approval, maturity, and evidence—into an auditable, RLS-backed web platform.",
+    homeOutcome:
+      "A regulated insurance business ran approvals, evidence, and accountability on spreadsheets. It now runs on one platform where every step is recorded and an audit can be answered from the system itself.",
     problem:
-      "Regulated workflows lived across spreadsheets, ad-hoc forms, and tribal knowledge. The business needed one platform where status, approvals, evidence, and accountability were enforced in the database—not only in the UI—so audits, handoffs, and daily operations stayed consistent.",
+      "A Lloyd’s managing general agent ran its regulated work — senior-manager accountability, product approval, evidence, and follow-up actions — across spreadsheets, ad-hoc forms, and what individual people happened to remember. Nothing enforced who had signed off on what, so every audit and every handover started again from the beginning.",
+    outcome:
+      "METIS is the system of record for that governance now. Approvals move through defined steps, evidence and templates sit in one place, owners are notified, and the platform decides whether a product is approved rather than a spreadsheet. Regulated status is recorded as work happens, so an audit can be answered from the system.",
     built:
       "A Next.js and Supabase application covering SMCR, Product Approval Process, principle-level maturity tracking, broker management, evidence libraries, action items, and in-app and email notifications. Postgres, Row Level Security, RPCs, triggers, and Edge Functions keep workflows transactional and access controlled, while a unified document and template model supports PAP obligations, Fair Value, Consumer Duty, Target Market, and maturity assessments.",
     challenge:
@@ -112,8 +116,6 @@ export const selectedWork: readonly SelectedWork[] = [
       "Built event-driven notifications from domain events through an outbox to email, with environment guards that prevent non-production environments from messaging real users.",
       "Kept production and development seed overlays, migrations, and Edge Function secrets aligned so deployments remained operable.",
     ],
-    outcome:
-      "Shipped a production-ready system of record for governance, approvals, evidence, and actions, backed by reusable domain models, hardened workflows, and role-based end-to-end coverage.",
     achievements: [
       "Shipped a production-ready governance platform spanning SMCR, PAP, maturity, brokers, evidence, and actions.",
       "Consolidated fragmented assessment surfaces into a reusable template and document architecture.",
@@ -133,13 +135,14 @@ export const selectedWork: readonly SelectedWork[] = [
   {
     href: "/work#flighter",
     slug: "flighter",
+    name: "Flighter",
     client: "Flighter Group",
     role: "Full-stack / fractional technical lead",
     title: "Aviation onboarding and document intelligence",
-    tagline:
-      "Flighter turns aviation applicant onboarding, document verification, compliance review, signatures, and approvals into one secure, auditable workflow.",
     problem:
-      "Applicant onboarding, identity checks, certificates, employment history, compliance reviews, and approvals were handled across email, shared drives, and manual processes. The business needed one reliable workflow for collecting evidence, validating aviation credentials, coordinating human review, and maintaining a consistent audit trail.",
+      "Flighter onboarded aviation applicants over email and shared drives. Identity checks, certificates, employment history, compliance review, signatures, and approvals were all tracked by hand, evidence was scattered, and there was no dependable record of who had reviewed or approved what.",
+    outcome:
+      "Onboarding runs as one workflow. Documents are collected and read automatically, anything the system is unsure about goes to a person, signatures and approvals are captured in order, and every decision leaves a trail. Turnaround shortened and the repetitive checking largely went away — without removing the human approval gates a regulated business needs.",
     built:
       "A production onboarding and certification platform with secure authentication, encrypted document storage, AI-assisted extraction and validation, event-driven processing, human approval gates, and third-party electronic signatures. I owned the product architecture, frontend, backend, cloud infrastructure, document-processing workflows, integrations, deployment pipeline, and technical delivery.",
     challenge:
@@ -151,8 +154,6 @@ export const selectedWork: readonly SelectedWork[] = [
       "Integrated a third-party electronic signature service into asynchronous document and approval lifecycles, including status reconciliation and failure recovery.",
       "Kept frontend, backend, cloud infrastructure, environments, and deployment automation aligned as the product and its regulated workflows evolved.",
     ],
-    outcome:
-      "Launched a secure production platform that shortened onboarding, reduced repetitive compliance work, and created a consistent source of truth for applicant evidence, certification data, reviews, and approvals.",
     achievements: [
       "Shipped the complete product from architecture through production across applicant onboarding, document collection, compliance review, signatures, and approval.",
       "Reduced onboarding turnaround and manual checking by automating document extraction, validation, reminders, and workflow progression.",
@@ -172,33 +173,39 @@ export const selectedWork: readonly SelectedWork[] = [
   {
     href: "/work#eolas",
     slug: "eolas",
+    name: "Eolas",
     client: "Eolas Medical",
     role: "Senior full-stack engineer",
     title: "Hospital knowledge app with AI search",
+    homeOutcome:
+      "A production system used by hospitals and individual clinicians, with web and mobile clients on the same backend and AI search that stays inside patient-data access controls.",
     problem:
-      "Clinicians needed one place for guidelines, private hospital documents, and onboarding — searchable, secure, and usable on web and mobile.",
+      "Clinicians needed one trustworthy place for clinical guidelines, their own hospital’s documents, and onboarding material — on a ward, on a phone, and without exposing anything a given user should not see.",
+    outcome:
+      "The app is in production with hospitals and individual clinicians, web and mobile running on the same backend, and AI-assisted search across millions of guidelines that stays inside each user’s access rights.",
     built:
       "High-availability hospital application with content management, secure messaging, fine-grained access, and AI-assisted search across millions of medical guidelines.",
     challenge:
       "HIPAA-sensitive data, cross-platform sync, and an AI search path that stays inside access controls.",
-    outcome:
-      "A production system used by hospitals and individual clinicians, with web and mobile clients on the same backend.",
     stack: ["React Native", "React", "AWS", "GraphQL", "OpenAI"],
   },
   {
     href: "/work#localglobe",
     slug: "localglobe",
+    name: "Phoenix Court",
     client: "Phoenix Court / LocalGlobe",
     role: "Senior full-stack engineer",
     title: "AI analytics for investment teams",
+    homeOutcome:
+      "Reported 30% higher engagement on insights, 40% less time spent on analysis, and 60% faster deploys after the pipeline work.",
     problem:
-      "Investment analysts were spending too long turning raw signals into something a partner could act on.",
+      "Investment analysts were spending too long turning raw market signals into something a partner could act on.",
+    outcome:
+      "Reported 30% higher engagement on insights, 40% less analysis time, and 60% faster deploys after the pipeline work. Trends and funding opportunities reach the team automatically, with the reasoning visible instead of a black box nobody trusts.",
     built:
       "React and Node features plus Python/PostgreSQL tools that detect trends and surface funding opportunities, with an AWS pipeline to ship them.",
     challenge:
       "Useful AI for domain experts — predictive analytics and workflow automation without a black-box that nobody trusts.",
-    outcome:
-      "Reported 30% higher engagement on insights, 40% less analysis time, and 60% faster deploys after the pipeline work.",
     stack: ["React", "Node.js", "Python", "OpenAI", "AWS"],
   },
 ];
@@ -208,13 +215,23 @@ export type Testimonial = {
   author: string;
   title?: string;
   linkedinUrl: string;
+  /**
+   * Verbatim extract used for the homepage pull-quote. Quotes are published
+   * recommendations, so an extract has to be a contiguous span of the body —
+   * never a reworded version of it.
+   */
+  pullQuote?: string;
 };
 
+// David leads: the rotator opens on the first entry, and his recommendation is
+// the only one written about the current senior-partner engagement.
 export const testimonials = [
   {
     author: "David Espinosa",
     linkedinUrl: "https://www.linkedin.com/in/espinosa-david/",
     title: "CTO at Eolas Medical",
+    pullQuote:
+      "Giorgi is the best example of what a full-stack engineer should be. He can work in any part of a product's life cycle.",
     body: "Giorgi is the best example of what a full-stack engineer should be. He can work in any part of a product's life cycle. From its design, through the backend implementation, the creation of the infrastructure, as well as the visual layer where he can work great both on the web and on mobile.\n\nBut even so, what I will always remember most about having worked with him is how easy it is to work with him, always a pleasure, without a doubt he is a great team player.\n\nGiorgi would be an asset to any team and earns my highest recommendation.",
   },
   {
@@ -253,5 +270,5 @@ export const expertise = [
 
 export const profileDescriptions = {
   primary: "Typical background on a call: greenfield SaaS, an AI feature that has to survive real users, or a first cloud architecture that will not need a rewrite in six months.",
-  secondary: "Toptal-vetted software engineer, selected for its network of the top 3% of freelance developers. I help founders architect and ship production-ready AI, SaaS, cloud, web, and mobile products.",
+  secondary: "I help founders architect and ship production-ready AI, SaaS, cloud, web, and mobile products, and I stay the technical contact while the team grows around the work.",
 } as const;

@@ -11,16 +11,16 @@ const cardShell = "flex h-full flex-col rounded-card border bg-card p-3";
 
 /**
  * Opts a card into the row tracks declared by its parent grid so that the
- * eyebrow, title, summary, body, and footer of every card in a row band share
+ * eyebrow, title, summary, and body of every card in a row band share
  * heights — a title that wraps to two lines no longer pushes the rows beneath it
  * out of step with the neighbouring cards.
  *
- * Requires exactly five direct children, and a parent grid that declares five
+ * Requires exactly four direct children, and a parent grid that declares four
  * row tracks per band (see `WhatIBuild`). Row gaps are zeroed because cards
  * space their own children with margins; the parent gap still separates bands.
  */
 export const cardSubgrid =
-  "md:row-span-5 md:grid md:grid-rows-subgrid md:gap-y-0";
+  "md:row-span-4 md:grid md:grid-rows-subgrid md:gap-y-0";
 
 type CardOwnProps<T extends ElementType> = {
   as?: T;

@@ -12,6 +12,9 @@ export const metadata = createPageMetadata({
   path: "/work",
 });
 
+const termClass = "mb-[0.6rem] text-xs uppercase tracking-label text-secondary";
+const detailClass = "text-sm leading-[1.55] text-muted";
+
 export default function WorkPage() {
   return (
     <article className="space-y-16">
@@ -33,60 +36,57 @@ export default function WorkPage() {
             {item.client} · {item.role}
           </Eyebrow>
           <SectionTitle id={`${item.slug}-heading`}>{item.title}</SectionTitle>
-          {item.tagline ? (
-            <p className="max-w-[72rem] text-md leading-[1.55] text-muted">
-              {item.tagline}
-            </p>
-          ) : null}
-          <dl className="grid gap-2.5">
-            <div>
-              <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
-                Problem
-              </dt>
-              <dd className="text-sm leading-[1.55] text-muted">
-                {item.problem}
-              </dd>
-            </div>
-            <div>
-              <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
-                What was built
-              </dt>
-              <dd className="text-sm leading-[1.55] text-muted">{item.built}</dd>
-            </div>
-            <div>
-              <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
-                {item.challenges ? "Technical challenges" : "Technical / AI challenge"}
-              </dt>
-              <dd className="text-sm leading-[1.55] text-muted">
-                {item.challenges ? (
-                  <ul className="list-disc space-y-1 pl-2.5">
-                    {item.challenges.map((challenge) => (
-                      <li key={challenge}>{challenge}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  item.challenge
-                )}
-              </dd>
-            </div>
-            <div>
-              <dt className="mb-[0.6rem] text-xs uppercase tracking-label text-secondary">
-                {item.achievements ? "Achievements" : "Giorgi’s role and outcome"}
-              </dt>
-              <dd className="text-sm leading-[1.55] text-muted">
-                {item.achievements ? (
-                  <ul className="list-disc space-y-1 pl-2.5">
-                    {item.achievements.map((achievement) => (
-                      <li key={achievement}>{achievement}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  item.outcome
-                )}
-              </dd>
-            </div>
-          </dl>
-          <p className="text-xs text-muted">{item.stack.join(" · ")}</p>
+          <p className="max-w-[72rem] text-md leading-[1.55] text-muted">
+            {item.problem}
+          </p>
+          <p className="max-w-[72rem] text-md leading-[1.55] text-primary">
+            {item.outcome}
+          </p>
+          <details className="mt-1 rounded-card border border-subtle p-2.5">
+            <summary className="cursor-pointer text-xs uppercase tracking-label text-secondary">
+              How it was built
+            </summary>
+            <dl className="mt-2.5 grid gap-2.5">
+              <div>
+                <dt className={termClass}>What was built</dt>
+                <dd className={detailClass}>{item.built}</dd>
+              </div>
+              <div>
+                <dt className={termClass}>
+                  {item.challenges
+                    ? "Technical challenges"
+                    : "Technical / AI challenge"}
+                </dt>
+                <dd className={detailClass}>
+                  {item.challenges ? (
+                    <ul className="list-disc space-y-1 pl-2.5">
+                      {item.challenges.map((challenge) => (
+                        <li key={challenge}>{challenge}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    item.challenge
+                  )}
+                </dd>
+              </div>
+              {item.achievements ? (
+                <div>
+                  <dt className={termClass}>What shipped</dt>
+                  <dd className={detailClass}>
+                    <ul className="list-disc space-y-1 pl-2.5">
+                      {item.achievements.map((achievement) => (
+                        <li key={achievement}>{achievement}</li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+              ) : null}
+              <div>
+                <dt className={termClass}>Stack</dt>
+                <dd className={detailClass}>{item.stack.join(" · ")}</dd>
+              </div>
+            </dl>
+          </details>
         </Card>
       ))}
     </article>
