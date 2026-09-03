@@ -11,8 +11,8 @@ export function WhatIBuild() {
       <SectionHeader
         eyebrow="What I build"
         headingId="build-heading"
-        title={<>AI first. <br /> Product and architecture beside it.</>}
-        copy="AI engineering is the sharpest edge. The same engagement can still cover the product, the cloud, and the first team around it."
+        title={<>One engagement, <br /> not three service lines.</>}
+        copy="A first build needs AI that holds up with real users, a product around it that ships, and an architecture underneath that still makes sense later. That is one piece of work, and there is nothing here you have to choose between."
       />
       <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr]">
         {capabilities.map((capability) => (

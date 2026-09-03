@@ -2,7 +2,7 @@ export const capabilities = [
   {
     id: "ai",
     href: "/how-i-work",
-    eyebrow: "Primary focus",
+    eyebrow: "The sharpest edge",
     title: "AI Engineering",
     summary:
       "Agents, RAG, document intelligence, and LLM features that belong in a real product — not a demo.",
@@ -20,7 +20,7 @@ export const capabilities = [
   {
     id: "product",
     href: "/how-i-work",
-    eyebrow: "Product",
+    eyebrow: "The product around it",
     title: "Product Engineering",
     summary:
       "Greenfield SaaS, web, mobile, and the backend that makes a first product shippable.",
@@ -36,7 +36,7 @@ export const capabilities = [
   {
     id: "architecture",
     href: "/about",
-    eyebrow: "Leadership",
+    eyebrow: "The decisions before it",
     title: "Architecture & Technical Leadership",
     summary:
       "The decisions before the first sprint: architecture, cloud, stack, and a roadmap you can hire against.",

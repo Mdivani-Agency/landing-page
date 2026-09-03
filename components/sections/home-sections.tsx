@@ -11,9 +11,9 @@ export function HomeSections() {
   return (
     <>
       <Hero />
+      <Founders />
       <WhatIBuild />
       <StudioModel />
-      <Founders />
       <CaseOutcomes />
       <AboutGiorgi eyebrow="Work with Giorgi" title={<>You hire the engineer, not a sales <br /> process.</>} description={profileDescriptions.primary} />
       <FinalCta />
