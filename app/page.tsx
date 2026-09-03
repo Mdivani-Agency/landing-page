@@ -2,11 +2,10 @@ import { HomeSections } from "@/components/sections/home-sections";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
-  title: "Senior AI Engineer & Product Architect for Founders",
+  title: "Build your AI product from idea to production | Giorgi Mdivani",
+  exactTitle: true,
   description:
-    "Work directly with Giorgi Mdivani, a Toptal-vetted AI and software engineer available through Upwork, to architect and ship production-ready AI, SaaS, cloud, web, and mobile products.",
-  socialDescription:
-    "Senior-led AI and product engineering for founders, from architecture to production.",
+    "Work directly with a senior AI engineer. Architecture, the first production build, and a team when you need one.",
   path: "/",
 });
 

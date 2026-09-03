@@ -4,11 +4,9 @@ import { profileDescriptions } from "@/lib/content";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
-  title: "Giorgi Mdivani — Toptal & Upwork Software Engineer",
+  title: "Giorgi Mdivani — founder & lead AI engineer",
   description:
-    "Meet Giorgi Mdivani, a Toptal-vetted software engineer in its top 3% talent network and an experienced Upwork developer specializing in AI, AWS, and product engineering.",
-  socialDescription:
-    "Toptal-vetted and available through Upwork, Giorgi helps founders architect and ship production-ready AI, cloud, web, and mobile products.",
+    "Giorgi Mdivani works directly with founders on AI and product engineering: the architecture, the first production build, and the team that joins when the roadmap outgrows one senior.",
   path: "/about",
 });
 
