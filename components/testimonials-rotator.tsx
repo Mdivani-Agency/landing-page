@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+} from "react";
 import { Card } from "@/components/card";
 import { LinkedInIcon } from "@/components/icons";
 import type { Testimonial } from "@/lib/content";
@@ -8,7 +14,7 @@ import type { Testimonial } from "@/lib/content";
 const IDLE_MS = 5000;
 const FADE_MS = 400;
 
-type PauseReason = "hover" | "focus" | "sticky";
+type PauseReason = "hover" | "focus" | "sticky" | "offscreen";
 
 type TestimonialsRotatorProps = {
   testimonials: readonly Testimonial[];
@@ -182,7 +188,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
     };
   }, [testimonials.length]);
 
-  const applyPaused = () => {
+  const applyPaused = useCallback(() => {
     const next = reasonsRef.current.size > 0;
     pausedRef.current = next;
     setPaused(next);
@@ -193,25 +199,57 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
     }
 
     scheduleIdleRef.current();
-  };
+  }, []);
 
-  const addReason = (reason: PauseReason) => {
-    if (reasonsRef.current.has(reason)) {
+  const addReason = useCallback(
+    (reason: PauseReason) => {
+      if (reasonsRef.current.has(reason)) {
+        return;
+      }
+
+      reasonsRef.current.add(reason);
+      applyPaused();
+    },
+    [applyPaused],
+  );
+
+  const removeReason = useCallback(
+    (reason: PauseReason) => {
+      if (!reasonsRef.current.has(reason)) {
+        return;
+      }
+
+      reasonsRef.current.delete(reason);
+      applyPaused();
+    },
+    [applyPaused],
+  );
+
+  // Hold the rotation until the quotes are on screen. Otherwise the timer runs
+  // while the reader is still at the top of the page, and they arrive at
+  // whichever quote it landed on instead of the one meant to lead.
+  useEffect(() => {
+    const card = cardRef.current;
+
+    if (!card || typeof IntersectionObserver === "undefined") {
       return;
     }
 
-    reasonsRef.current.add(reason);
-    applyPaused();
-  };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          removeReason("offscreen");
+          return;
+        }
 
-  const removeReason = (reason: PauseReason) => {
-    if (!reasonsRef.current.has(reason)) {
-      return;
-    }
+        addReason("offscreen");
+      },
+      { threshold: 0.25 },
+    );
 
-    reasonsRef.current.delete(reason);
-    applyPaused();
-  };
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [addReason, removeReason]);
 
   const toggleSticky = () => {
     if (reasonsRef.current.has("sticky")) {

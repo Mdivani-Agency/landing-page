@@ -13,6 +13,8 @@ type PageMetadataOptions = {
   description: string;
   path: `/${string}` | "/";
   socialDescription?: string;
+  /** Skips the root "%s | Mdivani" template, for a title that already names the brand. */
+  exactTitle?: boolean;
 };
 
 export function createPageMetadata({
@@ -20,9 +22,10 @@ export function createPageMetadata({
   description,
   path,
   socialDescription = description,
+  exactTitle = false,
 }: PageMetadataOptions): Metadata {
   return {
-    title,
+    title: exactTitle ? { absolute: title } : title,
     description,
     alternates: {
       canonical: path,

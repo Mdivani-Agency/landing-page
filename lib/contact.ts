@@ -6,7 +6,6 @@ export const PROJECT_TYPES = [
 ] as const;
 
 export const BUDGETS = [
-  "< $10k",
   "$10k–$25k",
   "$25k–$50k",
   "$50k+",

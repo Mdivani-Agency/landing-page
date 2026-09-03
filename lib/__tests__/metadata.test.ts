@@ -42,4 +42,20 @@ describe("createPageMetadata", () => {
     expect(metadata.openGraph?.description).toBe("Short social blurb");
     expect(metadata.twitter?.description).toBe("Short social blurb");
   });
+
+  it("opts a title out of the root template when it already names the brand", () => {
+    const metadata = createPageMetadata({
+      title: "Build your AI product from idea to production | Giorgi Mdivani",
+      exactTitle: true,
+      description: "Page description",
+      path: "/",
+    });
+
+    expect(metadata.title).toEqual({
+      absolute: "Build your AI product from idea to production | Giorgi Mdivani",
+    });
+    expect(metadata.openGraph?.title).toBe(
+      "Build your AI product from idea to production | Giorgi Mdivani",
+    );
+  });
 });

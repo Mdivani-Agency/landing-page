@@ -3,6 +3,7 @@ import { ProfileLinks } from "@/components/profile-links";
 import { Section } from "@/components/section";
 import { SectionHeader } from "@/components/section-header";
 import { expertise } from "@/lib/content";
+import { site } from "@/lib/site";
 import { ReactNode } from "react";
 
 interface AboutGiorgiProps {
@@ -10,6 +11,7 @@ interface AboutGiorgiProps {
   eyebrow?: string;
   headingAs?: "h1" | "h2";
   description: string;
+  showMarketplaceCredit?: boolean;
 }
 
 export function AboutGiorgi({
@@ -17,6 +19,7 @@ export function AboutGiorgi({
   eyebrow,
   headingAs,
   description,
+  showMarketplaceCredit = false,
 }: AboutGiorgiProps) {
   return (
     <Section id="about" labelledBy="about-heading">
@@ -47,6 +50,21 @@ export function AboutGiorgi({
           </ul>
         </div>
         <ProfileLinks className="col-span-full" />
+        {showMarketplaceCredit ? (
+          <p className="col-span-full text-xs text-muted">
+            Vetted by{" "}
+            <a
+              className="text-secondary underline underline-offset-[0.3em]"
+              href={site.toptalProfileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Giorgi Mdivani on Toptal"
+            >
+              Toptal
+            </a>{" "}
+            for its top 3% network.
+          </p>
+        ) : null}
       </div>
     </Section>
   );
