@@ -1,6 +1,10 @@
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 
+// Next.js `server-only` throws outside the RSC compiler. Tests import
+// server modules (Supabase helpers) in jsdom, so stub the guard.
+vi.mock("server-only", () => ({}));
+
 // jsdom does not implement the <dialog> methods CalendarModal relies on.
 if (typeof HTMLDialogElement.prototype.showModal !== "function") {
   HTMLDialogElement.prototype.showModal = function showModal(

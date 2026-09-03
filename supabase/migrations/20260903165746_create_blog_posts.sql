@@ -23,17 +23,30 @@ create table if not exists public.blog_posts (
   updated_at timestamptz not null default now(),
 
   constraint blog_posts_slug_key unique (slug),
+  -- Same rule the write API will use: lowercase, hyphenated, 1–80 chars.
+  -- A bare NOT NULL still accepts '' and 'My Post'.
+  constraint blog_posts_slug_check
+    check (
+      slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'
+      and char_length(slug) between 1 and 80
+    ),
   constraint blog_posts_status_check check (status in ('draft', 'published')),
   -- A published post without a timestamp would be invisible to the read
   -- policy and sort unpredictably, so the two always travel together.
   constraint blog_posts_published_at_check
     check (status <> 'published' or published_at is not null),
-  -- Tiptap's getJSON() always returns a doc node, so anything else here is a
-  -- malformed write rather than a body worth storing.
+  -- Tiptap's getJSON() always returns a doc node. Containment stays true
+  -- only for an object with type=doc; `content ->> 'type' = 'doc'` is NULL
+  -- when type is missing, and a CHECK that evaluates to NULL passes.
   constraint blog_posts_content_check
-    check (jsonb_typeof(content) = 'object' and content ->> 'type' = 'doc'),
+    check (content @> '{"type": "doc"}'::jsonb),
+  -- Reject NULL elements: `'{NULL}' <@ '{agency,talvio}'` is NULL, and a
+  -- CHECK that evaluates to NULL passes.
   constraint blog_posts_sites_check
-    check (sites <@ array['agency', 'talvio']::text[]),
+    check (
+      sites <@ array['agency', 'talvio']::text[]
+      and cardinality(array_remove(sites, null)) = cardinality(sites)
+    ),
   -- cardinality, not array_length: the latter returns null on an empty array
   -- and a check constraint that evaluates to null passes.
   constraint blog_posts_sites_published_check
