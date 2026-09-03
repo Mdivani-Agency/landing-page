@@ -50,6 +50,11 @@ Both need an access token for the account that owns the project:
 `SUPABASE_ACCESS_TOKEN=... supabase db push`. Exporting it per command keeps
 `supabase login` pointed at whichever account you use elsewhere.
 
+On the `development` branch, GitLab applies pending files in
+`supabase/migrations/` after tests pass and before the Vercel deploy. That
+job needs `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF` as CI/CD
+variables — see [`docs/vercel-cutover.md`](docs/vercel-cutover.md).
+
 `lib/supabase.ts` builds the clients. Reads go through
 `SUPABASE_PUBLISHABLE_KEY`, which resolves to the `anon` role and stays subject
 to row level security. Writes go through `SUPABASE_SECRET_KEY`, which bypasses
