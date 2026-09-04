@@ -41,6 +41,7 @@ Error monitoring uses Sentry (`@sentry/nextjs`). Set `NEXT_PUBLIC_SENTRY_DSN` an
 
 Programmatic blog writes: [`docs/blog-write-api.md`](docs/blog-write-api.md).
 Agent authoring: [`docs/blog-mcp.md`](docs/blog-mcp.md) and `.cursor/mcp.json`.
+Operator setup for the blog MCP server: [Notion — Mdivani Agency / MCP](https://www.notion.so/3d1f87a6db57811bab8cf8e0505d423c).
 
 ## Supabase
 
