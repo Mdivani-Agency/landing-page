@@ -90,8 +90,9 @@ migrate_supabase:
 # --scope / --project are the live Vercel team slug and project id (from the
 # Vercel-for-GitLab payload). They override VERCEL_ORG_ID / VERCEL_PROJECT_ID
 # because getOrgById only accepts team_* or the authenticated user id — a
-# dashboard slug such as mdivani1 becomes "Project not found". Keep the CI
-# variables in sync with Project Settings so other tooling still works.
+# dashboard slug such as mdivani1 becomes "Project not found". The preflight
+# is diagnostic only and must not fail the job. Keep the CI variables in
+# sync with Project Settings so other tooling still works.
 deploy_production:
   stage: deploy
   # Serialize production deploys so an older pipeline can never finish after
@@ -123,27 +124,42 @@ deploy_production:
         console.error("VERCEL_TOKEN must be set as a production CI/CD variable.");
         process.exit(1);
       }
-      const url = `https://api.vercel.com/v9/projects/${encodeURIComponent(project)}?teamId=${encodeURIComponent(scope)}`;
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-      const body = await res.json();
-      if (!res.ok) {
-        console.error(`Vercel API ${res.status}: cannot read project ${project} under team ${scope}.`);
-        console.error(body?.error?.message || JSON.stringify(body));
-        process.exit(1);
-      }
-      const liveOrg = body.accountId || "";
-      const livePrj = body.id || "";
-      console.log(`Vercel project reachable: ${body.name} (${livePrj}) under ${liveOrg}`);
-      console.log(`VERCEL_ORG_ID starts with team_: ${envOrg.startsWith("team_")}`);
-      console.log(`VERCEL_ORG_ID matches live accountId: ${envOrg === liveOrg}`);
-      console.log(`VERCEL_PROJECT_ID starts with prj_: ${envPrj.startsWith("prj_")}`);
-      console.log(`VERCEL_PROJECT_ID matches live project: ${envPrj === livePrj}`);
-      if (envOrg !== liveOrg || envPrj !== livePrj) {
-        console.log("GitLab VERCEL_ORG_ID / VERCEL_PROJECT_ID do not match the live project.");
-        console.log("VERCEL_ORG_ID must be the team id (team_...), not the dashboard slug (mdivani1).");
-        console.log(`Expected VERCEL_ORG_ID=${liveOrg}`);
-        console.log(`Expected VERCEL_PROJECT_ID=${livePrj}`);
-        console.log("Continuing with --scope/--project so this mismatch cannot block the deploy.");
+      const teamQuery = scope.startsWith("team_")
+        ? `teamId=${encodeURIComponent(scope)}`
+        : `slug=${encodeURIComponent(scope)}`;
+      const url = `https://api.vercel.com/v9/projects/${encodeURIComponent(project)}?${teamQuery}`;
+      try {
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        const text = await res.text();
+        let body = {};
+        try {
+          body = text ? JSON.parse(text) : {};
+        } catch {
+          body = { error: { message: text.slice(0, 300) || `non-JSON ${res.status}` } };
+        }
+        if (!res.ok) {
+          console.log(`Vercel preflight ${res.status}: cannot confirm project ${project} under ${scope}.`);
+          console.log(body?.error?.message || JSON.stringify(body));
+          console.log("Continuing with --scope/--project; preflight is diagnostic only.");
+        } else {
+          const liveOrg = body.accountId || "";
+          const livePrj = body.id || "";
+          console.log(`Vercel project reachable: ${body.name} (${livePrj}) under ${liveOrg}`);
+          console.log(`VERCEL_ORG_ID starts with team_: ${envOrg.startsWith("team_")}`);
+          console.log(`VERCEL_ORG_ID matches live accountId: ${envOrg === liveOrg}`);
+          console.log(`VERCEL_PROJECT_ID starts with prj_: ${envPrj.startsWith("prj_")}`);
+          console.log(`VERCEL_PROJECT_ID matches live project: ${envPrj === livePrj}`);
+          if (envOrg !== liveOrg || envPrj !== livePrj) {
+            console.log("GitLab VERCEL_ORG_ID / VERCEL_PROJECT_ID do not match the live project.");
+            console.log("VERCEL_ORG_ID must be the team id (team_...), not the dashboard slug (mdivani1).");
+            console.log(`Expected VERCEL_ORG_ID=${liveOrg}`);
+            console.log(`Expected VERCEL_PROJECT_ID=${livePrj}`);
+            console.log("Continuing with --scope/--project so this mismatch cannot block the deploy.");
+          }
+        }
+      } catch (err) {
+        console.log(`Vercel preflight failed: ${err?.message || err}`);
+        console.log("Continuing with --scope/--project; preflight is diagnostic only.");
       }
       NODE
     - node .yarn/releases/yarn-4.9.2.cjs run vercel -- pull --yes --environment=production --scope "$VERCEL_DEPLOY_SCOPE" --project "$VERCEL_DEPLOY_PROJECT"
