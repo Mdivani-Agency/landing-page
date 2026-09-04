@@ -357,13 +357,14 @@ export function isJsonContentType(contentType: string | null): boolean {
 
 export function declaredContentLengthExceedsLimit(
   contentLength: string | null,
+  maxBytes: number = MAX_BODY_BYTES,
 ): boolean {
   if (!contentLength) {
     return false;
   }
 
   const parsed = Number(contentLength);
-  return Number.isFinite(parsed) && parsed > MAX_BODY_BYTES;
+  return Number.isFinite(parsed) && parsed > maxBytes;
 }
 
 /**
