@@ -21,6 +21,13 @@ export type ToolDefinition<I = unknown> = {
   handler: (input: I, ctx: ToolContext) => Promise<ToolResult>;
 };
 
+export function defineTool<I>(definition: ToolDefinition<I>): ToolDefinition<I> {
+  return definition;
+}
+
+// Heterogeneous registry: each tool carries its own input type.
+export type AnyToolDefinition = ToolDefinition<any>;
+
 export type ResourceDefinition = {
   uri: string;
   name: string;

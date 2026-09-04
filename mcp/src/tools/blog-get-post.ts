@@ -1,8 +1,8 @@
 import { getPostInputSchema } from "../schema";
-import type { ToolDefinition } from "../types";
+import { defineTool } from "../types";
 import { failureResult, requireToken, writeSuccessResult } from "./result";
 
-export const blogGetPost: ToolDefinition = {
+export const blogGetPost = defineTool({
   name: "blog_get_post",
   title: "Get a blog post",
   description: `Read one blog post by slug, including drafts. Requires BLOG_WRITE_TOKEN.
@@ -27,4 +27,4 @@ Use this before blog_update_post so you edit the current body instead of guessin
 
     return writeSuccessResult(result);
   },
-};
+});

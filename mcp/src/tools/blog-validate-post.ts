@@ -1,10 +1,10 @@
 import { validateBlogWritePayload } from "../../../lib/blog-schema";
 import { FORMATTING_CONTRACT } from "../resources/formatting";
 import { validatePostInputSchema } from "../schema";
-import type { ToolDefinition } from "../types";
+import { defineTool } from "../types";
 import { textResult } from "./result";
 
-export const blogValidatePost: ToolDefinition = {
+export const blogValidatePost = defineTool({
   name: "blog_validate_post",
   title: "Validate a blog post",
   description: `Validate a blog post payload locally against the same rules as POST /api/posts. Does not write anything and does not call the network.
@@ -48,4 +48,4 @@ ${FORMATTING_CONTRACT}`,
       },
     });
   },
-};
+});

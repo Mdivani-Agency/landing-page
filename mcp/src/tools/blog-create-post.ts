@@ -1,9 +1,9 @@
 import { FORMATTING_CONTRACT } from "../resources/formatting";
 import { createPostInputSchema } from "../schema";
-import type { ToolDefinition } from "../types";
+import { defineTool } from "../types";
 import { failureResult, requireToken, writeSuccessResult } from "./result";
 
-export const blogCreatePost: ToolDefinition = {
+export const blogCreatePost = defineTool({
   name: "blog_create_post",
   title: "Create a blog post",
   description: `Create a new blog post. This tool never sends slug, so the API generates one from title. If that slug is already taken the call fails with 409 — it will not overwrite an existing post. To change an existing post, call blog_update_post.
@@ -29,4 +29,4 @@ ${FORMATTING_CONTRACT}`,
 
     return writeSuccessResult(result);
   },
-};
+});

@@ -8,14 +8,19 @@ import {
 import { zodToJsonSchema } from "zod-to-json-schema";
 import type { McpConfig } from "./config";
 import type { BlogApiRequest } from "./http/client";
-import type { ResourceDefinition, ToolDefinition, ToolResult } from "./types";
+import type {
+  AnyToolDefinition,
+  ResourceDefinition,
+  ToolDefinition,
+  ToolResult,
+} from "./types";
 
 export type Registry = {
-  tools: ToolDefinition[];
+  tools: AnyToolDefinition[];
   resources: ResourceDefinition[];
 };
 
-export function listToolDescriptors(tools: ToolDefinition[]) {
+export function listToolDescriptors(tools: AnyToolDefinition[]) {
   return tools.map((tool) => ({
     name: tool.name,
     title: tool.title,
@@ -42,7 +47,7 @@ export function readResource(
 }
 
 export async function callRegisteredTool(
-  tools: ToolDefinition[],
+  tools: AnyToolDefinition[],
   name: string,
   args: unknown,
   ctx: { baseUrl: string; token: string; request: BlogApiRequest },

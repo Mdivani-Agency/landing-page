@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { BLOG_WRITE_MIN_TOKEN_BYTES } from "../../../lib/blog-schema";
 import {
@@ -16,10 +16,7 @@ const token = "x".repeat(BLOG_WRITE_MIN_TOKEN_BYTES);
 
 describe("tool registry", () => {
   it("keeps per-tool knowledge out of server.ts", () => {
-    const source = readFileSync(
-      fileURLToPath(new URL("../server.ts", import.meta.url)),
-      "utf8",
-    );
+    const source = readFileSync(join(process.cwd(), "mcp/src/server.ts"), "utf8");
 
     expect(source).not.toMatch(
       /blog_validate_post|blog_create_post|blog_update_post|blog_list_posts|blog_get_post/,

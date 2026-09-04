@@ -1,8 +1,8 @@
 import { listPostsInputSchema } from "../schema";
-import type { ToolDefinition } from "../types";
+import { defineTool } from "../types";
 import { failureResult, requireToken, writeSuccessResult } from "./result";
 
-export const blogListPosts: ToolDefinition = {
+export const blogListPosts = defineTool({
   name: "blog_list_posts",
   title: "List blog posts",
   description: `List blog posts, including drafts and posts for other sites. Requires BLOG_WRITE_TOKEN.
@@ -36,4 +36,4 @@ Use this before blog_update_post when you are not sure whether a slug exists.`,
 
     return writeSuccessResult(result);
   },
-};
+});

@@ -1,9 +1,9 @@
 import { FORMATTING_CONTRACT } from "../resources/formatting";
 import { updatePostInputSchema } from "../schema";
-import type { ToolDefinition } from "../types";
+import { defineTool } from "../types";
 import { failureResult, requireToken, writeSuccessResult } from "./result";
 
-export const blogUpdatePost: ToolDefinition = {
+export const blogUpdatePost = defineTool({
   name: "blog_update_post",
   title: "Update a blog post",
   description: `Update an existing blog post by slug. Sending slug is an upsert: an existing post is overwritten. Use blog_get_post first when you need the current body.
@@ -29,4 +29,4 @@ ${FORMATTING_CONTRACT}`,
 
     return writeSuccessResult(result);
   },
-};
+});
