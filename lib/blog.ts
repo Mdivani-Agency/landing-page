@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { type PostStatus } from "@/lib/blog-schema";
 import { siteKey, type SiteKey } from "@/lib/site";
 import {
   createSupabaseAdminClient,
@@ -8,7 +9,7 @@ import {
   readSupabaseEnv,
 } from "@/lib/supabase";
 
-export type PostStatus = "draft" | "published";
+export type { PostStatus };
 
 export type BlogPost = {
   slug: string;
@@ -203,6 +204,23 @@ export async function getPostRecordBySlug(
   }
 
   return data ? toPost(data as BlogPostRow) : null;
+}
+
+/**
+ * Authenticated listing. No status or site filter — drafts and posts for
+ * other front ends are visible to a caller who already holds the write token.
+ */
+export async function listPostRecords(): Promise<BlogPost[]> {
+  const { data, error } = await adminClient()
+    .from(TABLE)
+    .select(COLUMNS)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`blog: list records failed: ${error.message}`);
+  }
+
+  return ((data ?? []) as BlogPostRow[]).map(toPost);
 }
 
 export async function upsertPostRecord(

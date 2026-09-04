@@ -391,8 +391,144 @@ describe("POST /api/posts", () => {
 });
 
 describe("GET /api/posts", () => {
-  it("returns 405", async () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.stubEnv("BLOG_WRITE_TOKEN", WRITE_TOKEN);
+    state.client = createFakeSupabase(fakeBlogRows);
+  });
+
+  afterEach(async () => {
+    const { resetWriteRateLimit } = await import("@/lib/blog-write");
+    resetWriteRateLimit();
+    vi.unstubAllEnvs();
+  });
+
+  it("rejects missing bearer tokens with 401", async () => {
     const { GET } = await importRoute();
-    expect(GET().status).toBe(405);
+    const response = await GET(new Request("http://localhost/api/posts"));
+
+    expect(response.status).toBe(401);
+  });
+
+  it("lists drafts and other-site posts for an authenticated caller", async () => {
+    const { GET } = await importRoute();
+    const response = await GET(
+      new Request("http://localhost/api/posts", { headers: authorized() }),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.ok).toBe(true);
+    const slugs = payload.posts.map((post: { slug: string }) => post.slug);
+    expect(slugs).toEqual(
+      expect.arrayContaining([
+        "idea-to-production-ai",
+        "draft-internal-notes",
+        "talvio-only-post",
+      ]),
+    );
+  });
+
+  it("filters by status", async () => {
+    const { GET } = await importRoute();
+    const response = await GET(
+      new Request("http://localhost/api/posts?status=draft", {
+        headers: authorized(),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.posts.every((post: { status: string }) => post.status === "draft")).toBe(
+      true,
+    );
+    expect(payload.posts.map((post: { slug: string }) => post.slug)).toContain(
+      "draft-internal-notes",
+    );
+  });
+
+  it("rejects an unknown status filter", async () => {
+    const { GET } = await importRoute();
+    const response = await GET(
+      new Request("http://localhost/api/posts?status=live", {
+        headers: authorized(),
+      }),
+    );
+
+    expect(response.status).toBe(400);
+  });
+});
+
+describe("GET /api/posts/[slug]", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.stubEnv("BLOG_WRITE_TOKEN", WRITE_TOKEN);
+    state.client = createFakeSupabase(fakeBlogRows);
+    state.captureException.mockClear();
+  });
+
+  afterEach(async () => {
+    const { resetWriteRateLimit } = await import("@/lib/blog-write");
+    resetWriteRateLimit();
+    vi.unstubAllEnvs();
+  });
+
+  async function importSlugRoute() {
+    return import("@/app/api/posts/[slug]/route");
+  }
+
+  function slugRequest(slug: string, headers: HeadersInit = {}) {
+    return new Request(`http://localhost/api/posts/${slug}`, { headers });
+  }
+
+  function slugContext(slug: string) {
+    return { params: Promise.resolve({ slug }) };
+  }
+
+  it("returns a draft the public reads hide", async () => {
+    const { GET } = await importSlugRoute();
+    const response = await GET(
+      slugRequest("draft-internal-notes", authorized()),
+      slugContext("draft-internal-notes"),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.post.slug).toBe("draft-internal-notes");
+    expect(payload.post.status).toBe("draft");
+  });
+
+  it("returns 404 for an unknown slug", async () => {
+    const { GET } = await importSlugRoute();
+    const response = await GET(
+      slugRequest("missing-post", authorized()),
+      slugContext("missing-post"),
+    );
+
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      errors: { slug: "Post not found." },
+    });
+  });
+
+  it("rejects a malformed slug", async () => {
+    const { GET } = await importSlugRoute();
+    const response = await GET(
+      slugRequest("Nope!", authorized()),
+      slugContext("Nope!"),
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects missing bearer tokens with 401", async () => {
+    const { GET } = await importSlugRoute();
+    const response = await GET(
+      slugRequest("idea-to-production-ai"),
+      slugContext("idea-to-production-ai"),
+    );
+
+    expect(response.status).toBe(401);
   });
 });

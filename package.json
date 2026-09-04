@@ -1,14 +1,19 @@
 {
   "name": "mdio-landing-page",
   "version": "1.0.0",
+  "private": true,
   "description": "Get info about mdio and contact us",
+  "workspaces": [
+    "mcp"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest run && yarn workspace mdio-blog-mcp typecheck",
+    "test:watch": "vitest",
+    "mcp": "yarn workspace mdio-blog-mcp start"
   },
   "keywords": [
     "mdio",
