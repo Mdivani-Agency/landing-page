@@ -67,6 +67,7 @@ the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).
 | `SUPABASE_URL` | `https://fokgusrsmrhatfrdcasg.supabase.co` |
 | `SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` key for reads; resolves to the `anon` role and stays subject to row level security |
 | `SUPABASE_SECRET_KEY` | `sb_secret_…` key for server-side writes; bypasses row level security, so never expose it to the browser |
+| `BLOG_WRITE_TOKEN` | **Do not set yet.** `POST /api/posts` still writes the in-process seed store (MDI-70). Enabling it on Vercel would accept publishes that ISR cannot see. When writes are durable, use at least 32 random bytes, server-only |
 
 The contact and Supabase variables are server-only — never prefix them with
 `NEXT_PUBLIC_`. The Vercel Upstash Redis integration also writes
