@@ -1,19 +1,61 @@
-import { validateBlogWritePayload } from "../../../lib/blog-schema";
+import {
+  validateBlogWritePayload,
+  type BlogWriteInput,
+  type BlogWriteProvided,
+} from "../../../lib/blog-schema";
 import { FORMATTING_CONTRACT } from "../resources/formatting";
 import { validatePostInputSchema } from "../schema";
 import { defineTool } from "../types";
 import { textResult } from "./result";
+
+/**
+ * Shape an agent can copy into a write tool. Optional keys appear only when
+ * the input actually sent them, so create defaults are not replayed onto an
+ * update (which would unpublish or clear tags/cover).
+ */
+export function writePayloadFromValidation(
+  value: BlogWriteInput,
+  provided: BlogWriteProvided,
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    title: value.title,
+    description: value.description,
+    content: value.content,
+  };
+
+  if (provided.slugProvided) {
+    payload.slug = value.slug;
+  }
+
+  if (provided.tagsProvided) {
+    payload.tags = value.tags;
+  }
+
+  if (provided.sitesProvided) {
+    payload.sites = value.sites;
+  }
+
+  if (provided.coverProvided) {
+    payload.cover_image_url = value.coverImageUrl;
+  }
+
+  if (provided.statusProvided) {
+    payload.status = value.status;
+  }
+
+  return payload;
+}
 
 export const blogValidatePost = defineTool({
   name: "blog_validate_post",
   title: "Validate a blog post",
   description: `Validate a blog post payload locally against the same rules as POST /api/posts. Does not write anything and does not call the network.
 
-Use this before blog_create_post or blog_update_post.
+Use this before blog_create_post or blog_update_post. Copy \`value\` into the write tool — do not add status, tags, sites, or cover_image_url unless the caller sent them.
 
-Omitting slug means the API will generate one from title. Sending slug is an update.
+On create (no slug), omitted status becomes draft on the server. On update (slug present), omitted status, tags, cover_image_url, and sites keep the stored values. Sending status: "draft" or tags: [] is an explicit write and will unpublish or clear.
 
-status defaults to draft. Publishing requires status: "published".
+The resolved slug is returned as \`slug\` even when generated. It is only inside \`value\` when you provided one, so a create-shaped \`value\` cannot be reused as an update.
 
 ${FORMATTING_CONTRACT}`,
   inputSchema: validatePostInputSchema,
@@ -36,16 +78,10 @@ ${FORMATTING_CONTRACT}`,
       slug: result.value.slug,
       slug_provided: result.slugProvided,
       sites_provided: result.sitesProvided,
-      value: {
-        slug: result.value.slug,
-        title: result.value.title,
-        description: result.value.description,
-        content: result.value.content,
-        tags: result.value.tags,
-        sites: result.value.sites,
-        cover_image_url: result.value.coverImageUrl,
-        status: result.value.status,
-      },
+      tags_provided: result.tagsProvided,
+      cover_provided: result.coverProvided,
+      status_provided: result.statusProvided,
+      value: writePayloadFromValidation(result.value, result),
     });
   },
 });

@@ -79,11 +79,63 @@ describe("tool registry", () => {
     const payload = JSON.parse(result.content[0].text) as {
       ok: boolean;
       slug: string;
-      value: { status: string };
+      status_provided: boolean;
+      value: Record<string, unknown>;
     };
     expect(payload.ok).toBe(true);
     expect(payload.slug).toBe("a-new-note");
-    expect(payload.value.status).toBe("draft");
+    expect(payload.status_provided).toBe(false);
+    expect(payload.value).not.toHaveProperty("status");
+    expect(payload.value).not.toHaveProperty("tags");
+    expect(payload.value).not.toHaveProperty("sites");
+    expect(payload.value).not.toHaveProperty("cover_image_url");
+    expect(payload.value).not.toHaveProperty("slug");
+  });
+
+  it("validate-then-update does not send create defaults", async () => {
+    const request = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      baseUrl: "http://localhost:3000",
+      data: { ok: true, post: { slug: "a-new-note" } },
+    });
+    const ctx = { baseUrl: "http://localhost:3000", token, request };
+
+    const validated = await callRegisteredTool(
+      tools,
+      "blog_validate_post",
+      {
+        slug: "a-new-note",
+        title: "A new note",
+        description: "Enough description for the card.",
+        content: "## Hello\n\nThis is enough markdown content.",
+      },
+      ctx,
+    );
+
+    const payload = JSON.parse(validated.content[0].text) as {
+      value: Record<string, unknown>;
+    };
+
+    expect(payload.value).toEqual({
+      slug: "a-new-note",
+      title: "A new note",
+      description: "Enough description for the card.",
+      content: "## Hello\n\nThis is enough markdown content.",
+    });
+
+    await callRegisteredTool(tools, "blog_update_post", payload.value, ctx);
+
+    expect(request).toHaveBeenCalledWith("POST", "/api/posts", {
+      slug: "a-new-note",
+      title: "A new note",
+      description: "Enough description for the card.",
+      content: "## Hello\n\nThis is enough markdown content.",
+    });
+    expect(request.mock.calls[0][2]).not.toHaveProperty("status");
+    expect(request.mock.calls[0][2]).not.toHaveProperty("tags");
+    expect(request.mock.calls[0][2]).not.toHaveProperty("cover_image_url");
+    expect(request.mock.calls[0][2]).not.toHaveProperty("sites");
   });
 
   it("creates a post without sending slug", async () => {

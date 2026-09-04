@@ -27,7 +27,7 @@ Adding a tool is a new file under `mcp/src/tools/` plus one entry in
 
 | Tool | Network | Notes |
 | --- | --- | --- |
-| `blog_validate_post` | no | Shared `validateBlogWritePayload`. Read-only. |
+| `blog_validate_post` | no | Shared validator. `value` omits unprovided optional keys. |
 | `blog_create_post` | `POST /api/posts` | Omits `slug`. A 409 is a real conflict. |
 | `blog_update_post` | `POST /api/posts` | Requires `slug`. Upsert. |
 | `blog_list_posts` | `GET /api/posts` | Summaries, no `content`. Optional `status` and `site`. |
@@ -35,7 +35,9 @@ Adding a tool is a new file under `mcp/src/tools/` plus one entry in
 
 `blog_create_post` still defaults `status` to `draft`. `blog_update_post`
 keeps the stored `status`, `tags`, `cover_image_url`, and `sites` when
-those keys are omitted. Write tools carry `destructiveHint`, so Cursor
+those keys are omitted. `blog_validate_post` returns those keys in `value`
+only when the caller sent them, so a validate-then-update path cannot
+replay create defaults. Write tools carry `destructiveHint`, so Cursor
 prompts before they run. Publishing a new post requires an explicit
 `status: "published"`.
 

@@ -239,6 +239,22 @@ describe("POST /api/posts", () => {
 
   it("keeps tags, cover, and published status when an update omits them", async () => {
     const { POST } = await importRoute();
+    const seeded = await POST(
+      postRequest(
+        {
+          slug: "idea-to-production-ai",
+          title: "From idea to a production AI product",
+          description: "Enough description for the card.",
+          content: "## Start with a job\n\nThe model is not the product.",
+          cover_image_url: "/assets/logo.svg",
+          status: "published",
+        },
+        authorized(),
+      ),
+    );
+    expect(seeded.status).toBe(200);
+    expect((await seeded.json()).post.cover_image_url).toBe("/assets/logo.svg");
+
     const response = await POST(
       postRequest(
         {
@@ -256,12 +272,13 @@ describe("POST /api/posts", () => {
     expect(payload.post.title).toBe("Typo fix only");
     expect(payload.post.status).toBe("published");
     expect(payload.post.tags).toEqual(["AI", "product", "greenfield"]);
-    expect(payload.post.cover_image_url).toBeNull();
+    expect(payload.post.cover_image_url).toBe("/assets/logo.svg");
 
     const { getPostBySlug } = await import("@/lib/blog");
     const stored = await getPostBySlug("idea-to-production-ai");
     expect(stored?.status).toBe("published");
     expect(stored?.tags).toEqual(["AI", "product", "greenfield"]);
+    expect(stored?.coverImageUrl).toBe("/assets/logo.svg");
   });
 
   it("clears tags and unpublishes when those keys are sent explicitly", async () => {

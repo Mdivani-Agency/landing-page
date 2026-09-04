@@ -8,9 +8,9 @@ export const blogCreatePost = defineTool({
   title: "Create a blog post",
   description: `Create a new blog post. This tool never sends slug, so the API generates one from title. If that slug is already taken the call fails with 409 — it will not overwrite an existing post. To change an existing post, call blog_update_post.
 
-status defaults to draft. Publishing requires an explicit status: "published".
+On create, omitted status becomes draft. Publishing requires an explicit status: "published".
 
-Prefer blog_validate_post first. The result echoes the target base URL so you can see whether this write hit production or localhost.
+Prefer blog_validate_post first, and send its \`value\` as-is — do not add status/tags/cover defaults. The result echoes the target base URL so you can see whether this write hit production or localhost.
 
 ${FORMATTING_CONTRACT}`,
   inputSchema: createPostInputSchema,
