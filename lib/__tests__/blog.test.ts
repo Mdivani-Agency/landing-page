@@ -181,6 +181,15 @@ describe("listPostRecords", () => {
 
     await expect(listPostRecords()).rejects.toThrow(/denied/);
   });
+
+  it("pushes status and site filters into the query", async () => {
+    const drafts = await listPostRecords({ status: "draft" });
+    expect(drafts.map((post) => post.slug)).toEqual(["draft-internal-notes"]);
+    expect(drafts[0]).not.toHaveProperty("content");
+
+    const talvio = await listPostRecords({ site: "talvio" });
+    expect(talvio.map((post) => post.slug)).toEqual(["talvio-only-post"]);
+  });
 });
 
 describe("upsertPostRecord", () => {

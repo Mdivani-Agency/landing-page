@@ -52,6 +52,10 @@ bypass the cap).
 Create versus update is decided by `slug`. Omitting it means create: if the
 generated slug is taken the API returns `409`. Sending `slug` means upsert.
 
+On update, omitted `sites`, `tags`, `cover_image_url`, and `status` keep the
+stored values. Send `tags: []`, `cover_image_url: ""`, or `status: "draft"`
+to clear or unpublish. On create, omitted `status` is still `draft`.
+
 `published_at` is set on first publish and preserved across later updates.
 `created_at` is preserved. `updated_at` is always now.
 
@@ -86,7 +90,9 @@ GET /api/posts?status=draft
 Authorization: Bearer $BLOG_WRITE_TOKEN
 ```
 
-`200` `{ "ok": true, "posts": [ ... ] }` using the same post shape as write.
+`200` `{ "ok": true, "posts": [ ... ] }` — summary rows without `content`.
+Use `GET /api/posts/[slug]` for the Markdown body. `status` and `site` are
+applied in the database query.
 
 ## `GET /api/posts/[slug]`
 

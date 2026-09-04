@@ -74,15 +74,21 @@ function readString(value: unknown): string | undefined {
   return typeof value === "string" ? value.trim() : undefined;
 }
 
+export type BlogWriteProvided = {
+  slugProvided: boolean;
+  sitesProvided: boolean;
+  tagsProvided: boolean;
+  coverProvided: boolean;
+  statusProvided: boolean;
+};
+
 export function validateBlogWritePayload(
   data: unknown,
 ):
-  | {
+  | ({
       ok: true;
       value: BlogWriteInput;
-      slugProvided: boolean;
-      sitesProvided: boolean;
-    }
+    } & BlogWriteProvided)
   | { ok: false; errors: BlogWriteErrors } {
   if (data == null || typeof data !== "object" || Array.isArray(data)) {
     return { ok: false, errors: { form: "Send a JSON object." } };
@@ -127,8 +133,11 @@ export function validateBlogWritePayload(
     }
   }
 
+  // `in` so an explicit null/[]/"" still counts as provided and can clear
+  // the stored value. Omitted keys keep the existing row on update.
+  const tagsProvided = "tags" in body;
   let tags: string[] = [];
-  if (body.tags != null) {
+  if (tagsProvided) {
     if (
       !Array.isArray(body.tags) ||
       body.tags.some((tag) => typeof tag !== "string")
@@ -142,7 +151,7 @@ export function validateBlogWritePayload(
   // Defaults to the site doing the writing, so an existing caller that knows
   // nothing about Talvio keeps publishing here and only here. Omitted `sites`
   // on an update must not overwrite a wider list — see `sitesProvided`.
-  const sitesProvided = body.sites != null;
+  const sitesProvided = "sites" in body;
   let sites: SiteKey[] = [siteKey];
   if (sitesProvided) {
     if (
@@ -168,6 +177,7 @@ export function validateBlogWritePayload(
     }
   }
 
+  const coverProvided = "cover_image_url" in body || "coverImageUrl" in body;
   let coverImageUrl: string | null = null;
   const cover = readString(body.cover_image_url ?? body.coverImageUrl);
   if (cover) {
@@ -179,6 +189,7 @@ export function validateBlogWritePayload(
     }
   }
 
+  const statusProvided = "status" in body;
   const statusRaw = readString(body.status) ?? "draft";
   if (!POST_STATUSES.includes(statusRaw as PostStatus)) {
     errors.status = "Status must be draft or published.";
@@ -192,6 +203,9 @@ export function validateBlogWritePayload(
     ok: true,
     slugProvided,
     sitesProvided,
+    tagsProvided,
+    coverProvided,
+    statusProvided,
     value: {
       slug: slug as string,
       title: title as string,

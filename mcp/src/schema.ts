@@ -44,7 +44,7 @@ export const optionalSlugField = z
 export const tagsField = z.array(z.string()).optional();
 
 export const sitesField = z
-  .array(z.enum(siteKeys))
+  .array(z.string().trim().pipe(z.enum(siteKeys)))
   .min(1)
   .optional();
 

@@ -1,8 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-04 (Supabase blog persistence: TD-046, TD-047, and
-TD-048 resolved; TD-045 and TD-024 findings recorded; TD-049 added)
+Last updated: 2026-09-04 (MDI-103 review: TD-050 recorded)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -456,6 +455,23 @@ error.
 **Remediation:** Generate types with `supabase gen types typescript` into a
 checked-in file and parameterize the clients with the generated `Database`
 type. Wait until the table exists on the hosted project (TD-044, TD-045).
+
+### TD-050 — MCP host allowlist excludes Vercel preview URLs
+
+**Severity:** Low  
+**Area:** Blog / MCP
+
+`mcp/src/config.ts` allowlists `localhost` / `127.0.0.1` / `::1` and
+`mdivani.agency` / `www.mdivani.agency`. A `BLOG_API_BASE_URL` pointing at a
+Vercel preview (`*.vercel.app`) is rejected so a mistyped or redirected
+origin cannot receive `BLOG_WRITE_TOKEN`.
+
+**Impact:** An agent that should write to a preview deployment has to retarget
+localhost or production. Preview-host writes are not a supported path today.
+
+**Remediation:** If preview publishing becomes a real workflow, add an explicit
+allowlist of known Vercel hostnames (not a `*.vercel.app` wildcard) and keep
+`redirect: "error"` on the token-bearing fetch.
 
 ### TD-022 — Duplicated SVG sources and unused assets remain
 

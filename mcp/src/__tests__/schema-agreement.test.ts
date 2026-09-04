@@ -16,6 +16,7 @@ const cases: Array<{ name: string; payload: unknown }> = [
   { name: "valid create payload", payload: valid },
   { name: "explicit published status", payload: { ...valid, status: "published" } },
   { name: "explicit sites", payload: { ...valid, sites: ["agency", "talvio"] } },
+  { name: "trimmed site", payload: { ...valid, sites: ["agency "] } },
   { name: "same-origin cover", payload: { ...valid, cover_image_url: "/assets/logo.svg" } },
   { name: "tags with blanks", payload: { ...valid, tags: ["AI", "  ", "product"] } },
   { name: "valid slug", payload: { ...valid, slug: "custom-slug" } },

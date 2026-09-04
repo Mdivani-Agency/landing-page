@@ -233,6 +233,61 @@ describe("POST /api/posts", () => {
     const stored = await getPostBySlug("idea-to-production-ai");
     expect(stored?.title).toBe("Updated title");
     expect(stored?.sites).toEqual(["agency"]);
+    expect(stored?.tags).toEqual(["AI", "product", "greenfield"]);
+    expect(stored?.status).toBe("published");
+  });
+
+  it("keeps tags, cover, and published status when an update omits them", async () => {
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest(
+        {
+          slug: "idea-to-production-ai",
+          title: "Typo fix only",
+          description: "Updated description for the card.",
+          content: "## Updated\n\nThis is enough markdown content.",
+        },
+        authorized(),
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.post.title).toBe("Typo fix only");
+    expect(payload.post.status).toBe("published");
+    expect(payload.post.tags).toEqual(["AI", "product", "greenfield"]);
+    expect(payload.post.cover_image_url).toBeNull();
+
+    const { getPostBySlug } = await import("@/lib/blog");
+    const stored = await getPostBySlug("idea-to-production-ai");
+    expect(stored?.status).toBe("published");
+    expect(stored?.tags).toEqual(["AI", "product", "greenfield"]);
+  });
+
+  it("clears tags and unpublishes when those keys are sent explicitly", async () => {
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest(
+        {
+          slug: "idea-to-production-ai",
+          title: "Now a draft",
+          description: "Updated description for the card.",
+          content: "## Updated\n\nThis is enough markdown content.",
+          tags: [],
+          cover_image_url: "",
+          status: "draft",
+        },
+        authorized(),
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.post.status).toBe("draft");
+    expect(payload.post.tags).toEqual([]);
+
+    const { getPostBySlug } = await import("@/lib/blog");
+    await expect(getPostBySlug("idea-to-production-ai")).resolves.toBeNull();
   });
 
   it("keeps existing sites when an update omits them", async () => {
@@ -395,6 +450,7 @@ describe("GET /api/posts", () => {
     vi.resetModules();
     vi.stubEnv("BLOG_WRITE_TOKEN", WRITE_TOKEN);
     state.client = createFakeSupabase(fakeBlogRows);
+    state.captureException.mockClear();
   });
 
   afterEach(async () => {
@@ -456,6 +512,69 @@ describe("GET /api/posts", () => {
     );
 
     expect(response.status).toBe(400);
+  });
+
+  it("filters by site in the query", async () => {
+    const { GET } = await importRoute();
+    const response = await GET(
+      new Request("http://localhost/api/posts?site=talvio", {
+        headers: authorized(),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.posts.map((post: { slug: string }) => post.slug)).toEqual([
+      "talvio-only-post",
+    ]);
+    expect(payload.posts[0]).not.toHaveProperty("content");
+  });
+
+  it("rejects an unknown site filter", async () => {
+    const { GET } = await importRoute();
+    const response = await GET(
+      new Request("http://localhost/api/posts?site=nope", {
+        headers: authorized(),
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    const payload = await response.json();
+    expect(payload.errors.site).toBeDefined();
+  });
+
+  it("omits markdown bodies from the list", async () => {
+    const { GET } = await importRoute();
+    const response = await GET(
+      new Request("http://localhost/api/posts", { headers: authorized() }),
+    );
+
+    const payload = await response.json();
+    expect(payload.posts.length).toBeGreaterThan(0);
+    expect(
+      payload.posts.every(
+        (post: { content?: string }) => post.content === undefined,
+      ),
+    ).toBe(true);
+  });
+
+  it("returns 500 when the list query fails", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    state.client = createFakeSupabase([], { error: { message: "denied" } });
+
+    const { GET } = await importRoute();
+    const response = await GET(
+      new Request("http://localhost/api/posts", { headers: authorized() }),
+    );
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      errors: { form: "Could not load posts." },
+    });
+    expect(state.captureException).toHaveBeenCalled();
+
+    error.mockRestore();
   });
 });
 

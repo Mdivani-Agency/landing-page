@@ -25,6 +25,8 @@ export type BlogPost = {
   updatedAt: Date;
 };
 
+export type BlogPostSummary = Omit<BlogPost, "content">;
+
 export type BlogPostRecord = Omit<
   BlogPost,
   "publishedAt" | "createdAt" | "updatedAt"
@@ -56,6 +58,9 @@ const TABLE = "blog_posts";
 
 const COLUMNS =
   "slug, title, description, content, cover_image_url, tags, sites, status, published_at, created_at, updated_at";
+
+const LIST_COLUMNS =
+  "slug, title, description, cover_image_url, tags, sites, status, published_at, created_at, updated_at";
 
 function toPost(row: BlogPostRow): BlogPost {
   return {
@@ -207,20 +212,48 @@ export async function getPostRecordBySlug(
 }
 
 /**
- * Authenticated listing. No status or site filter — drafts and posts for
- * other front ends are visible to a caller who already holds the write token.
+ * Authenticated listing. Drafts and other-site posts are visible to a
+ * caller who already holds the write token. Omits `content` — use
+ * `getPostRecordBySlug` for the body. Filters are applied in the query.
  */
-export async function listPostRecords(): Promise<BlogPost[]> {
-  const { data, error } = await adminClient()
+export async function listPostRecords(filters?: {
+  status?: PostStatus;
+  site?: SiteKey;
+}): Promise<BlogPostSummary[]> {
+  let query = adminClient()
     .from(TABLE)
-    .select(COLUMNS)
+    .select(LIST_COLUMNS)
     .order("updated_at", { ascending: false });
+
+  if (filters?.status) {
+    query = query.eq("status", filters.status);
+  }
+
+  if (filters?.site) {
+    query = query.contains("sites", [filters.site]);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(`blog: list records failed: ${error.message}`);
   }
 
-  return ((data ?? []) as BlogPostRow[]).map(toPost);
+  return ((data ?? []) as Omit<BlogPostRow, "content">[]).map((row) => {
+    const post = toPost({ ...row, content: "" });
+    return {
+      slug: post.slug,
+      title: post.title,
+      description: post.description,
+      coverImageUrl: post.coverImageUrl,
+      tags: post.tags,
+      sites: post.sites,
+      status: post.status,
+      publishedAt: post.publishedAt,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+    };
+  });
 }
 
 export async function upsertPostRecord(

@@ -3,11 +3,14 @@ import {
   getPostRecordBySlug,
   listPostRecords,
   type BlogPost,
+  type BlogPostSummary,
 } from "@/lib/blog";
 import { POST_STATUSES, type PostStatus } from "@/lib/blog-schema";
 import {
   BLOG_WRITE_MAX_BODY_BYTES,
+  mergeBlogWriteWithExisting,
   serializeBlogPost,
+  serializeBlogPostSummary,
   upsertBlogPost,
   validateBlogWritePayload,
 } from "@/lib/blog-write";
@@ -87,10 +90,7 @@ export async function POST(request: Request) {
     });
   }
 
-  const input =
-    existing && !validated.sitesProvided
-      ? { ...validated.value, sites: existing.sites }
-      : validated.value;
+  const input = mergeBlogWriteWithExisting(validated.value, existing, validated);
 
   let post: BlogPost;
 
@@ -134,30 +134,23 @@ export async function GET(request: Request) {
   if (siteFilter && !(siteKeys as readonly string[]).includes(siteFilter)) {
     return blogWriteJson(400, {
       ok: false,
-      errors: { sites: `Sites must be any of: ${siteKeys.join(", ")}.` },
+      errors: { site: `Site must be any of: ${siteKeys.join(", ")}.` },
     });
   }
 
-  let posts: BlogPost[];
+  let posts: BlogPostSummary[];
 
   try {
-    posts = await listPostRecords();
+    posts = await listPostRecords({
+      status: statusFilter as PostStatus | undefined,
+      site: siteFilter as SiteKey | undefined,
+    });
   } catch (error) {
     return blogWritePersistenceFailed(error, "Could not load posts.");
   }
 
-  if (statusFilter) {
-    posts = posts.filter((post) => post.status === statusFilter);
-  }
-
-  if (siteFilter) {
-    posts = posts.filter((post) =>
-      post.sites.includes(siteFilter as SiteKey),
-    );
-  }
-
   return blogWriteJson(200, {
     ok: true,
-    posts: posts.map(serializeBlogPost),
+    posts: posts.map(serializeBlogPostSummary),
   });
 }

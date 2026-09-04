@@ -30,12 +30,18 @@ Adding a tool is a new file under `mcp/src/tools/` plus one entry in
 | `blog_validate_post` | no | Shared `validateBlogWritePayload`. Read-only. |
 | `blog_create_post` | `POST /api/posts` | Omits `slug`. A 409 is a real conflict. |
 | `blog_update_post` | `POST /api/posts` | Requires `slug`. Upsert. |
-| `blog_list_posts` | `GET /api/posts` | Includes drafts. Optional `status` and `site`. |
+| `blog_list_posts` | `GET /api/posts` | Summaries, no `content`. Optional `status` and `site`. |
 | `blog_get_post` | `GET /api/posts/[slug]` | Includes drafts. |
 
-Write tools default `status` to `draft` on the API side and carry
-`destructiveHint`, so Cursor prompts before they run. Publishing requires
-an explicit `status: "published"`.
+`blog_create_post` still defaults `status` to `draft`. `blog_update_post`
+keeps the stored `status`, `tags`, `cover_image_url`, and `sites` when
+those keys are omitted. Write tools carry `destructiveHint`, so Cursor
+prompts before they run. Publishing a new post requires an explicit
+`status: "published"`.
+
+`BLOG_API_BASE_URL` is allowlisted to localhost and `mdivani.agency`. The
+HTTP client uses `redirect: "error"` so the write token cannot follow a
+cross-origin 3xx.
 
 ## Resource
 

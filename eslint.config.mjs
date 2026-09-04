@@ -7,7 +7,6 @@ const eslintConfig = [
       "node_modules/**",
       "public/**",
       ".yarn/**",
-      "mcp/**",
     ],
   },
   ...nextCoreWebVitals,

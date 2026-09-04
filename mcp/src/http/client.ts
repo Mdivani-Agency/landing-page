@@ -56,6 +56,8 @@ export function createBlogApiClient(config: BlogApiConfig): BlogApiRequest {
         headers,
         body: body === undefined ? undefined : JSON.stringify(body),
         signal: AbortSignal.timeout(timeoutMs),
+        // The write token must not follow a cross-origin 3xx.
+        redirect: "error",
       });
     } catch (error) {
       const message =

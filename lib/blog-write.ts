@@ -4,6 +4,7 @@ import {
   BLOG_WRITE_RATE_LIMIT,
   BLOG_WRITE_RATE_WINDOW_MS,
   type BlogWriteInput,
+  type BlogWriteProvided,
 } from "@/lib/blog-schema";
 
 export {
@@ -24,8 +25,37 @@ export {
   validateBlogWritePayload,
   type BlogWriteErrors,
   type BlogWriteInput,
+  type BlogWriteProvided,
   type PostStatus,
 } from "@/lib/blog-schema";
+
+/**
+ * PUT-style writes default omitted optional fields. On update, omitted
+ * `sites`, `tags`, `cover_image_url`, and `status` keep the stored values.
+ * Sending `[]`, `null`, or `draft` still clears or unpublishes.
+ */
+export function mergeBlogWriteWithExisting(
+  value: BlogWriteInput,
+  existing: BlogPost | null,
+  provided: Pick<
+    BlogWriteProvided,
+    "sitesProvided" | "tagsProvided" | "coverProvided" | "statusProvided"
+  >,
+): BlogWriteInput {
+  if (!existing) {
+    return value;
+  }
+
+  return {
+    ...value,
+    sites: provided.sitesProvided ? value.sites : existing.sites,
+    tags: provided.tagsProvided ? value.tags : existing.tags,
+    coverImageUrl: provided.coverProvided
+      ? value.coverImageUrl
+      : existing.coverImageUrl,
+    status: provided.statusProvided ? value.status : existing.status,
+  };
+}
 
 export async function upsertBlogPost(
   input: BlogWriteInput,
@@ -59,6 +89,21 @@ export function serializeBlogPost(post: BlogPost) {
     title: post.title,
     description: post.description,
     content: post.content,
+    cover_image_url: post.coverImageUrl,
+    tags: post.tags,
+    sites: post.sites,
+    status: post.status,
+    published_at: post.publishedAt?.toISOString() ?? null,
+    created_at: post.createdAt.toISOString(),
+    updated_at: post.updatedAt.toISOString(),
+  };
+}
+
+export function serializeBlogPostSummary(post: Omit<BlogPost, "content">) {
+  return {
+    slug: post.slug,
+    title: post.title,
+    description: post.description,
     cover_image_url: post.coverImageUrl,
     tags: post.tags,
     sites: post.sites,

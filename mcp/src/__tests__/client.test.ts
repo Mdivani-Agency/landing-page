@@ -25,6 +25,7 @@ describe("createBlogApiClient", () => {
       "http://localhost:3000/api/posts",
       expect.objectContaining({
         method: "POST",
+        redirect: "error",
         headers: expect.objectContaining({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

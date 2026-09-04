@@ -6,11 +6,13 @@ import { failureResult, requireToken, writeSuccessResult } from "./result";
 export const blogUpdatePost = defineTool({
   name: "blog_update_post",
   title: "Update a blog post",
-  description: `Update an existing blog post by slug. Sending slug is an upsert: an existing post is overwritten. Use blog_get_post first when you need the current body.
+  description: `Update an existing blog post by slug. Sending slug is an upsert. Use blog_get_post first when you need the current body.
 
-status defaults to draft if omitted. That will unpublish a live post. To keep a post live, send status: "published".
+Omitted optional fields keep the stored values: status, tags, cover_image_url, and sites. A typical typo fix (slug + title + description + content only) will not unpublish and will not clear tags or the cover.
 
-Omitting sites keeps the existing site list. The result echoes the target base URL.
+To change those fields, send them explicitly. status: "draft" unpublishes. tags: [] or cover_image_url: "" clears. sites: [] is rejected; send the full list to replace.
+
+The result echoes the target base URL.
 
 ${FORMATTING_CONTRACT}`,
   inputSchema: updatePostInputSchema,
