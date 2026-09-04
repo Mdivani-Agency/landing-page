@@ -84,6 +84,9 @@ describe("validateBlogWritePayload", () => {
       ok: true,
       slugProvided: false,
       sitesProvided: false,
+      tagsProvided: false,
+      coverProvided: false,
+      statusProvided: false,
       value: {
         slug: "a-new-note",
         title: "A new note",
@@ -142,6 +145,31 @@ describe("validateBlogWritePayload", () => {
       cover_image_url: "/assets/hero.jpg?v=1",
     });
     expect(withQuery.ok).toBe(false);
+  });
+
+  it("marks tags, cover, and status as provided only when the keys are present", () => {
+    const omitted = validateBlogWritePayload(validPayload);
+    expect(omitted.ok).toBe(true);
+    if (omitted.ok) {
+      expect(omitted.tagsProvided).toBe(false);
+      expect(omitted.coverProvided).toBe(false);
+      expect(omitted.statusProvided).toBe(false);
+    }
+
+    const explicit = validateBlogWritePayload({
+      ...validPayload,
+      tags: [],
+      cover_image_url: "",
+      status: "draft",
+    });
+    expect(explicit.ok).toBe(true);
+    if (explicit.ok) {
+      expect(explicit.tagsProvided).toBe(true);
+      expect(explicit.coverProvided).toBe(true);
+      expect(explicit.statusProvided).toBe(true);
+      expect(explicit.value.tags).toEqual([]);
+      expect(explicit.value.coverImageUrl).toBeNull();
+    }
   });
 
   it("marks an explicit slug as provided", () => {

@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { type PostStatus } from "@/lib/blog-schema";
 import { siteKey, type SiteKey } from "@/lib/site";
 import {
   createSupabaseAdminClient,
@@ -8,7 +9,7 @@ import {
   readSupabaseEnv,
 } from "@/lib/supabase";
 
-export type PostStatus = "draft" | "published";
+export type { PostStatus };
 
 export type BlogPost = {
   slug: string;
@@ -23,6 +24,8 @@ export type BlogPost = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type BlogPostSummary = Omit<BlogPost, "content">;
 
 export type BlogPostRecord = Omit<
   BlogPost,
@@ -55,6 +58,9 @@ const TABLE = "blog_posts";
 
 const COLUMNS =
   "slug, title, description, content, cover_image_url, tags, sites, status, published_at, created_at, updated_at";
+
+const LIST_COLUMNS =
+  "slug, title, description, cover_image_url, tags, sites, status, published_at, created_at, updated_at";
 
 function toPost(row: BlogPostRow): BlogPost {
   return {
@@ -203,6 +209,51 @@ export async function getPostRecordBySlug(
   }
 
   return data ? toPost(data as BlogPostRow) : null;
+}
+
+/**
+ * Authenticated listing. Drafts and other-site posts are visible to a
+ * caller who already holds the write token. Omits `content` — use
+ * `getPostRecordBySlug` for the body. Filters are applied in the query.
+ */
+export async function listPostRecords(filters?: {
+  status?: PostStatus;
+  site?: SiteKey;
+}): Promise<BlogPostSummary[]> {
+  let query = adminClient()
+    .from(TABLE)
+    .select(LIST_COLUMNS)
+    .order("updated_at", { ascending: false });
+
+  if (filters?.status) {
+    query = query.eq("status", filters.status);
+  }
+
+  if (filters?.site) {
+    query = query.contains("sites", [filters.site]);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`blog: list records failed: ${error.message}`);
+  }
+
+  return ((data ?? []) as Omit<BlogPostRow, "content">[]).map((row) => {
+    const post = toPost({ ...row, content: "" });
+    return {
+      slug: post.slug,
+      title: post.title,
+      description: post.description,
+      coverImageUrl: post.coverImageUrl,
+      tags: post.tags,
+      sites: post.sites,
+      status: post.status,
+      publishedAt: post.publishedAt,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+    };
+  });
 }
 
 export async function upsertPostRecord(
