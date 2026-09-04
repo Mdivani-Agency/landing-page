@@ -8,9 +8,9 @@ export const blogUpdatePost = defineTool({
   title: "Update a blog post",
   description: `Update an existing blog post by slug. Sending slug is an upsert. Use blog_get_post first when you need the current body.
 
-Omitted optional fields keep the stored values: status, tags, cover_image_url, and sites. A typical typo fix (slug + title + description + content only) will not unpublish and will not clear tags or the cover.
+Omitted optional fields keep the stored values: status, tags, cover_image_url, sites, and featured. A typical typo fix (slug + title + description + content only) will not unpublish, will not clear tags or the cover, and will not change featured.
 
-To change those fields, send them explicitly. status: "draft" unpublishes. tags: [] or cover_image_url: "" clears. sites: [] is rejected; send the full list to replace.
+To change those fields, send them explicitly. status: "draft" unpublishes. tags: [] or cover_image_url: "" clears. featured: true pins a published post above the chronological /blog grid; featured: false unpins it. sites: [] is rejected; send the full list to replace.
 
 The result echoes the target base URL.
 

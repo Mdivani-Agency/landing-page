@@ -31,15 +31,20 @@ export {
 
 /**
  * PUT-style writes default omitted optional fields. On update, omitted
- * `sites`, `tags`, `cover_image_url`, and `status` keep the stored values.
- * Sending `[]`, `null`, or `draft` still clears or unpublishes.
+ * `sites`, `tags`, `cover_image_url`, `status`, and `featured` keep the
+ * stored values. Sending `[]`, `null`, `draft`, or `false` still clears
+ * or unpublishes.
  */
 export function mergeBlogWriteWithExisting(
   value: BlogWriteInput,
   existing: BlogPost | null,
   provided: Pick<
     BlogWriteProvided,
-    "sitesProvided" | "tagsProvided" | "coverProvided" | "statusProvided"
+    | "sitesProvided"
+    | "tagsProvided"
+    | "coverProvided"
+    | "statusProvided"
+    | "featuredProvided"
   >,
 ): BlogWriteInput {
   if (!existing) {
@@ -54,6 +59,7 @@ export function mergeBlogWriteWithExisting(
       ? value.coverImageUrl
       : existing.coverImageUrl,
     status: provided.statusProvided ? value.status : existing.status,
+    featured: provided.featuredProvided ? value.featured : existing.featured,
   };
 }
 
@@ -77,6 +83,7 @@ export async function upsertBlogPost(
     tags: input.tags,
     sites: input.sites,
     status: input.status,
+    featured: input.featured,
     publishedAt,
     createdAt: existing?.createdAt.toISOString() ?? iso,
     updatedAt: iso,
@@ -93,6 +100,7 @@ export function serializeBlogPost(post: BlogPost) {
     tags: post.tags,
     sites: post.sites,
     status: post.status,
+    featured: post.featured,
     published_at: post.publishedAt?.toISOString() ?? null,
     created_at: post.createdAt.toISOString(),
     updated_at: post.updatedAt.toISOString(),
@@ -108,6 +116,7 @@ export function serializeBlogPostSummary(post: Omit<BlogPost, "content">) {
     tags: post.tags,
     sites: post.sites,
     status: post.status,
+    featured: post.featured,
     published_at: post.publishedAt?.toISOString() ?? null,
     created_at: post.createdAt.toISOString(),
     updated_at: post.updatedAt.toISOString(),

@@ -18,6 +18,7 @@ import { getPostBySlug, listPublishedPosts } from "@/lib/blog";
 import {
   BLOG_WRITE_MIN_TOKEN_BYTES,
   isSameOriginCoverPath,
+  mergeBlogWriteWithExisting,
   readWriteToken,
   resetWriteRateLimit,
   slugifyTitle,
@@ -87,6 +88,7 @@ describe("validateBlogWritePayload", () => {
       tagsProvided: false,
       coverProvided: false,
       statusProvided: false,
+      featuredProvided: false,
       value: {
         slug: "a-new-note",
         title: "A new note",
@@ -96,6 +98,7 @@ describe("validateBlogWritePayload", () => {
         sites: ["agency"],
         coverImageUrl: null,
         status: "draft",
+        featured: false,
       },
     });
   });
@@ -147,13 +150,15 @@ describe("validateBlogWritePayload", () => {
     expect(withQuery.ok).toBe(false);
   });
 
-  it("marks tags, cover, and status as provided only when the keys are present", () => {
+  it("marks tags, cover, status, and featured as provided only when the keys are present", () => {
     const omitted = validateBlogWritePayload(validPayload);
     expect(omitted.ok).toBe(true);
     if (omitted.ok) {
       expect(omitted.tagsProvided).toBe(false);
       expect(omitted.coverProvided).toBe(false);
       expect(omitted.statusProvided).toBe(false);
+      expect(omitted.featuredProvided).toBe(false);
+      expect(omitted.value.featured).toBe(false);
     }
 
     const explicit = validateBlogWritePayload({
@@ -161,14 +166,29 @@ describe("validateBlogWritePayload", () => {
       tags: [],
       cover_image_url: "",
       status: "draft",
+      featured: true,
     });
     expect(explicit.ok).toBe(true);
     if (explicit.ok) {
       expect(explicit.tagsProvided).toBe(true);
       expect(explicit.coverProvided).toBe(true);
       expect(explicit.statusProvided).toBe(true);
+      expect(explicit.featuredProvided).toBe(true);
       expect(explicit.value.tags).toEqual([]);
       expect(explicit.value.coverImageUrl).toBeNull();
+      expect(explicit.value.featured).toBe(true);
+    }
+  });
+
+  it("rejects a non-boolean featured value", () => {
+    const result = validateBlogWritePayload({
+      ...validPayload,
+      featured: "true",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.featured).toBeDefined();
     }
   });
 
@@ -212,6 +232,7 @@ describe("upsertBlogPost", () => {
         sites: ["agency"],
         coverImageUrl: null,
         status: "draft",
+        featured: false,
       },
       null,
     );
@@ -233,6 +254,7 @@ describe("upsertBlogPost", () => {
       sites: ["agency" as const],
       coverImageUrl: null,
       status: "published" as const,
+      featured: true,
       publishedAt: new Date("2026-08-01T09:00:00.000Z"),
       createdAt: new Date("2026-08-01T09:00:00.000Z"),
       updatedAt: new Date("2026-08-01T09:00:00.000Z"),
@@ -248,12 +270,14 @@ describe("upsertBlogPost", () => {
         sites: ["agency"],
         coverImageUrl: null,
         status: "published",
+        featured: true,
       },
       existing,
       new Date("2026-08-30T12:00:00.000Z"),
     );
 
     expect(updated.title).toBe("Updated title");
+    expect(updated.featured).toBe(true);
     expect(updated.publishedAt?.toISOString()).toBe("2026-08-01T09:00:00.000Z");
     expect(updated.updatedAt.toISOString()).toBe("2026-08-30T12:00:00.000Z");
   });
@@ -269,11 +293,98 @@ describe("upsertBlogPost", () => {
         sites: ["talvio"],
         coverImageUrl: null,
         status: "published",
+        featured: false,
       },
       null,
     );
 
     const slugs = (await listPublishedPosts()).map((post) => post.slug);
     expect(slugs).not.toContain("talvio-launch");
+  });
+});
+
+describe("mergeBlogWriteWithExisting", () => {
+  it("keeps stored featured when an update omits it", () => {
+    const existing = {
+      slug: "idea-to-production-ai",
+      title: "From idea to a production AI product",
+      description: "Enough description for the card.",
+      content: "## Start with a job\n\nThe model is not the product.",
+      coverImageUrl: null,
+      tags: ["AI"],
+      sites: ["agency" as const],
+      status: "published" as const,
+      featured: true,
+      publishedAt: new Date("2026-08-01T09:00:00.000Z"),
+      createdAt: new Date("2026-08-01T09:00:00.000Z"),
+      updatedAt: new Date("2026-08-01T09:00:00.000Z"),
+    };
+
+    const merged = mergeBlogWriteWithExisting(
+      {
+        slug: "idea-to-production-ai",
+        title: "Typo fix only",
+        description: "Updated description for the card.",
+        content: "## Updated\n\nThis is enough markdown content.",
+        tags: [],
+        sites: ["agency"],
+        coverImageUrl: null,
+        status: "draft",
+        featured: false,
+      },
+      existing,
+      {
+        sitesProvided: false,
+        tagsProvided: false,
+        coverProvided: false,
+        statusProvided: false,
+        featuredProvided: false,
+      },
+    );
+
+    expect(merged.featured).toBe(true);
+    expect(merged.status).toBe("published");
+    expect(merged.tags).toEqual(["AI"]);
+  });
+
+  it("unpins when featured is sent as false", () => {
+    const existing = {
+      slug: "idea-to-production-ai",
+      title: "From idea to a production AI product",
+      description: "Enough description for the card.",
+      content: "## Start with a job\n\nThe model is not the product.",
+      coverImageUrl: null,
+      tags: ["AI"],
+      sites: ["agency" as const],
+      status: "published" as const,
+      featured: true,
+      publishedAt: new Date("2026-08-01T09:00:00.000Z"),
+      createdAt: new Date("2026-08-01T09:00:00.000Z"),
+      updatedAt: new Date("2026-08-01T09:00:00.000Z"),
+    };
+
+    const merged = mergeBlogWriteWithExisting(
+      {
+        slug: "idea-to-production-ai",
+        title: existing.title,
+        description: existing.description,
+        content: existing.content,
+        tags: existing.tags,
+        sites: existing.sites,
+        coverImageUrl: null,
+        status: "published",
+        featured: false,
+      },
+      existing,
+      {
+        sitesProvided: true,
+        tagsProvided: true,
+        coverProvided: true,
+        statusProvided: true,
+        featuredProvided: true,
+      },
+    );
+
+    expect(merged.featured).toBe(false);
   });
 });

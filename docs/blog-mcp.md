@@ -33,13 +33,15 @@ Adding a tool is a new file under `mcp/src/tools/` plus one entry in
 | `blog_list_posts` | `GET /api/posts` | Summaries, no `content`. Optional `status` and `site`. |
 | `blog_get_post` | `GET /api/posts/[slug]` | Includes drafts. |
 
-`blog_create_post` still defaults `status` to `draft`. `blog_update_post`
-keeps the stored `status`, `tags`, `cover_image_url`, and `sites` when
-those keys are omitted. `blog_validate_post` returns those keys in `value`
-only when the caller sent them, so a validate-then-update path cannot
-replay create defaults. Write tools carry `destructiveHint`, so Cursor
-prompts before they run. Publishing a new post requires an explicit
-`status: "published"`.
+`blog_create_post` still defaults `status` to `draft` and `featured` to
+`false`. `blog_update_post` keeps the stored `status`, `tags`,
+`cover_image_url`, `sites`, and `featured` when those keys are omitted.
+`blog_validate_post` returns those keys in `value` only when the caller
+sent them, so a validate-then-update path cannot replay create defaults.
+Write tools carry `destructiveHint`, so Cursor prompts before they run.
+Publishing a new post requires an explicit `status: "published"`. Send
+`featured: true` to pin a published post above the chronological `/blog`
+grid. There is no featured cap.
 
 `BLOG_API_BASE_URL` is allowlisted to localhost and `mdivani.agency`. The
 HTTP client uses `redirect: "error"` so the write token cannot follow a

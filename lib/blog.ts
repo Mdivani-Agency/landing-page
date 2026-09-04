@@ -20,6 +20,7 @@ export type BlogPost = {
   tags: string[];
   sites: SiteKey[];
   status: PostStatus;
+  featured: boolean;
   publishedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -49,6 +50,7 @@ type BlogPostRow = {
   tags: string[];
   sites: SiteKey[];
   status: PostStatus;
+  featured: boolean;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -57,10 +59,10 @@ type BlogPostRow = {
 const TABLE = "blog_posts";
 
 const COLUMNS =
-  "slug, title, description, content, cover_image_url, tags, sites, status, published_at, created_at, updated_at";
+  "slug, title, description, content, cover_image_url, tags, sites, status, featured, published_at, created_at, updated_at";
 
 const LIST_COLUMNS =
-  "slug, title, description, cover_image_url, tags, sites, status, published_at, created_at, updated_at";
+  "slug, title, description, cover_image_url, tags, sites, status, featured, published_at, created_at, updated_at";
 
 function toPost(row: BlogPostRow): BlogPost {
   return {
@@ -72,6 +74,7 @@ function toPost(row: BlogPostRow): BlogPost {
     tags: row.tags,
     sites: row.sites,
     status: row.status,
+    featured: row.featured,
     publishedAt: row.published_at ? new Date(row.published_at) : null,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -88,6 +91,7 @@ function toRow(record: BlogPostRecord): BlogPostRow {
     tags: record.tags,
     sites: record.sites,
     status: record.status,
+    featured: record.featured,
     published_at: record.publishedAt,
     created_at: record.createdAt,
     updated_at: record.updatedAt,
@@ -158,6 +162,29 @@ export async function listPublishedPosts(): Promise<BlogPost[]> {
   }
 
   return ((data ?? []) as BlogPostRow[]).map(toPost);
+}
+
+/**
+ * Split a published listing into the featured block and the chronological
+ * grid. Both arrays keep `published_at desc` from `listPublishedPosts`.
+ * Draft + featured never reaches here — public reads already hide drafts.
+ */
+export function partitionPublishedPosts(posts: BlogPost[]): {
+  featured: BlogPost[];
+  rest: BlogPost[];
+} {
+  const featured: BlogPost[] = [];
+  const rest: BlogPost[] = [];
+
+  for (const post of posts) {
+    if (post.featured) {
+      featured.push(post);
+    } else {
+      rest.push(post);
+    }
+  }
+
+  return { featured, rest };
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -249,6 +276,7 @@ export async function listPostRecords(filters?: {
       tags: post.tags,
       sites: post.sites,
       status: post.status,
+      featured: post.featured,
       publishedAt: post.publishedAt,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,

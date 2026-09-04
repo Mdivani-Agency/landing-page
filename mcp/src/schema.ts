@@ -58,6 +58,8 @@ export const coverImageUrlField = z
 
 export const statusField = z.enum(POST_STATUSES).optional();
 
+export const featuredField = z.boolean().optional();
+
 const writeFields = {
   title: titleField,
   description: descriptionField,
@@ -66,6 +68,7 @@ const writeFields = {
   sites: sitesField,
   cover_image_url: coverImageUrlField,
   status: statusField,
+  featured: featuredField,
 };
 
 /**
