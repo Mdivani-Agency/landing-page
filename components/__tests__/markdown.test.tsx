@@ -3,6 +3,19 @@ import { describe, expect, it } from "vitest";
 import { Markdown } from "@/components/markdown";
 
 describe("Markdown", () => {
+  it("uses long-form reading styles instead of muted chrome type", () => {
+    const { container } = render(<Markdown>{"Body copy."}</Markdown>);
+
+    const articleBody = container.querySelector(".article-body");
+    expect(articleBody).toHaveClass(
+      "max-w-[68ch]",
+      "text-md",
+      "leading-[1.7]",
+      "text-primary",
+    );
+    expect(articleBody).not.toHaveClass("text-muted", "text-sm");
+  });
+
   it("renders headings and links with existing tokens", () => {
     render(
       <Markdown>
