@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "mdivani-blog": {
+      "command": "yarn",
+      "args": ["workspace", "mdio-blog-mcp", "start"],
+      "env": {
+        "BLOG_API_BASE_URL": "http://localhost:3000"
+      }
+    }
+  }
+}

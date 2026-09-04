@@ -27,6 +27,7 @@ import {
   formatPostDate,
   getPostBySlug,
   getPostRecordBySlug,
+  listPostRecords,
   listPublishedPosts,
   listPublishedSlugs,
   upsertPostRecord,
@@ -159,6 +160,35 @@ describe("getPostRecordBySlug", () => {
 
   it("returns null for an unknown slug", async () => {
     await expect(getPostRecordBySlug("missing")).resolves.toBeNull();
+  });
+});
+
+describe("listPostRecords", () => {
+  it("includes drafts and other-site posts", async () => {
+    const slugs = (await listPostRecords()).map((post) => post.slug);
+
+    expect(slugs).toEqual(
+      expect.arrayContaining([
+        "idea-to-production-ai",
+        "draft-internal-notes",
+        "talvio-only-post",
+      ]),
+    );
+  });
+
+  it("throws when the admin query fails", async () => {
+    state.client = createFakeSupabase([], { error: { message: "denied" } });
+
+    await expect(listPostRecords()).rejects.toThrow(/denied/);
+  });
+
+  it("pushes status and site filters into the query", async () => {
+    const drafts = await listPostRecords({ status: "draft" });
+    expect(drafts.map((post) => post.slug)).toEqual(["draft-internal-notes"]);
+    expect(drafts[0]).not.toHaveProperty("content");
+
+    const talvio = await listPostRecords({ site: "talvio" });
+    expect(talvio.map((post) => post.slug)).toEqual(["talvio-only-post"]);
   });
 });
 
