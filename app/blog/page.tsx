@@ -18,7 +18,7 @@ export default async function BlogPage() {
   const posts = await listPublishedPosts();
 
   return (
-    <article className="space-y-16">
+    <article className="space-y-8 lg:space-y-16">
       <PageIntro
         eyebrow="Blog"
         title="Notes on building AI products."
