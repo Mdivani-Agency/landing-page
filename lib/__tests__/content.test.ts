@@ -119,17 +119,19 @@ describe("site config", () => {
     }
 
     expect(navHrefs).toContain("/inquiry");
+    expect(navHrefs).toContain("/blog");
     expect(footerHrefs).not.toContain("/startup-development");
   });
 
-  it("publishes only live public pages in the sitemap", () => {
-    const sitemapUrls = sitemap().map((entry) => entry.url);
+  it("publishes only live public pages in the sitemap", async () => {
+    const sitemapUrls = (await sitemap()).map((entry) => entry.url);
     const expectedUrls = publicPagePaths.map((path) =>
       path === "/" ? site.url : `${site.url}${path}`,
     );
 
-    expect(sitemapUrls).toEqual(expectedUrls);
+    expect(sitemapUrls).toEqual(expect.arrayContaining(expectedUrls));
     expect(sitemapUrls).toContain(`${site.url}/how-i-work`);
+    expect(sitemapUrls).toContain(`${site.url}/blog`);
     expect(sitemapUrls).not.toContain(`${site.url}/ai-engineering`);
     expect(sitemapUrls).not.toContain(`${site.url}/product-development`);
     expect(sitemapUrls).not.toContain(`${site.url}/startup-development`);

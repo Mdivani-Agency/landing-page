@@ -1,0 +1,212 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  createFakeSupabase,
+  fakeBlogRows,
+  type FakeSupabase,
+} from "@/test-utils/supabase-mock";
+
+const state = vi.hoisted(() => ({
+  client: undefined as unknown as FakeSupabase,
+  configured: true,
+  captureException: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase", async () => {
+  const { supabaseModuleMock } = await import("@/test-utils/supabase-mock");
+  return supabaseModuleMock(
+    () => state.client,
+    () => state.configured,
+  );
+});
+
+vi.mock("@sentry/nextjs", () => ({
+  captureException: state.captureException,
+}));
+
+import {
+  formatPostDate,
+  getPostBySlug,
+  getPostRecordBySlug,
+  listPublishedPosts,
+  listPublishedSlugs,
+  upsertPostRecord,
+} from "@/lib/blog";
+
+beforeEach(() => {
+  // One store behind both clients, so a write is visible to the next read.
+  state.client = createFakeSupabase(fakeBlogRows);
+  state.configured = true;
+  state.captureException.mockClear();
+});
+
+describe("listPublishedPosts", () => {
+  it("returns published posts for this site, newest first", async () => {
+    const slugs = (await listPublishedPosts()).map((post) => post.slug);
+
+    expect(slugs).toEqual([
+      "shipping-the-first-slice",
+      "idea-to-production-ai",
+    ]);
+  });
+
+  it("hides drafts and posts belonging only to another site", async () => {
+    const slugs = (await listPublishedPosts()).map((post) => post.slug);
+
+    expect(slugs).not.toContain("draft-internal-notes");
+    expect(slugs).not.toContain("talvio-only-post");
+  });
+
+  it("maps snake_case columns onto the camelCase post shape", async () => {
+    const [, post] = await listPublishedPosts();
+
+    expect(post).toMatchObject({
+      slug: "idea-to-production-ai",
+      coverImageUrl: null,
+      sites: ["agency"],
+      tags: ["AI", "product", "greenfield"],
+    });
+    expect(post.publishedAt).toBeInstanceOf(Date);
+    expect(post.createdAt).toBeInstanceOf(Date);
+  });
+
+  it("degrades to an empty list when credentials are missing", async () => {
+    // next build runs in CI without Supabase variables; an empty blog has to
+    // be the outcome there rather than a failed build.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    state.configured = false;
+
+    await expect(listPublishedPosts()).resolves.toEqual([]);
+    expect(warn).toHaveBeenCalled();
+    expect(state.captureException).toHaveBeenCalled();
+
+    warn.mockRestore();
+  });
+
+  it("degrades to an empty list when the query errors", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    state.client = createFakeSupabase([], { error: { message: "boom" } });
+
+    await expect(listPublishedPosts()).resolves.toEqual([]);
+    expect(error).toHaveBeenCalled();
+
+    error.mockRestore();
+  });
+
+  it("reports a read failure so the empty result is not silent", async () => {
+    // The fallback hides the failure from every page, and ISR can cache that
+    // empty listing for an hour, so the report is the only signal.
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    state.client = createFakeSupabase([], { error: { message: "boom" } });
+
+    await listPublishedPosts();
+
+    expect(state.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({ tags: { area: "blog-read" } }),
+    );
+
+    error.mockRestore();
+  });
+});
+
+describe("getPostBySlug", () => {
+  it("returns a published post", async () => {
+    const post = await getPostBySlug("idea-to-production-ai");
+    expect(post?.title).toBe("From idea to a production AI product");
+  });
+
+  it("hides drafts, other sites, and unknown slugs", async () => {
+    await expect(getPostBySlug("draft-internal-notes")).resolves.toBeNull();
+    await expect(getPostBySlug("talvio-only-post")).resolves.toBeNull();
+    await expect(getPostBySlug("missing")).resolves.toBeNull();
+  });
+
+  it("reports a read failure rather than 404-ing silently", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    state.client = createFakeSupabase([], { error: { message: "boom" } });
+
+    await expect(getPostBySlug("idea-to-production-ai")).resolves.toBeNull();
+    expect(state.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({ tags: { area: "blog-read" } }),
+    );
+
+    error.mockRestore();
+  });
+});
+
+describe("listPublishedSlugs", () => {
+  it("exposes published slugs for static generation", async () => {
+    await expect(listPublishedSlugs()).resolves.toEqual([
+      "shipping-the-first-slice",
+      "idea-to-production-ai",
+    ]);
+  });
+});
+
+describe("getPostRecordBySlug", () => {
+  it("finds a draft that the public reads hide", async () => {
+    // The write path needs this: a draft holding the slug must produce a 409
+    // rather than a unique-constraint failure on insert.
+    const record = await getPostRecordBySlug("draft-internal-notes");
+    expect(record?.status).toBe("draft");
+  });
+
+  it("finds a post belonging to another site", async () => {
+    const record = await getPostRecordBySlug("talvio-only-post");
+    expect(record?.sites).toEqual(["talvio"]);
+  });
+
+  it("returns null for an unknown slug", async () => {
+    await expect(getPostRecordBySlug("missing")).resolves.toBeNull();
+  });
+});
+
+describe("upsertPostRecord", () => {
+  it("inserts a post the public reads can then see", async () => {
+    await upsertPostRecord({
+      slug: "brand-new",
+      title: "Brand new",
+      description: "Enough description for the card.",
+      content: "## Hello\n\nThis is enough markdown content.",
+      coverImageUrl: null,
+      tags: ["AI"],
+      sites: ["agency"],
+      status: "published",
+      publishedAt: "2026-09-01T09:00:00.000Z",
+      createdAt: "2026-09-01T09:00:00.000Z",
+      updatedAt: "2026-09-01T09:00:00.000Z",
+    });
+
+    const post = await getPostBySlug("brand-new");
+    expect(post?.title).toBe("Brand new");
+  });
+
+  it("throws when the admin query fails", async () => {
+    state.client = createFakeSupabase([], { error: { message: "denied" } });
+
+    await expect(
+      upsertPostRecord({
+        slug: "brand-new",
+        title: "Brand new",
+        description: "Enough description for the card.",
+        content: "## Hello\n\nThis is enough markdown content.",
+        coverImageUrl: null,
+        tags: [],
+        sites: ["agency"],
+        status: "draft",
+        publishedAt: null,
+        createdAt: "2026-09-01T09:00:00.000Z",
+        updatedAt: "2026-09-01T09:00:00.000Z",
+      }),
+    ).rejects.toThrow(/denied/);
+  });
+});
+
+describe("formatPostDate", () => {
+  it("formats dates in day-month-year English", () => {
+    expect(formatPostDate(new Date("2026-08-01T00:00:00.000Z"))).toBe(
+      "1 August 2026",
+    );
+  });
+});

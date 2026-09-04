@@ -27,13 +27,42 @@ yarn lint     # ESLint (eslint-config-next)
 
 - `app/` — App Router routes, metadata, `globals.css`
 - `components/` — header, footer, calendar modal, homepage sections, legal pages
-- `lib/` — site copy/URLs and analytics helpers
+- `lib/` — site copy/URLs, analytics, and Supabase helpers
+- `supabase/` — CLI config and SQL migrations
 - `public/assets/` — favicon and images
 - Tailwind via `tailwind.config.js` + `postcss.config.js`
 
 Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`. Copy `.env.example` and leave the values empty to run locally without tracking.
 
 Error monitoring uses Sentry (`@sentry/nextjs`). Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` to the project DSN. For readable production stack traces, add `SENTRY_AUTH_TOKEN` as a build-time secret (not `NEXT_PUBLIC_`) so source maps upload during `yarn build`.
+
+Programmatic blog writes: [`docs/blog-write-api.md`](docs/blog-write-api.md) (`POST /api/posts`).
+
+## Supabase
+
+Project ref `fokgusrsmrhatfrdcasg`. Schema lives in `supabase/migrations/` and
+is applied with the CLI; there is no local Docker stack in use.
+
+```bash
+supabase migration list --linked   # compare local files against the project
+supabase db push                   # apply pending migrations
+```
+
+Both need an access token for the account that owns the project:
+`SUPABASE_ACCESS_TOKEN=... supabase db push`. Exporting it per command keeps
+`supabase login` pointed at whichever account you use elsewhere.
+
+On the default branch, GitLab applies pending files in
+`supabase/migrations/` after lint, test, and build pass and before the
+Vercel deploy. That job needs `SUPABASE_ACCESS_TOKEN` and
+`SUPABASE_PROJECT_REF` as CI/CD variables — see
+[`docs/vercel-cutover.md`](docs/vercel-cutover.md).
+
+`lib/supabase.ts` builds the clients. Reads go through
+`SUPABASE_PUBLISHABLE_KEY`, which resolves to the `anon` role and stays subject
+to row level security. Writes go through `SUPABASE_SECRET_KEY`, which bypasses
+row level security and must never reach the browser — neither variable takes a
+`NEXT_PUBLIC_` prefix.
 
 Leftover Eleventy and retired marketing paths redirect permanently:
 
@@ -55,4 +84,4 @@ Hosting notes: [`docs/vercel-cutover.md`](docs/vercel-cutover.md).
 - Build: `yarn build`
 - Node.js: **22.x** in Project Settings
 - Production Branch: `development` until Next.js is merged to `main`
-- Env (Production and Preview, not git): `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-PJ84DYZ4WS`, plus the server-only contact form variables (`RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`, and the Upstash / KV REST pair `KV_REST_API_URL` + `KV_REST_API_TOKEN`) — see [`docs/vercel-cutover.md`](docs/vercel-cutover.md)
+- Env (Production and Preview, not git): `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-PJ84DYZ4WS`, plus the server-only contact form variables (`RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`, and the Upstash / KV REST pair `KV_REST_API_URL` + `KV_REST_API_TOKEN`) and the Supabase trio (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`) — see [`docs/vercel-cutover.md`](docs/vercel-cutover.md)
