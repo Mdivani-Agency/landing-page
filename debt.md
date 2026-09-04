@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-04 (write-API and migrate CI debt IDs)
+Last updated: 2026-09-04 (SEO, write-API, and migrate CI debt IDs)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -410,6 +410,22 @@ publishes that `/blog` and `/blog/[slug]` cannot see.
 ≥32-byte `BLOG_WRITE_TOKEN` on Vercel and restore `revalidatePath` for
 `/blog` and `/blog/[slug]`.
 
+### TD-047 — Root Person JSON-LD does not escape `</script>`
+
+**Severity:** Low  
+**Area:** SEO / XSS hygiene
+
+`app/layout.tsx` injects Person JSON-LD with `JSON.stringify`. That does not
+escape `<`, so a future change that interpolates user-controlled text into the
+graph could close the script tag. Blog article and breadcrumb JSON-LD now go
+through `serializeJsonLd`; the root layout still uses the raw stringify.
+
+**Impact:** Today the Person graph is author-controlled and safe. The sink
+remains if those fields become CMS-driven.
+
+**Remediation:** Use `serializeJsonLd` from `lib/metadata.ts` for the root
+script tag.
+
 ## Low priority
 
 ### TD-022 — Duplicated SVG sources and unused assets remain
@@ -713,4 +729,5 @@ These are not automatically defects:
 5. Decide analytics/consent and add security headers (TD-015, TD-016).
 6. Optimize delivery assets and profile visual effects (TD-017, TD-018).
 7. Normalize content models and remove dead/generated repository artifacts
-   (TD-019, TD-022, TD-024–TD-041).
+   (TD-019, TD-022, TD-024–TD-041). Escape the root Person JSON-LD script
+   (TD-047).
