@@ -21,13 +21,16 @@ yarn dev      # Next.js dev server at http://localhost:3000
 yarn build    # production build (.next/)
 yarn start    # serve the production build
 yarn lint     # ESLint (eslint-config-next)
+yarn test     # Vitest, then the MCP workspace typecheck
+yarn mcp      # stdio MCP server for blog authoring
 ```
 
 ## Structure
 
 - `app/` — App Router routes, metadata, `globals.css`
 - `components/` — header, footer, calendar modal, homepage sections, legal pages
-- `lib/` — site copy/URLs, analytics, and Supabase helpers
+- `lib/` — site copy/URLs, analytics, blog schema, and Supabase helpers
+- `mcp/` — stdio MCP server for agent-driven blog publishing
 - `supabase/` — CLI config and SQL migrations
 - `public/assets/` — favicon and images
 - Tailwind via `tailwind.config.js` + `postcss.config.js`
@@ -36,7 +39,8 @@ Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIR
 
 Error monitoring uses Sentry (`@sentry/nextjs`). Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` to the project DSN. For readable production stack traces, add `SENTRY_AUTH_TOKEN` as a build-time secret (not `NEXT_PUBLIC_`) so source maps upload during `yarn build`.
 
-Programmatic blog writes: [`docs/blog-write-api.md`](docs/blog-write-api.md) (`POST /api/posts`).
+Programmatic blog writes: [`docs/blog-write-api.md`](docs/blog-write-api.md).
+Agent authoring: [`docs/blog-mcp.md`](docs/blog-mcp.md) and `.cursor/mcp.json`.
 
 ## Supabase
 
