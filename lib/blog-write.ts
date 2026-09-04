@@ -5,6 +5,7 @@ import {
 } from "@/lib/blog";
 
 export const BLOG_WRITE_MAX_BODY_BYTES = 100 * 1024;
+export const BLOG_WRITE_MIN_TOKEN_BYTES = 32;
 export const BLOG_WRITE_RATE_LIMIT = 30;
 export const BLOG_WRITE_RATE_WINDOW_MS = 60_000;
 
@@ -35,15 +36,24 @@ export type BlogWriteInput = {
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function slugifyTitle(title: string): string {
-  const slug = title
+  return title
     .normalize("NFKD")
     .replaceAll(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replaceAll(/[^a-z0-9]+/g, "-")
     .replaceAll(/^-+|-+$/g, "")
-    .slice(0, 80);
+    .slice(0, 80)
+    .replaceAll(/^-+|-+$/g, "");
+}
 
-  return slug;
+export function isSameOriginCoverPath(value: string): boolean {
+  return (
+    value.startsWith("/") &&
+    !value.startsWith("//") &&
+    !value.includes("://") &&
+    !value.includes("\\") &&
+    !value.includes("..")
+  );
 }
 
 function readString(value: unknown): string | undefined {
@@ -52,7 +62,9 @@ function readString(value: unknown): string | undefined {
 
 export function validateBlogWritePayload(
   data: unknown,
-): { ok: true; value: BlogWriteInput } | { ok: false; errors: BlogWriteErrors } {
+):
+  | { ok: true; value: BlogWriteInput; slugProvided: boolean }
+  | { ok: false; errors: BlogWriteErrors } {
   if (data == null || typeof data !== "object" || Array.isArray(data)) {
     return { ok: false, errors: { form: "Send a JSON object." } };
   }
@@ -75,6 +87,7 @@ export function validateBlogWritePayload(
     errors.content = "Enter Markdown content (at least 20 characters).";
   }
 
+  const slugProvided = Boolean(readString(body.slug));
   let slug = readString(body.slug);
   if (slug) {
     if (!SLUG_PATTERN.test(slug) || slug.length > 80) {
@@ -102,15 +115,11 @@ export function validateBlogWritePayload(
   let coverImageUrl: string | null = null;
   const cover = readString(body.cover_image_url ?? body.coverImageUrl);
   if (cover) {
-    try {
-      const parsed = new URL(cover);
-      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-        errors.coverImageUrl = "Cover image must be an http(s) URL.";
-      } else {
-        coverImageUrl = cover;
-      }
-    } catch {
-      errors.coverImageUrl = "Cover image must be an http(s) URL.";
+    if (isSameOriginCoverPath(cover)) {
+      coverImageUrl = cover;
+    } else {
+      errors.coverImageUrl =
+        "Cover image must be a same-origin path starting with /.";
     }
   }
 
@@ -125,6 +134,7 @@ export function validateBlogWritePayload(
 
   return {
     ok: true,
+    slugProvided,
     value: {
       slug: slug as string,
       title: title as string,
@@ -209,5 +219,10 @@ export function readWriteToken(
   env: Record<string, string | undefined> = process.env,
 ): string | undefined {
   const token = env.BLOG_WRITE_TOKEN?.trim();
-  return token || undefined;
+
+  if (!token || Buffer.byteLength(token, "utf8") < BLOG_WRITE_MIN_TOKEN_BYTES) {
+    return undefined;
+  }
+
+  return token;
 }

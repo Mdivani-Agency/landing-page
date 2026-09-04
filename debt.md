@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-01 (Sentry review residuals)
+Last updated: 2026-09-04 (blog write-API review residuals)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -351,6 +351,27 @@ modal flash open then close.
 **Remediation:** Distinguish user-initiated `dialog.close()` from effect
 cleanup, or stop calling `closeCalendar()` from `onClose` when the effect is
 tearing down. Cover open/close with a focused test.
+
+### TD-044 — Blog write API still uses the in-memory store
+
+**Severity:** Medium  
+**Area:** Blog / Persistence
+
+`POST /api/posts` validates and upserts into the module-level seed array in
+`lib/blog.ts`. `createSupabaseAdminClient` and the `blog_posts` table exist
+on the stack, but this handler does not write to them. ISR pages
+(`revalidate = 3600`) run in a separate isolate, so a durable store is
+required before production writes.
+
+The write-API review mitigations (skip `revalidatePath`, reject remote cover
+URLs, do not set `BLOG_WRITE_TOKEN` on Vercel) are already in place.
+
+**Impact:** Enabling the token on a deployed environment would accept
+publishes that `/blog` and `/blog/[slug]` cannot see.
+
+**Remediation:** Wire the handler to Supabase as part of MDI-70, then set a
+≥32-byte `BLOG_WRITE_TOKEN` on Vercel and restore `revalidatePath` for
+`/blog` and `/blog/[slug]`.
 
 ## Low priority
 
