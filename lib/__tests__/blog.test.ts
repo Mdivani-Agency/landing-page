@@ -205,8 +205,8 @@ describe("upsertPostRecord", () => {
 
 describe("formatPostDate", () => {
   it("formats dates in day-month-year English", () => {
-    expect(formatPostDate(new Date("2026-08-01T09:00:00.000Z"))).toMatch(
-      /1 August 2026|1 Aug 2026/,
+    expect(formatPostDate(new Date("2026-08-01T00:00:00.000Z"))).toBe(
+      "1 August 2026",
     );
   });
 });

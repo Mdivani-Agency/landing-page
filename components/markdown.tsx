@@ -37,6 +37,9 @@ export function Markdown({ children }: MarkdownProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
+          // The post page already owns the document h1. ATX `#` in the body
+          // would otherwise emit a second one.
+          h1: ({ node: _node, ...props }) => <h2 {...props} />,
           // A wide table should scroll within its own box rather than push
           // the page sideways on a narrow viewport.
           table: ({ node: _node, ...props }) => (

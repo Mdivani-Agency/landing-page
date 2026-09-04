@@ -10,7 +10,11 @@ import {
   upsertBlogPost,
   validateBlogWritePayload,
 } from "@/lib/blog-write";
-import { declaredContentLengthExceedsLimit, readBodyWithinLimit } from "@/lib/contact";
+import {
+  declaredContentLengthExceedsLimit,
+  isJsonContentType,
+  readBodyWithinLimit,
+} from "@/lib/contact";
 import { getClientIp } from "@/lib/rate-limit";
 
 function json(status: number, body: unknown) {
@@ -72,8 +76,7 @@ export async function POST(request: Request) {
     return unauthorized();
   }
 
-  const contentType = request.headers.get("content-type") ?? "";
-  if (!contentType.toLowerCase().includes("application/json")) {
+  if (!isJsonContentType(request.headers.get("content-type"))) {
     return json(400, { ok: false, errors: { form: "Send a JSON body." } });
   }
 
@@ -124,10 +127,15 @@ export async function POST(request: Request) {
     });
   }
 
+  const input =
+    existing && !validated.sitesProvided
+      ? { ...validated.value, sites: existing.sites }
+      : validated.value;
+
   let post: BlogPost;
 
   try {
-    post = await upsertBlogPost(validated.value, existing);
+    post = await upsertBlogPost(input, existing);
   } catch (error) {
     return persistenceFailed(error);
   }
@@ -137,6 +145,7 @@ export async function POST(request: Request) {
   revalidatePath("/blog");
   revalidatePath(`/blog/${post.slug}`);
   revalidatePath("/feed.xml");
+  revalidatePath("/sitemap.xml");
 
   return json(200, { ok: true, post: serializeBlogPost(post) });
 }

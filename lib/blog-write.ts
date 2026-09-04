@@ -55,7 +55,9 @@ export function isSameOriginCoverPath(value: string): boolean {
     !value.startsWith("//") &&
     !value.includes("://") &&
     !value.includes("\\") &&
-    !value.includes("..")
+    !value.includes("..") &&
+    !value.includes("?") &&
+    !value.includes("#")
   );
 }
 
@@ -66,7 +68,12 @@ function readString(value: unknown): string | undefined {
 export function validateBlogWritePayload(
   data: unknown,
 ):
-  | { ok: true; value: BlogWriteInput; slugProvided: boolean }
+  | {
+      ok: true;
+      value: BlogWriteInput;
+      slugProvided: boolean;
+      sitesProvided: boolean;
+    }
   | { ok: false; errors: BlogWriteErrors } {
   if (data == null || typeof data !== "object" || Array.isArray(data)) {
     return { ok: false, errors: { form: "Send a JSON object." } };
@@ -116,9 +123,11 @@ export function validateBlogWritePayload(
   }
 
   // Defaults to the site doing the writing, so an existing caller that knows
-  // nothing about Talvio keeps publishing here and only here.
+  // nothing about Talvio keeps publishing here and only here. Omitted `sites`
+  // on an update must not overwrite a wider list — see `sitesProvided`.
+  const sitesProvided = body.sites != null;
   let sites: SiteKey[] = [siteKey];
-  if (body.sites != null) {
+  if (sitesProvided) {
     if (
       !Array.isArray(body.sites) ||
       body.sites.some((value) => typeof value !== "string")
@@ -165,6 +174,7 @@ export function validateBlogWritePayload(
   return {
     ok: true,
     slugProvided,
+    sitesProvided,
     value: {
       slug: slug as string,
       title: title as string,

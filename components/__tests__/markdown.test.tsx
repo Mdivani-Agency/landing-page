@@ -18,6 +18,15 @@ describe("Markdown", () => {
       "/startup-development",
     );
   });
+
+  it("renders a body ATX h1 as h2 so the page title stays the only h1", () => {
+    render(<Markdown>{"# Intro\n\nBody copy."}</Markdown>);
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Intro" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+  });
 });
 
 describe("Markdown GFM support", () => {

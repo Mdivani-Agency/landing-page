@@ -59,6 +59,8 @@ describe("isSameOriginCoverPath", () => {
     );
     expect(isSameOriginCoverPath("//cdn.example.com/hero.jpg")).toBe(false);
     expect(isSameOriginCoverPath("/../secret")).toBe(false);
+    expect(isSameOriginCoverPath("/assets/hero.jpg?v=1")).toBe(false);
+    expect(isSameOriginCoverPath("/assets/hero.jpg#crop")).toBe(false);
   });
 });
 
@@ -81,6 +83,7 @@ describe("validateBlogWritePayload", () => {
     expect(result).toEqual({
       ok: true,
       slugProvided: false,
+      sitesProvided: false,
       value: {
         slug: "a-new-note",
         title: "A new note",
@@ -102,6 +105,7 @@ describe("validateBlogWritePayload", () => {
 
     expect(result).toMatchObject({
       ok: true,
+      sitesProvided: true,
       value: { sites: ["agency", "talvio"] },
     });
   });
@@ -132,6 +136,12 @@ describe("validateBlogWritePayload", () => {
       ok: true,
       value: { coverImageUrl: "/assets/logo.svg" },
     });
+
+    const withQuery = validateBlogWritePayload({
+      ...validPayload,
+      cover_image_url: "/assets/hero.jpg?v=1",
+    });
+    expect(withQuery.ok).toBe(false);
   });
 
   it("marks an explicit slug as provided", () => {

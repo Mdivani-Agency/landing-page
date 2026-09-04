@@ -80,7 +80,8 @@ the Supabase clients and the module-level seed array is gone. `POST
 /api/posts` looks up collisions with the admin client — row level security
 hides drafts from the publishable key, so a read-client lookup would miss a
 draft holding the slug and fail on the unique constraint instead of returning
-409 — then revalidates `/blog`, `/blog/[slug]`, and `/feed.xml`. Persistence
+409 — then revalidates `/blog`, `/blog/[slug]`, `/feed.xml`, and
+`/sitemap.xml`. Persistence
 failures return 500 and report to Sentry.
 
 Outstanding and deliberate: `BLOG_WRITE_TOKEN` is still unset on Vercel. Set a

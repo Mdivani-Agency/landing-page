@@ -168,6 +168,7 @@ describe("POST /api/posts", () => {
     expect(state.revalidatePath).toHaveBeenCalledWith("/blog");
     expect(state.revalidatePath).toHaveBeenCalledWith("/blog/a-new-note");
     expect(state.revalidatePath).toHaveBeenCalledWith("/feed.xml");
+    expect(state.revalidatePath).toHaveBeenCalledWith("/sitemap.xml");
   });
 
   it("rejects a generated slug that already exists", async () => {
@@ -231,6 +232,55 @@ describe("POST /api/posts", () => {
     const { getPostBySlug } = await import("@/lib/blog");
     const stored = await getPostBySlug("idea-to-production-ai");
     expect(stored?.title).toBe("Updated title");
+    expect(stored?.sites).toEqual(["agency"]);
+  });
+
+  it("keeps existing sites when an update omits them", async () => {
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest(
+        {
+          slug: "talvio-only-post",
+          title: "Still only for Talvio",
+          description: "Updated description for the card.",
+          content: "## Updated\n\nThis is enough markdown content.",
+          status: "published",
+        },
+        authorized(),
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.post.sites).toEqual(["talvio"]);
+
+    const { getPostRecordBySlug } = await import("@/lib/blog");
+    const stored = await getPostRecordBySlug("talvio-only-post");
+    expect(stored?.sites).toEqual(["talvio"]);
+    expect(stored?.title).toBe("Still only for Talvio");
+  });
+
+  it("rejects a Content-Type that only mentions JSON in a parameter", async () => {
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest(validBody, authorized({ "Content-Type": "text/plain; application/json" })),
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects a same-origin cover path with a query string", async () => {
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest(
+        { ...validBody, cover_image_url: "/assets/hero.jpg?v=1" },
+        authorized(),
+      ),
+    );
+
+    expect(response.status).toBe(400);
+    const payload = await response.json();
+    expect(payload.errors.coverImageUrl).toBeDefined();
   });
 
   it("returns 500 and reports when persistence fails", async () => {

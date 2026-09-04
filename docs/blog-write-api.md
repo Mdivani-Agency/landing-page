@@ -2,9 +2,9 @@
 
 `POST /api/posts` creates or updates a post. This is the integration point for a future authoring bot. There is no public write UI.
 
-Persistence today is an in-process store seeded from `lib/blog-seed.ts`. It is enough for local development and tests. A managed database (MDI-70) should replace the store before production use. Do not set `BLOG_WRITE_TOKEN` on Vercel until then: a successful write is not visible to the ISR isolate that serves `/blog`.
+Writes persist in Supabase `public.blog_posts` through the admin client (`SUPABASE_SECRET_KEY`). Set `BLOG_WRITE_TOKEN` on Vercel only after `migrate_supabase` has applied that table (TD-044 / TD-045). Persistence failures return `500` and are reported to Sentry.
 
-The handler does not call `revalidatePath`. That would regenerate listing and post pages from seed data.
+Successful writes call `revalidatePath` for `/blog`, `/blog/[slug]`, `/feed.xml`, and `/sitemap.xml`.
 
 ## Authentication
 
@@ -29,7 +29,8 @@ JSON only. Maximum body size: 100 KB, enforced while reading the stream (a missi
 | `content` | yes | Markdown, at least 20 characters |
 | `slug` | no | `[a-z0-9]+(-[a-z0-9]+)*`. Generated from `title` when omitted. Omit only to create; send `slug` to update |
 | `tags` | no | Array of strings |
-| `cover_image_url` | no | Same-origin path starting with `/` (not `//` or an absolute URL). Remote hosts are rejected because `next/image` has no remote allowlist |
+| `sites` | no | `agency` and/or `talvio`. On create, defaults to this site (`agency`). On update, omitted `sites` keeps the existing list |
+| `cover_image_url` | no | Same-origin path starting with `/` (not `//`, `?`, `#`, or an absolute URL). Remote hosts and query strings are rejected because `next/image` has no remote allowlist and rejects local `src` with search |
 | `status` | no | `draft` (default) or `published` |
 
 Example:
@@ -44,18 +45,19 @@ Content-Type: application/json
   "description": "How the first slice gets to production.",
   "content": "## Start with a job\n\nThe model is not the product.",
   "tags": ["AI", "product"],
+  "sites": ["agency"],
   "status": "draft"
 }
 ```
 
 ## Responses
 
-- `200` `{ "ok": true, "post": { "slug", "title", "description", "content", "cover_image_url", "tags", "status", "published_at", "created_at", "updated_at" } }`
+- `200` `{ "ok": true, "post": { "slug", "title", "description", "content", "cover_image_url", "tags", "sites", "status", "published_at", "created_at", "updated_at" } }`
 - `400` `{ "ok": false, "errors": { "fieldName": "…" } }`
 - `401` unauthorized
 - `409` generated slug already exists; body includes `slug`
 - `429` more than 30 requests per IP per minute (in-memory, per instance)
-- `500` `BLOG_WRITE_TOKEN` is missing or shorter than 32 bytes
+- `500` `BLOG_WRITE_TOKEN` is missing or shorter than 32 bytes, or persistence failed
 
 ## Limits
 
