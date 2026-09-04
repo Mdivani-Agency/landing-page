@@ -35,9 +35,44 @@ function isPublished(post: BlogPost): boolean {
   return post.status === "published" && post.publishedAt != null;
 }
 
+let store: BlogPostRecord[] | null = null;
+
 async function loadRecords(): Promise<BlogPostRecord[]> {
-  const { blogSeedPosts } = await import("@/lib/blog-seed");
-  return blogSeedPosts;
+  if (!store) {
+    const { blogSeedPosts } = await import("@/lib/blog-seed");
+    store = blogSeedPosts.map((post) => ({
+      ...post,
+      tags: [...post.tags],
+    }));
+  }
+
+  return store;
+}
+
+export function resetBlogStore(): void {
+  store = null;
+}
+
+export async function getPostRecordBySlug(
+  slug: string,
+): Promise<BlogPost | null> {
+  const record = (await loadRecords()).find((post) => post.slug === slug);
+  return record ? toPost(record) : null;
+}
+
+export async function upsertPostRecord(
+  record: BlogPostRecord,
+): Promise<BlogPost> {
+  const records = await loadRecords();
+  const index = records.findIndex((post) => post.slug === record.slug);
+
+  if (index === -1) {
+    records.push(record);
+  } else {
+    records[index] = record;
+  }
+
+  return toPost(record);
 }
 
 export async function listPublishedPosts(): Promise<BlogPost[]> {

@@ -1,10 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   formatPostDate,
   getPostBySlug,
   listPublishedPosts,
   listPublishedSlugs,
+  resetBlogStore,
 } from "@/lib/blog";
+
+afterEach(() => {
+  resetBlogStore();
+});
 
 describe("blog data layer", () => {
   it("lists only published posts, newest first", async () => {

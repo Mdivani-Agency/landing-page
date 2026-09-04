@@ -36,6 +36,8 @@ Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIR
 
 Error monitoring uses Sentry (`@sentry/nextjs`). Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` to the project DSN. For readable production stack traces, add `SENTRY_AUTH_TOKEN` as a build-time secret (not `NEXT_PUBLIC_`) so source maps upload during `yarn build`.
 
+Programmatic blog writes: [`docs/blog-write-api.md`](docs/blog-write-api.md) (`POST /api/posts`).
+
 ## Supabase
 
 Project ref `fokgusrsmrhatfrdcasg`. Schema lives in `supabase/migrations/` and
@@ -49,6 +51,12 @@ supabase db push                   # apply pending migrations
 Both need an access token for the account that owns the project:
 `SUPABASE_ACCESS_TOKEN=... supabase db push`. Exporting it per command keeps
 `supabase login` pointed at whichever account you use elsewhere.
+
+On the default branch, GitLab applies pending files in
+`supabase/migrations/` after lint, test, and build pass and before the
+Vercel deploy. That job needs `SUPABASE_ACCESS_TOKEN` and
+`SUPABASE_PROJECT_REF` as CI/CD variables — see
+[`docs/vercel-cutover.md`](docs/vercel-cutover.md).
 
 `lib/supabase.ts` builds the clients. Reads go through
 `SUPABASE_PUBLISHABLE_KEY`, which resolves to the `anon` role and stays subject
