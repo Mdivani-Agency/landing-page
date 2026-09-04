@@ -36,6 +36,9 @@ describe("BlogPostCard", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("AI")).toBeInTheDocument();
     expect(screen.getByText("product")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("navigation", { name: "Share this post" }),
+    ).not.toBeInTheDocument();
   });
 });
 
