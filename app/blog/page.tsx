@@ -11,6 +11,7 @@ export const metadata = createPageMetadata({
   description:
     "Notes from Giorgi Mdivani on building AI products — from the first slice through production reliability.",
   path: "/blog",
+  rss: true,
 });
 
 export default async function BlogPage() {

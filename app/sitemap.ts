@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { listPublishedPosts } from "@/lib/blog";
+import { latestUpdatedAt } from "@/lib/blog-seo";
 import { legalLinks, navLinks, site } from "@/lib/site";
 
 const pagePriority: Record<string, number> = {
@@ -21,8 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const pages = paths.map((path) => ({
     url: path === "/" ? site.url : `${site.url}${path}`,
-    lastModified:
-      path === "/blog" ? (posts[0]?.updatedAt ?? new Date()) : new Date(),
+    lastModified: path === "/blog" ? latestUpdatedAt(posts) : new Date(),
     changeFrequency:
       path === "/privacy-policy" || path === "/terms-of-service"
         ? "yearly"

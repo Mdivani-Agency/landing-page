@@ -1,5 +1,16 @@
 import type { BlogPost } from "@/lib/blog";
+import { socialImage } from "@/lib/metadata";
 import { site } from "@/lib/site";
+
+export function latestUpdatedAt(
+  posts: { updatedAt: Date }[],
+  fallback = new Date(),
+): Date {
+  return posts.reduce(
+    (latest, post) => (post.updatedAt > latest ? post.updatedAt : latest),
+    posts[0]?.updatedAt ?? fallback,
+  );
+}
 
 export function absoluteUrl(path: string): string {
   if (path.startsWith("http://") || path.startsWith("https://")) {
@@ -34,10 +45,15 @@ export function articleJsonLd(post: BlogPost) {
       url: site.url,
       jobTitle: site.personRole,
     },
+    image: [absoluteUrl(post.coverImageUrl ?? socialImage.url)],
     publisher: {
       "@type": "Organization",
       name: site.name,
       url: site.url,
+      logo: {
+        "@type": "ImageObject",
+        url: absoluteUrl(socialImage.url),
+      },
     },
     mainEntityOfPage: url,
     url,

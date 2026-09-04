@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import sitemap from "@/app/sitemap";
+import { listPublishedPosts } from "@/lib/blog";
+import { latestUpdatedAt } from "@/lib/blog-seo";
 import { site } from "@/lib/site";
 
 describe("sitemap", () => {
@@ -15,5 +17,13 @@ describe("sitemap", () => {
       (entry) => entry.url === `${site.url}/blog/idea-to-production-ai`,
     );
     expect(post?.lastModified).toBeInstanceOf(Date);
+  });
+
+  it("sets the blog index lastModified to the newest updated post", async () => {
+    const posts = await listPublishedPosts();
+    const entries = await sitemap();
+    const blog = entries.find((entry) => entry.url === `${site.url}/blog`);
+
+    expect(blog?.lastModified).toEqual(latestUpdatedAt(posts));
   });
 });

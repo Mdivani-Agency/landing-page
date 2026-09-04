@@ -8,7 +8,7 @@ import {
   listPublishedSlugs,
 } from "@/lib/blog";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/blog-seo";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPageMetadata, serializeJsonLd } from "@/lib/metadata";
 
 export const revalidate = 3600;
 
@@ -36,6 +36,8 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
     type: "article",
     publishedTime: post.publishedAt?.toISOString(),
     modifiedTime: post.updatedAt.toISOString(),
+    image: post.coverImageUrl ?? undefined,
+    rss: true,
   });
 }
 
@@ -56,13 +58,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleJsonLd(post)),
+          __html: serializeJsonLd(articleJsonLd(post)),
         }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbJsonLd(post)),
+          __html: serializeJsonLd(breadcrumbJsonLd(post)),
         }}
       />
       <header className="flex flex-col items-start gap-1.5 pt-3">

@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { listPublishedPosts } from "@/lib/blog";
+import { listPublishedPosts, type BlogPost } from "@/lib/blog";
 import {
   absoluteUrl,
   articleJsonLd,
   breadcrumbJsonLd,
   buildRssFeed,
   escapeXml,
+  latestUpdatedAt,
 } from "@/lib/blog-seo";
 import { site } from "@/lib/site";
 
@@ -18,7 +19,17 @@ describe("blog SEO helpers", () => {
       "@type": "Article",
       headline: post.title,
       datePublished: post.publishedAt?.toISOString(),
+      image: [`${site.url}/assets/images/giorgi.jpg`],
       author: { "@type": "Person", name: site.personName, url: site.url },
+      publisher: {
+        "@type": "Organization",
+        name: site.name,
+        url: site.url,
+        logo: {
+          "@type": "ImageObject",
+          url: `${site.url}/assets/images/giorgi.jpg`,
+        },
+      },
       mainEntityOfPage: `${site.url}/blog/${post.slug}`,
     });
 
@@ -51,5 +62,31 @@ describe("blog SEO helpers", () => {
       "&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;",
     );
     expect(absoluteUrl("/blog")).toBe(`${site.url}/blog`);
+  });
+
+  it("uses a post cover as the Article image when present", () => {
+    const post = {
+      slug: "covered",
+      title: "Covered post",
+      description: "Enough description for the card.",
+      content: "## Hello",
+      coverImageUrl: "/assets/logo.svg",
+      tags: [],
+      status: "published",
+      publishedAt: new Date("2026-08-01T09:00:00.000Z"),
+      createdAt: new Date("2026-08-01T09:00:00.000Z"),
+      updatedAt: new Date("2026-08-01T09:00:00.000Z"),
+    } satisfies BlogPost;
+
+    expect(articleJsonLd(post).image).toEqual([`${site.url}/assets/logo.svg`]);
+  });
+
+  it("picks the newest updatedAt even when that post is not the newest published", () => {
+    const latest = latestUpdatedAt([
+      { updatedAt: new Date("2026-08-01T09:00:00.000Z") },
+      { updatedAt: new Date("2026-09-01T12:00:00.000Z") },
+    ]);
+
+    expect(latest.toISOString()).toBe("2026-09-01T12:00:00.000Z");
   });
 });

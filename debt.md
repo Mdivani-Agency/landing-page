@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-01 (Sentry review residuals)
+Last updated: 2026-09-04 (blog SEO review residuals)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -351,6 +351,22 @@ modal flash open then close.
 **Remediation:** Distinguish user-initiated `dialog.close()` from effect
 cleanup, or stop calling `closeCalendar()` from `onClose` when the effect is
 tearing down. Cover open/close with a focused test.
+
+### TD-044 — Root Person JSON-LD does not escape `</script>`
+
+**Severity:** Low  
+**Area:** SEO / XSS hygiene
+
+`app/layout.tsx` injects Person JSON-LD with `JSON.stringify`. That does not
+escape `<`, so a future change that interpolates user-controlled text into the
+graph could close the script tag. Blog article and breadcrumb JSON-LD now go
+through `serializeJsonLd`; the root layout still uses the raw stringify.
+
+**Impact:** Today the Person graph is author-controlled and safe. The sink
+remains if those fields become CMS-driven.
+
+**Remediation:** Use `serializeJsonLd` from `lib/metadata.ts` for the root
+script tag.
 
 ## Low priority
 
