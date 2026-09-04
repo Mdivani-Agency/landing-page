@@ -36,6 +36,8 @@ Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIR
 
 Error monitoring uses Sentry (`@sentry/nextjs`). Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` to the project DSN. For readable production stack traces, add `SENTRY_AUTH_TOKEN` as a build-time secret (not `NEXT_PUBLIC_`) so source maps upload during `yarn build`.
 
+Programmatic blog writes: [`docs/blog-write-api.md`](docs/blog-write-api.md) (`POST /api/posts`).
+
 ## Supabase
 
 Project ref `fokgusrsmrhatfrdcasg`. Schema lives in `supabase/migrations/` and
