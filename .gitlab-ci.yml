@@ -83,15 +83,23 @@ migrate_supabase:
     - npx --yes supabase@2.116.0 db push --yes --linked
 
 # Deploys the default branch to production after lint, test, and build pass.
-# Requires VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID CI/CD variables
-# (protected, masked, and scoped to the "production" environment). The Vercel
-# CLI is pinned in devDependencies and reads VERCEL_TOKEN from the environment,
-# keeping the token off the process argv.
+# Requires VERCEL_TOKEN (protected, masked, scoped to the "production"
+# environment). The CLI is pinned in devDependencies and reads VERCEL_TOKEN
+# from the environment, keeping the token off the process argv.
+#
+# --scope / --project are the live Vercel team slug and project id (from the
+# Vercel-for-GitLab payload). They override VERCEL_ORG_ID / VERCEL_PROJECT_ID
+# because getOrgById only accepts team_* or the authenticated user id — a
+# dashboard slug such as mdivani1 becomes "Project not found". Keep the CI
+# variables in sync with Project Settings so other tooling still works.
 deploy_production:
   stage: deploy
   # Serialize production deploys so an older pipeline can never finish after
   # (and overwrite) a newer one.
   resource_group: vercel-production
+  variables:
+    VERCEL_DEPLOY_SCOPE: mdivani1
+    VERCEL_DEPLOY_PROJECT: prj_bPLLh4NEuwpEr070HwOvLdL4jV1l
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:
@@ -104,6 +112,40 @@ deploy_production:
     name: production
     url: https://mdivani.agency
   script:
-    - node .yarn/releases/yarn-4.9.2.cjs run vercel pull --yes --environment=production
-    - node .yarn/releases/yarn-4.9.2.cjs run vercel build --prod
-    - node .yarn/releases/yarn-4.9.2.cjs run vercel deploy --prebuilt --prod
+    - |
+      node --input-type=module <<'NODE'
+      const token = process.env.VERCEL_TOKEN;
+      const scope = process.env.VERCEL_DEPLOY_SCOPE;
+      const project = process.env.VERCEL_DEPLOY_PROJECT;
+      const envOrg = process.env.VERCEL_ORG_ID || "";
+      const envPrj = process.env.VERCEL_PROJECT_ID || "";
+      if (!token) {
+        console.error("VERCEL_TOKEN must be set as a production CI/CD variable.");
+        process.exit(1);
+      }
+      const url = `https://api.vercel.com/v9/projects/${encodeURIComponent(project)}?teamId=${encodeURIComponent(scope)}`;
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      const body = await res.json();
+      if (!res.ok) {
+        console.error(`Vercel API ${res.status}: cannot read project ${project} under team ${scope}.`);
+        console.error(body?.error?.message || JSON.stringify(body));
+        process.exit(1);
+      }
+      const liveOrg = body.accountId || "";
+      const livePrj = body.id || "";
+      console.log(`Vercel project reachable: ${body.name} (${livePrj}) under ${liveOrg}`);
+      console.log(`VERCEL_ORG_ID starts with team_: ${envOrg.startsWith("team_")}`);
+      console.log(`VERCEL_ORG_ID matches live accountId: ${envOrg === liveOrg}`);
+      console.log(`VERCEL_PROJECT_ID starts with prj_: ${envPrj.startsWith("prj_")}`);
+      console.log(`VERCEL_PROJECT_ID matches live project: ${envPrj === livePrj}`);
+      if (envOrg !== liveOrg || envPrj !== livePrj) {
+        console.log("GitLab VERCEL_ORG_ID / VERCEL_PROJECT_ID do not match the live project.");
+        console.log("VERCEL_ORG_ID must be the team id (team_...), not the dashboard slug (mdivani1).");
+        console.log(`Expected VERCEL_ORG_ID=${liveOrg}`);
+        console.log(`Expected VERCEL_PROJECT_ID=${livePrj}`);
+        console.log("Continuing with --scope/--project so this mismatch cannot block the deploy.");
+      }
+      NODE
+    - node .yarn/releases/yarn-4.9.2.cjs run vercel -- pull --yes --environment=production --scope "$VERCEL_DEPLOY_SCOPE" --project "$VERCEL_DEPLOY_PROJECT"
+    - node .yarn/releases/yarn-4.9.2.cjs run vercel -- build --prod --scope "$VERCEL_DEPLOY_SCOPE" --project "$VERCEL_DEPLOY_PROJECT"
+    - node .yarn/releases/yarn-4.9.2.cjs run vercel -- deploy --prebuilt --prod --scope "$VERCEL_DEPLOY_SCOPE" --project "$VERCEL_DEPLOY_PROJECT"

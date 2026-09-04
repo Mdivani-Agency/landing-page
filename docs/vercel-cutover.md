@@ -29,7 +29,8 @@ Production deploys are gated on the GitLab pipeline in `.gitlab-ci.yml`:
 - `deploy_production` runs only on the default branch, only after all three
   check jobs pass and after `migrate_supabase` when that job is in the
   pipeline, and deploys with the Vercel CLI
-  (`vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`).
+  (`vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`,
+  each with `--scope mdivani1 --project prj_bPLLh4NEuwpEr070HwOvLdL4jV1l`).
   The CLI version is pinned in `devDependencies` and authenticates via the
   `VERCEL_TOKEN` environment variable (never `--token` on argv). A
   `resource_group` serializes deploys so an older pipeline cannot overwrite a
@@ -49,8 +50,10 @@ environment scoping keep the token out of jobs that do not declare
 | Name | Value |
 | --- | --- |
 | `VERCEL_TOKEN` | Vercel account token with deploy access to the project |
-| `VERCEL_ORG_ID` | From the Vercel project settings (`vercel link` writes it to `.vercel/project.json`) |
-| `VERCEL_PROJECT_ID` | Same source as `VERCEL_ORG_ID` |
+| `VERCEL_ORG_ID` | Team id from `.vercel/project.json` `orgId` (`team_…`). **Not** the dashboard slug (`mdivani1`). A slug makes `vercel pull` fail with `Project not found`. |
+| `VERCEL_PROJECT_ID` | Project id from the same file (`prj_…`). Live project: `prj_bPLLh4NEuwpEr070HwOvLdL4jV1l` on team `mdivani1`. |
+
+`deploy_production` also passes `--scope mdivani1 --project prj_bPLLh4NEuwpEr070HwOvLdL4jV1l` so a slug-vs-id mistake in the CI variables cannot block production. The job still prints whether the GitLab values match the live project.
 
 `migrate_supabase` does not declare an environment. These two must be
 **protected** and **masked**, available on the protected default branch, and
