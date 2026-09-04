@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { metadata as aboutMetadata } from "@/app/about/page";
+import { generateMetadata as generatePostMetadata } from "@/app/blog/[slug]/page";
+import { metadata as blogMetadata } from "@/app/blog/page";
 import { metadata as homeMetadata } from "@/app/page";
+import { site } from "@/lib/site";
 
 const MARKETPLACE_PATTERN = /toptal|upwork/i;
 
@@ -39,5 +42,27 @@ describe("primary page metadata", () => {
       expect(metadata.openGraph?.description).not.toMatch(MARKETPLACE_PATTERN);
       expect(metadata.twitter?.description).not.toMatch(MARKETPLACE_PATTERN);
     }
+  });
+
+  it("keeps the RSS alternate on resolved blog listing metadata", () => {
+    expect(blogMetadata.alternates).toEqual({
+      canonical: "/blog",
+      types: {
+        "application/rss+xml": `${site.url}/feed.xml`,
+      },
+    });
+  });
+
+  it("keeps the RSS alternate on resolved post metadata", async () => {
+    const metadata = await generatePostMetadata({
+      params: Promise.resolve({ slug: "idea-to-production-ai" }),
+    });
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/blog/idea-to-production-ai",
+      types: {
+        "application/rss+xml": `${site.url}/feed.xml`,
+      },
+    });
   });
 });
