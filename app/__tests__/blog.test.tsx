@@ -47,12 +47,17 @@ describe("/blog/[slug]", () => {
     });
     render(page);
 
+    const measure = document.querySelector(".article-measure");
+    expect(measure).toHaveClass("max-w-[68ch]", "text-md");
+
     const dek = screen.getByText("Enough description for the card.");
-    expect(dek).toHaveClass("text-muted", "max-w-[68ch]");
+    expect(dek).toHaveClass("text-muted");
     expect(dek).not.toHaveClass("text-primary");
+    expect(dek.closest(".article-measure")).toBe(measure);
 
     const articleBody = document.querySelector(".article-body");
-    expect(articleBody).toHaveClass("max-w-[68ch]", "text-primary");
+    expect(articleBody).toHaveClass("text-primary");
+    expect(articleBody?.closest(".article-measure")).toBe(measure);
   });
 
   it("places a dark wash under the article column on large screens", async () => {
@@ -61,7 +66,7 @@ describe("/blog/[slug]", () => {
     });
     const { container } = render(page);
 
-    const wash = container.querySelector("[aria-hidden]");
+    const wash = container.querySelector(".article-wash");
     expect(wash).toHaveClass(
       "bg-[rgba(8,9,11,0.72)]",
       "hidden",

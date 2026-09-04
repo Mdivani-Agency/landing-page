@@ -2,7 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { BlogTags } from "@/components/blog-tags";
 import { Eyebrow } from "@/components/eyebrow";
-import { Markdown } from "@/components/markdown";
+import { articleMeasureClass, Markdown } from "@/components/markdown";
 import {
   formatPostDate,
   getPostBySlug,
@@ -68,36 +68,38 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           __html: serializeJsonLd(breadcrumbJsonLd(post)),
         }}
       />
-      <header className="flex flex-col items-start gap-1.5 pt-3">
-        <Eyebrow>Blog</Eyebrow>
-        {publishedLabel ? (
-          <p className="text-xs uppercase tracking-caps text-secondary">
-            {publishedLabel}
+      <div className={articleMeasureClass}>
+        <header className="flex flex-col items-start gap-1.5 pt-3">
+          <Eyebrow>Blog</Eyebrow>
+          {publishedLabel ? (
+            <p className="text-xs uppercase tracking-caps text-secondary">
+              {publishedLabel}
+            </p>
+          ) : null}
+          <h1 className="max-w-[22ch] font-serif text-heading">{post.title}</h1>
+          <p className="mt-1 mb-2 leading-[1.7] text-muted">
+            {post.description}
           </p>
+          <BlogTags tags={post.tags} />
+        </header>
+        {post.coverImageUrl ? (
+          <div className="relative mt-3 aspect-[16/9] w-full overflow-hidden rounded-card border border-subtle">
+            <Image
+              src={post.coverImageUrl}
+              alt={post.title}
+              fill
+              sizes="(min-width: 768px) 73rem, 100vw"
+              className="object-cover"
+            />
+          </div>
         ) : null}
-        <h1 className="max-w-[22ch] font-serif text-heading">{post.title}</h1>
-        <p className="mt-1 mb-2 max-w-[68ch] text-md leading-[1.7] text-muted">
-          {post.description}
-        </p>
-        <BlogTags tags={post.tags} />
-      </header>
-      {post.coverImageUrl ? (
-        <div className="relative mt-3 aspect-[16/9] w-full max-w-[68ch] overflow-hidden rounded-card border border-subtle">
-          <Image
-            src={post.coverImageUrl}
-            alt={post.title}
-            fill
-            sizes="(min-width: 1536px) 680px, 100vw"
-            className="object-cover"
+        <div className="relative mt-4">
+          <div
+            aria-hidden
+            className="article-wash pointer-events-none absolute -inset-x-3 -inset-y-4 -z-10 hidden rounded-card bg-[rgba(8,9,11,0.72)] lg:block"
           />
+          <Markdown>{post.content}</Markdown>
         </div>
-      ) : null}
-      <div className="relative mt-4 max-w-[68ch]">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -inset-x-3 -inset-y-4 -z-10 hidden rounded-card bg-[rgba(8,9,11,0.72)] lg:block"
-        />
-        <Markdown>{post.content}</Markdown>
       </div>
     </article>
   );
