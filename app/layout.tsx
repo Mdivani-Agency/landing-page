@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 import { GradientBackground } from "@/components/gradient-background";
 import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
-import { socialImage } from "@/lib/metadata";
+import { serializeJsonLd, socialImage } from "@/lib/metadata";
 import { profileLinks, site } from "@/lib/site";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next"
 import "./globals.css";
@@ -77,7 +77,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="font-sans">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
         <Providers>
           <div id="page-chrome" className="relative z-10 overflow-hidden">

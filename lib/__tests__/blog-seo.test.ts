@@ -1,4 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  createFakeSupabase,
+  fakeBlogRows,
+  type FakeSupabase,
+} from "@/test-utils/supabase-mock";
+
+const state = vi.hoisted(() => ({
+  client: undefined as unknown as FakeSupabase,
+}));
+
+vi.mock("@/lib/supabase", async () => {
+  const { supabaseModuleMock } = await import("@/test-utils/supabase-mock");
+  return supabaseModuleMock(() => state.client);
+});
+
 import { listPublishedPosts, type BlogPost } from "@/lib/blog";
 import {
   absoluteUrl,
@@ -9,6 +24,10 @@ import {
   latestUpdatedAt,
 } from "@/lib/blog-seo";
 import { site } from "@/lib/site";
+
+beforeEach(() => {
+  state.client = createFakeSupabase(fakeBlogRows);
+});
 
 describe("blog SEO helpers", () => {
   it("builds article and breadcrumb JSON-LD for a published post", async () => {
@@ -72,6 +91,7 @@ describe("blog SEO helpers", () => {
       content: "## Hello",
       coverImageUrl: "/assets/logo.svg",
       tags: [],
+      sites: ["agency"],
       status: "published",
       publishedAt: new Date("2026-08-01T09:00:00.000Z"),
       createdAt: new Date("2026-08-01T09:00:00.000Z"),

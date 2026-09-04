@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { BlogMarkdown, BlogTags } from "@/components/blog-markdown";
 import { BlogPostCard } from "@/components/blog-post-card";
+import { BlogTags } from "@/components/blog-tags";
 import type { BlogPost } from "@/lib/blog";
 
 const post: BlogPost = {
@@ -11,6 +11,7 @@ const post: BlogPost = {
   content: "## Start with a job\n\nThe model is not the product.",
   coverImageUrl: null,
   tags: ["AI", "product"],
+  sites: ["agency"],
   status: "published",
   publishedAt: new Date("2026-08-01T09:00:00.000Z"),
   createdAt: new Date("2026-08-01T09:00:00.000Z"),
@@ -35,22 +36,6 @@ describe("BlogPostCard", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("AI")).toBeInTheDocument();
     expect(screen.getByText("product")).toBeInTheDocument();
-  });
-});
-
-describe("BlogMarkdown", () => {
-  it("renders markdown headings and links with existing tokens", () => {
-    render(
-      <BlogMarkdown>{post.content + "\n\nSee [startup](/startup-development)."}</BlogMarkdown>,
-    );
-
-    expect(
-      screen.getByRole("heading", { level: 2, name: "Start with a job" }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "startup" })).toHaveAttribute(
-      "href",
-      "/startup-development",
-    );
   });
 });
 

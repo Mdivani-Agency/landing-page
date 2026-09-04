@@ -9,9 +9,9 @@ create table if not exists public.blog_posts (
   slug text not null,
   title text not null,
   description text not null,
-  -- A Tiptap/ProseMirror document rather than a markdown string, so
-  -- formatting survives a round trip through the editor.
-  content jsonb not null,
+  -- Markdown, rendered by react-markdown. Kept as text rather than a
+  -- structured document because every author path is programmatic.
+  content text not null,
   cover_image_url text,
   tags text[] not null default '{}',
   -- Which sites may show the post. Defaults to the only site that exists
@@ -35,11 +35,10 @@ create table if not exists public.blog_posts (
   -- policy and sort unpredictably, so the two always travel together.
   constraint blog_posts_published_at_check
     check (status <> 'published' or published_at is not null),
-  -- Tiptap's getJSON() always returns a doc node. Containment stays true
-  -- only for an object with type=doc; `content ->> 'type' = 'doc'` is NULL
-  -- when type is missing, and a CHECK that evaluates to NULL passes.
+  -- Integrity floor only. The minimum useful length is a product rule and
+  -- lives in the write API, not here.
   constraint blog_posts_content_check
-    check (content @> '{"type": "doc"}'::jsonb),
+    check (char_length(content) > 0),
   -- Reject NULL elements: `'{NULL}' <@ '{agency,talvio}'` is NULL, and a
   -- CHECK that evaluates to NULL passes.
   constraint blog_posts_sites_check

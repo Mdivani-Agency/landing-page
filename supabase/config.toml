@@ -59,7 +59,7 @@ schema_paths = []
 
 [db.seed]
 # If enabled, seeds the database after migrations during a db reset.
-# Off until a seed file exists; the init default (`./seed.sql`) is not in repo.
+# No seed data: the table is filled through POST /api/posts only.
 enabled = false
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"

@@ -3,6 +3,7 @@ import {
   type BlogPost,
   type PostStatus,
 } from "@/lib/blog";
+import { siteKey, siteKeys, type SiteKey } from "@/lib/site";
 
 export const BLOG_WRITE_MAX_BODY_BYTES = 100 * 1024;
 export const BLOG_WRITE_MIN_TOKEN_BYTES = 32;
@@ -16,6 +17,7 @@ export type BlogWriteErrors = Partial<
     | "description"
     | "content"
     | "tags"
+    | "sites"
     | "coverImageUrl"
     | "status"
     | "form",
@@ -29,6 +31,7 @@ export type BlogWriteInput = {
   description: string;
   content: string;
   tags: string[];
+  sites: SiteKey[];
   coverImageUrl: string | null;
   status: PostStatus;
 };
@@ -112,6 +115,33 @@ export function validateBlogWritePayload(
     }
   }
 
+  // Defaults to the site doing the writing, so an existing caller that knows
+  // nothing about Talvio keeps publishing here and only here.
+  let sites: SiteKey[] = [siteKey];
+  if (body.sites != null) {
+    if (
+      !Array.isArray(body.sites) ||
+      body.sites.some((value) => typeof value !== "string")
+    ) {
+      errors.sites = "Sites must be an array of strings.";
+    } else {
+      const requested = body.sites
+        .map((value) => (value as string).trim())
+        .filter(Boolean);
+      const unknown = requested.filter(
+        (value) => !(siteKeys as readonly string[]).includes(value),
+      );
+
+      if (unknown.length > 0) {
+        errors.sites = `Sites must be any of: ${siteKeys.join(", ")}.`;
+      } else if (requested.length === 0) {
+        errors.sites = "Name at least one site.";
+      } else {
+        sites = [...new Set(requested)] as SiteKey[];
+      }
+    }
+  }
+
   let coverImageUrl: string | null = null;
   const cover = readString(body.cover_image_url ?? body.coverImageUrl);
   if (cover) {
@@ -141,6 +171,7 @@ export function validateBlogWritePayload(
       description: description as string,
       content,
       tags,
+      sites,
       coverImageUrl,
       status: statusRaw as PostStatus,
     },
@@ -165,6 +196,7 @@ export async function upsertBlogPost(
     content: input.content,
     coverImageUrl: input.coverImageUrl,
     tags: input.tags,
+    sites: input.sites,
     status: input.status,
     publishedAt,
     createdAt: existing?.createdAt.toISOString() ?? iso,
@@ -180,6 +212,7 @@ export function serializeBlogPost(post: BlogPost) {
     content: post.content,
     cover_image_url: post.coverImageUrl,
     tags: post.tags,
+    sites: post.sites,
     status: post.status,
     published_at: post.publishedAt?.toISOString() ?? null,
     created_at: post.createdAt.toISOString(),

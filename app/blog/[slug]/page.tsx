@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { BlogMarkdown, BlogTags } from "@/components/blog-markdown";
+import { BlogTags } from "@/components/blog-tags";
 import { Eyebrow } from "@/components/eyebrow";
+import { Markdown } from "@/components/markdown";
 import {
   formatPostDate,
   getPostBySlug,
@@ -92,7 +93,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       ) : null}
       <div className="mt-4 max-w-[72rem]">
-        <BlogMarkdown>{post.content}</BlogMarkdown>
+        <Markdown>{post.content}</Markdown>
       </div>
     </article>
   );

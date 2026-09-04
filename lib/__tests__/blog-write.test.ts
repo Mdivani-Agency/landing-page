@@ -1,5 +1,20 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { getPostBySlug, listPublishedPosts, resetBlogStore } from "@/lib/blog";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  createFakeSupabase,
+  fakeBlogRows,
+  type FakeSupabase,
+} from "@/test-utils/supabase-mock";
+
+const state = vi.hoisted(() => ({
+  client: undefined as unknown as FakeSupabase,
+}));
+
+vi.mock("@/lib/supabase", async () => {
+  const { supabaseModuleMock } = await import("@/test-utils/supabase-mock");
+  return supabaseModuleMock(() => state.client);
+});
+
+import { getPostBySlug, listPublishedPosts } from "@/lib/blog";
 import {
   BLOG_WRITE_MIN_TOKEN_BYTES,
   isSameOriginCoverPath,
@@ -10,8 +25,17 @@ import {
   validateBlogWritePayload,
 } from "@/lib/blog-write";
 
+const validPayload = {
+  title: "A new note",
+  description: "Enough description for the card.",
+  content: "## Hello\n\nThis is enough markdown content.",
+};
+
+beforeEach(() => {
+  state.client = createFakeSupabase(fakeBlogRows);
+});
+
 afterEach(() => {
-  resetBlogStore();
   resetWriteRateLimit();
 });
 
@@ -51,12 +75,8 @@ describe("readWriteToken", () => {
 });
 
 describe("validateBlogWritePayload", () => {
-  it("defaults status to draft and generates a slug", () => {
-    const result = validateBlogWritePayload({
-      title: "A new note",
-      description: "Enough description for the card.",
-      content: "## Hello\n\nThis is enough markdown content.",
-    });
+  it("defaults status to draft, sites to this site, and generates a slug", () => {
+    const result = validateBlogWritePayload(validPayload);
 
     expect(result).toEqual({
       ok: true,
@@ -67,25 +87,45 @@ describe("validateBlogWritePayload", () => {
         description: "Enough description for the card.",
         content: "## Hello\n\nThis is enough markdown content.",
         tags: [],
+        sites: ["agency"],
         coverImageUrl: null,
         status: "draft",
       },
     });
   });
 
+  it("accepts an explicit site list and drops duplicates", () => {
+    const result = validateBlogWritePayload({
+      ...validPayload,
+      sites: ["agency", "talvio", "agency"],
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      value: { sites: ["agency", "talvio"] },
+    });
+  });
+
+  it("rejects an unknown site, a non-array, and an empty list", () => {
+    for (const sites of [["nope"], "agency", []]) {
+      const result = validateBlogWritePayload({ ...validPayload, sites });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors.sites).toBeDefined();
+      }
+    }
+  });
+
   it("rejects a remote cover URL and accepts a same-origin path", () => {
     const remote = validateBlogWritePayload({
-      title: "A new note",
-      description: "Enough description for the card.",
-      content: "## Hello\n\nThis is enough markdown content.",
+      ...validPayload,
       cover_image_url: "https://cdn.example.com/hero.jpg",
     });
     expect(remote.ok).toBe(false);
 
     const local = validateBlogWritePayload({
-      title: "A new note",
-      description: "Enough description for the card.",
-      content: "## Hello\n\nThis is enough markdown content.",
+      ...validPayload,
       cover_image_url: "/assets/logo.svg",
     });
     expect(local).toMatchObject({
@@ -96,10 +136,8 @@ describe("validateBlogWritePayload", () => {
 
   it("marks an explicit slug as provided", () => {
     const result = validateBlogWritePayload({
+      ...validPayload,
       slug: "custom-slug",
-      title: "A new note",
-      description: "Enough description for the card.",
-      content: "## Hello\n\nThis is enough markdown content.",
     });
 
     expect(result.ok).toBe(true);
@@ -111,10 +149,8 @@ describe("validateBlogWritePayload", () => {
 
   it("rejects a bad slug and an unknown status", () => {
     const result = validateBlogWritePayload({
+      ...validPayload,
       slug: "Nope!",
-      title: "A new note",
-      description: "Enough description for the card.",
-      content: "## Hello\n\nThis is enough markdown content.",
       status: "live",
     });
 
@@ -135,6 +171,7 @@ describe("upsertBlogPost", () => {
         description: "Enough description for the card.",
         content: "## Hello\n\nThis is enough markdown content.",
         tags: ["AI"],
+        sites: ["agency"],
         coverImageUrl: null,
         status: "draft",
       },
@@ -143,17 +180,19 @@ describe("upsertBlogPost", () => {
 
     expect(created.status).toBe("draft");
     await expect(getPostBySlug("new-draft")).resolves.toBeNull();
+
     const slugs = (await listPublishedPosts()).map((post) => post.slug);
     expect(slugs).not.toContain("new-draft");
   });
 
-  it("publishes an existing seed slug and keeps the original published date", async () => {
+  it("keeps the original published date when updating a published post", async () => {
     const existing = {
       slug: "idea-to-production-ai",
       title: "Updated title",
       description: "Updated description for the card.",
       content: "## Updated\n\nThis is enough markdown content.",
       tags: ["AI"],
+      sites: ["agency" as const],
       coverImageUrl: null,
       status: "published" as const,
       publishedAt: new Date("2026-08-01T09:00:00.000Z"),
@@ -168,6 +207,7 @@ describe("upsertBlogPost", () => {
         description: "Updated description for the card.",
         content: "## Updated\n\nThis is enough markdown content.",
         tags: ["AI"],
+        sites: ["agency"],
         coverImageUrl: null,
         status: "published",
       },
@@ -178,5 +218,24 @@ describe("upsertBlogPost", () => {
     expect(updated.title).toBe("Updated title");
     expect(updated.publishedAt?.toISOString()).toBe("2026-08-01T09:00:00.000Z");
     expect(updated.updatedAt.toISOString()).toBe("2026-08-30T12:00:00.000Z");
+  });
+
+  it("writes a post targeted at the other site that this site will not list", async () => {
+    await upsertBlogPost(
+      {
+        slug: "talvio-launch",
+        title: "Talvio launch",
+        description: "Enough description for the card.",
+        content: "## Hello\n\nThis is enough markdown content.",
+        tags: [],
+        sites: ["talvio"],
+        coverImageUrl: null,
+        status: "published",
+      },
+      null,
+    );
+
+    const slugs = (await listPublishedPosts()).map((post) => post.slug);
+    expect(slugs).not.toContain("talvio-launch");
   });
 });

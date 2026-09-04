@@ -5,6 +5,14 @@ import { vi } from "vitest";
 // server modules (Supabase helpers) in jsdom, so stub the guard.
 vi.mock("server-only", () => ({}));
 
+// `@sentry/nextjs` loads a bundler plugin that fails to resolve under Vitest.
+// Route handlers and the blog data layer import it for error reporting, so
+// stub the surface the application calls. Tests that assert on reporting
+// re-mock it locally with their own spy.
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+}));
+
 // jsdom does not implement the <dialog> methods CalendarModal relies on.
 if (typeof HTMLDialogElement.prototype.showModal !== "function") {
   HTMLDialogElement.prototype.showModal = function showModal(

@@ -1,9 +1,31 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  createFakeSupabase,
+  fakeBlogRows,
+  type FakeSupabase,
+} from "@/test-utils/supabase-mock";
+import {
   BLOG_WRITE_MAX_BODY_BYTES,
   BLOG_WRITE_MIN_TOKEN_BYTES,
   BLOG_WRITE_RATE_LIMIT,
 } from "@/lib/blog-write";
+
+const state = vi.hoisted(() => ({
+  client: undefined as unknown as FakeSupabase,
+  revalidatePath: vi.fn(),
+  captureException: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase", async () => {
+  const { supabaseModuleMock } = await import("@/test-utils/supabase-mock");
+  return supabaseModuleMock(() => state.client);
+});
+
+vi.mock("next/cache", () => ({ revalidatePath: state.revalidatePath }));
+
+vi.mock("@sentry/nextjs", () => ({
+  captureException: state.captureException,
+}));
 
 async function importRoute() {
   return import("@/app/api/posts/route");
@@ -33,12 +55,13 @@ describe("POST /api/posts", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.stubEnv("BLOG_WRITE_TOKEN", WRITE_TOKEN);
+    state.client = createFakeSupabase(fakeBlogRows);
+    state.revalidatePath.mockClear();
+    state.captureException.mockClear();
   });
 
   afterEach(async () => {
-    const { resetBlogStore } = await import("@/lib/blog");
     const { resetWriteRateLimit } = await import("@/lib/blog-write");
-    resetBlogStore();
     resetWriteRateLimit();
     vi.unstubAllEnvs();
   });
@@ -110,7 +133,7 @@ describe("POST /api/posts", () => {
     expect(limited.status).toBe(429);
   });
 
-  it("creates a draft and generates a slug without revalidating", async () => {
+  it("creates a draft, generates a slug, and defaults to this site", async () => {
     const { POST } = await importRoute();
     const response = await POST(postRequest(validBody, authorized()));
 
@@ -119,6 +142,7 @@ describe("POST /api/posts", () => {
     expect(payload.ok).toBe(true);
     expect(payload.post.slug).toBe("a-new-note");
     expect(payload.post.status).toBe("draft");
+    expect(payload.post.sites).toEqual(["agency"]);
   });
 
   it("publishes a post that getPostBySlug can read back", async () => {
@@ -133,6 +157,17 @@ describe("POST /api/posts", () => {
     const stored = await getPostBySlug("a-new-note");
     expect(stored?.title).toBe("A new note");
     expect(stored?.status).toBe("published");
+  });
+
+  it("revalidates the listing, the post, and the feed after a write", async () => {
+    const { POST } = await importRoute();
+    await POST(
+      postRequest({ ...validBody, status: "published" }, authorized()),
+    );
+
+    expect(state.revalidatePath).toHaveBeenCalledWith("/blog");
+    expect(state.revalidatePath).toHaveBeenCalledWith("/blog/a-new-note");
+    expect(state.revalidatePath).toHaveBeenCalledWith("/feed.xml");
   });
 
   it("rejects a generated slug that already exists", async () => {
@@ -156,13 +191,31 @@ describe("POST /api/posts", () => {
     });
   });
 
-  it("updates a seed post when the slug is explicit", async () => {
+  it("returns 409 for a draft slug the public reads cannot see", async () => {
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest(
+        {
+          // Slugifies onto the existing draft, which only the admin client
+          // can see.
+          title: "Draft internal notes",
+          description: "Enough description for the card.",
+          content: "## Hello\n\nThis is enough markdown content.",
+        },
+        authorized(),
+      ),
+    );
+
+    expect(response.status).toBe(409);
+  });
+
+  it("updates an existing post when the slug is explicit", async () => {
     const { POST } = await importRoute();
     const response = await POST(
       postRequest(
         {
           slug: "idea-to-production-ai",
-          title: "Updated seed title",
+          title: "Updated title",
           description: "Updated description for the card.",
           content: "## Updated\n\nThis is enough markdown content.",
           status: "published",
@@ -173,11 +226,29 @@ describe("POST /api/posts", () => {
 
     expect(response.status).toBe(200);
     const payload = await response.json();
-    expect(payload.post.title).toBe("Updated seed title");
+    expect(payload.post.title).toBe("Updated title");
 
     const { getPostBySlug } = await import("@/lib/blog");
     const stored = await getPostBySlug("idea-to-production-ai");
-    expect(stored?.title).toBe("Updated seed title");
+    expect(stored?.title).toBe("Updated title");
+  });
+
+  it("returns 500 and reports when persistence fails", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    state.client = createFakeSupabase([], { error: { message: "denied" } });
+
+    const { POST } = await importRoute();
+    const response = await POST(postRequest(validBody, authorized()));
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      errors: { form: "Could not save the post." },
+    });
+    expect(state.captureException).toHaveBeenCalled();
+    expect(state.revalidatePath).not.toHaveBeenCalled();
+
+    error.mockRestore();
   });
 
   it("accepts a same-origin cover path that next/image can render", async () => {
@@ -196,8 +267,6 @@ describe("POST /api/posts", () => {
     expect(response.status).toBe(200);
     const payload = await response.json();
     expect(payload.post.cover_image_url).toBe("/assets/logo.svg");
-    expect(payload.post.cover_image_url.startsWith("/")).toBe(true);
-    expect(payload.post.cover_image_url.startsWith("//")).toBe(false);
 
     const { getPostBySlug } = await import("@/lib/blog");
     const stored = await getPostBySlug("a-new-note");
@@ -242,9 +311,12 @@ describe("POST /api/posts", () => {
   it("rejects a declared Content-Length over the cap", async () => {
     const { POST } = await importRoute();
     const response = await POST(
-      postRequest(validBody, authorized({
-        "Content-Length": String(BLOG_WRITE_MAX_BODY_BYTES + 1),
-      })),
+      postRequest(
+        validBody,
+        authorized({
+          "Content-Length": String(BLOG_WRITE_MAX_BODY_BYTES + 1),
+        }),
+      ),
     );
 
     expect(response.status).toBe(400);

@@ -17,6 +17,14 @@ export const site = {
     "https://www.toptal.com/developers/resume/giorgi-mdivani#N5k9PA",
 } as const;
 
+// Blog posts carry a `sites` array and only surface on the front ends they
+// name. This deployment is the agency site; talvio is the second one.
+export const siteKeys = ["agency", "talvio"] as const;
+
+export type SiteKey = (typeof siteKeys)[number];
+
+export const siteKey: SiteKey = "agency";
+
 export const navLinks = [
   { href: "/work", label: "Selected Work", title: "Selected work" },
   { href: "/how-i-work", label: "How I Work", title: "How I work" },

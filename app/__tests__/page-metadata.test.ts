@@ -1,4 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  createFakeSupabase,
+  fakeBlogRows,
+  type FakeSupabase,
+} from "@/test-utils/supabase-mock";
+
+const state = vi.hoisted(() => ({
+  client: undefined as unknown as FakeSupabase,
+}));
+
+vi.mock("@/lib/supabase", async () => {
+  const { supabaseModuleMock } = await import("@/test-utils/supabase-mock");
+  return supabaseModuleMock(() => state.client);
+});
+
 import { metadata as aboutMetadata } from "@/app/about/page";
 import { generateMetadata as generatePostMetadata } from "@/app/blog/[slug]/page";
 import { metadata as blogMetadata } from "@/app/blog/page";
@@ -6,6 +21,10 @@ import { metadata as homeMetadata } from "@/app/page";
 import { site } from "@/lib/site";
 
 const MARKETPLACE_PATTERN = /toptal|upwork/i;
+
+beforeEach(() => {
+  state.client = createFakeSupabase(fakeBlogRows);
+});
 
 function titleText(title: unknown): string {
   if (typeof title === "string") {

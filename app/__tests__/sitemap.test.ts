@@ -1,8 +1,27 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  createFakeSupabase,
+  fakeBlogRows,
+  type FakeSupabase,
+} from "@/test-utils/supabase-mock";
+
+const state = vi.hoisted(() => ({
+  client: undefined as unknown as FakeSupabase,
+}));
+
+vi.mock("@/lib/supabase", async () => {
+  const { supabaseModuleMock } = await import("@/test-utils/supabase-mock");
+  return supabaseModuleMock(() => state.client);
+});
+
 import sitemap from "@/app/sitemap";
 import { listPublishedPosts } from "@/lib/blog";
 import { latestUpdatedAt } from "@/lib/blog-seo";
 import { site } from "@/lib/site";
+
+beforeEach(() => {
+  state.client = createFakeSupabase(fakeBlogRows);
+});
 
 describe("sitemap", () => {
   it("includes the blog index and published posts, not drafts", async () => {

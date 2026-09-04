@@ -1,5 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
-import { getPostRecordBySlug } from "@/lib/blog";
+import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
+import { getPostRecordBySlug, type BlogPost } from "@/lib/blog";
 import {
   BLOG_WRITE_MAX_BODY_BYTES,
   consumeWriteRateLimit,
@@ -25,6 +27,16 @@ function digestToken(value: string): Buffer {
 
 function tokensEqual(provided: string, expected: string): boolean {
   return timingSafeEqual(digestToken(provided), digestToken(expected));
+}
+
+function persistenceFailed(error: unknown) {
+  const exception =
+    error instanceof Error ? error : new Error("blog write failed");
+
+  console.error("posts: persistence failed", exception);
+  Sentry.captureException(exception, { tags: { area: "blog-write" } });
+
+  return json(500, { ok: false, errors: { form: "Could not save the post." } });
 }
 
 function bearerToken(header: string | null): string | null {
@@ -96,7 +108,13 @@ export async function POST(request: Request) {
     return json(400, { ok: false, errors: validated.errors });
   }
 
-  const existing = await getPostRecordBySlug(validated.value.slug);
+  let existing: BlogPost | null;
+
+  try {
+    existing = await getPostRecordBySlug(validated.value.slug);
+  } catch (error) {
+    return persistenceFailed(error);
+  }
 
   if (!validated.slugProvided && existing) {
     return json(409, {
@@ -106,10 +124,19 @@ export async function POST(request: Request) {
     });
   }
 
-  const post = await upsertBlogPost(validated.value, existing);
+  let post: BlogPost;
 
-  // Skip revalidatePath until MDI-70 persists writes outside this isolate.
-  // Calling it here would regenerate ISR pages from seed data.
+  try {
+    post = await upsertBlogPost(validated.value, existing);
+  } catch (error) {
+    return persistenceFailed(error);
+  }
+
+  // Unconditional: unpublishing has to drop the post from these as surely as
+  // publishing adds it.
+  revalidatePath("/blog");
+  revalidatePath(`/blog/${post.slug}`);
+  revalidatePath("/feed.xml");
 
   return json(200, { ok: true, post: serializeBlogPost(post) });
 }

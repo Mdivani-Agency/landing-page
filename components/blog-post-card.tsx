@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, CardText, CardTitle } from "@/components/card";
 import { Eyebrow } from "@/components/eyebrow";
-import { BlogTags } from "@/components/blog-markdown";
+import { BlogTags } from "@/components/blog-tags";
 import { formatPostDate, type BlogPost } from "@/lib/blog";
 
 type BlogPostCardProps = {
