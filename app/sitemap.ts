@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { listPublishedPosts } from "@/lib/blog";
+import { latestUpdatedAt } from "@/lib/blog-seo";
 import { legalLinks, navLinks, site } from "@/lib/site";
 
 const pagePriority: Record<string, number> = {
@@ -7,21 +9,36 @@ const pagePriority: Record<string, number> = {
   "/how-i-work": 0.8,
   "/inquiry": 0.8,
   "/about": 0.7,
+  "/blog": 0.7,
 };
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const posts = await listPublishedPosts();
   const paths = [
     "/",
     ...navLinks.map((link) => link.href),
     ...legalLinks.map((link) => link.href),
   ];
 
-  return paths.map((path) => ({
+  const pages = paths.map((path) => ({
     url: path === "/" ? site.url : `${site.url}${path}`,
-    lastModified: new Date(),
-    changeFrequency: path === "/privacy-policy" || path === "/terms-of-service"
-      ? "yearly"
-      : "monthly",
+    lastModified: path === "/blog" ? latestUpdatedAt(posts) : new Date(),
+    changeFrequency:
+      path === "/privacy-policy" || path === "/terms-of-service"
+        ? "yearly"
+        : path === "/blog"
+          ? "weekly"
+          : "monthly",
     priority: pagePriority[path] ?? 0.3,
-  }));
+  })) satisfies MetadataRoute.Sitemap;
+
+  return [
+    ...pages,
+    ...posts.map((post) => ({
+      url: `${site.url}/blog/${post.slug}`,
+      lastModified: post.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+  ];
 }

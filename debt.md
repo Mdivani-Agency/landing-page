@@ -1,7 +1,8 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-01 (Sentry review residuals)
+Last updated: 2026-09-04 (Supabase blog persistence: TD-046, TD-047, and
+TD-048 resolved; TD-045 and TD-024 findings recorded; TD-049 added)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -71,6 +72,46 @@ Resolved. The package is used for header, conversation, and greenfield icons.
 Resolved. `.gitlab-ci.yml` runs lint, test, and build on merge requests and
 pushes, then deploys production from the default branch via the Vercel CLI
 after those checks pass. Remaining CI gaps are tracked as TD-039.
+
+### TD-046 — Blog write API still uses the in-memory store
+
+Resolved in code. `lib/blog.ts` reads and writes `public.blog_posts` through
+the Supabase clients and the module-level seed array is gone. `POST
+/api/posts` looks up collisions with the admin client — row level security
+hides drafts from the publishable key, so a read-client lookup would miss a
+draft holding the slug and fail on the unique constraint instead of returning
+409 — then revalidates `/blog`, `/blog/[slug]`, `/feed.xml`, and
+`/sitemap.xml`. Persistence
+failures return 500 and report to Sentry.
+
+Outstanding and deliberate: `BLOG_WRITE_TOKEN` is still unset on Vercel. Set a
+≥32-byte value only after `migrate_supabase` has applied the table
+(TD-044, TD-045).
+
+### TD-047 — Root Person JSON-LD does not escape `</script>`
+
+Resolved. `app/layout.tsx` serializes the Person graph with `serializeJsonLd`
+from `lib/metadata.ts`, matching the blog article and breadcrumb scripts. All
+JSON-LD sinks now escape `<`.
+
+### TD-048 — Blog read failures degrade silently and unmonitored
+
+Resolved on the same change that introduced the risk, and recorded because the
+design is deliberate rather than obvious.
+
+`listPublishedPosts` and `getPostBySlug` swallow Supabase errors and return an
+empty result instead of throwing, so `next build` succeeds in CI without
+Supabase variables. That fallback is kept: an empty blog is a better CI
+outcome than a failed build. The problem was that both blog pages are ISR with
+`revalidate = 3600`, so a transient failure during a revalidation could serve
+an empty listing for an hour with no signal, while the write path already
+reported to Sentry.
+
+Both read failure branches and the missing-credentials warning now call
+`Sentry.captureException` with an `area: "blog-read"` tag, keeping the
+empty-result fallback. `vitest.setup.ts` stubs `@sentry/nextjs` globally,
+since its bundler plugin cannot resolve under Vitest; suites that assert on
+reporting re-mock it locally.
 
 ## High priority
 
@@ -334,6 +375,50 @@ volume) without going through the contact-form limiter.
 **Remediation:** Add a Vercel Firewall / rate-limit rule for `/monitoring`, or
 drop the tunnel if ad-block bypass is not required.
 
+### TD-044 — `migrate_supabase` may need a database password on GitLab runners
+
+**Severity:** Medium  
+**Area:** Delivery / Supabase
+
+`migrate_supabase` authenticates with `SUPABASE_ACCESS_TOKEN` and links by
+`SUPABASE_PROJECT_REF` only. CLI 2.116 can mint a `cli_login_postgres` role
+from the access token. GitLab shared runners have previously failed that
+path with SASL / IPv6 `db.<ref>.supabase.co` connection errors.
+
+**Impact:** A green lint/test/build pipeline can still block production
+deploy when `db push` cannot reach the hosted database.
+
+**Remediation:** If the first default-branch apply fails on auth or dial,
+add a protected, masked `SUPABASE_DB_PASSWORD` and pass it to
+`supabase link` / `db push` (`-p`). Keep the token; the password is the
+CLI fallback, not a replacement.
+
+### TD-045 — Rewriting an already-applied migration breaks `db push`
+
+**Severity:** Medium  
+**Area:** Delivery / Supabase
+
+`supabase db push` checksums files already recorded in
+`supabase_migrations.schema_migrations`. Editing
+`20260903165746_create_blog_posts.sql` after it has been applied (for
+example the !26 CHECK tighten) makes CI fail with a checksum mismatch and
+blocks `deploy_production`.
+
+**Impact:** Schema review follow-ups that edit an applied file cannot ship
+through the default-branch pipeline until history is repaired.
+
+**Remediation:** Never rewrite an applied migration. Add a follow-up
+`ALTER` migration, or `supabase migration repair` only when the remote
+history is known to be wrong.
+
+**Finding (2026-09-04):** `next build` against the hosted `SUPABASE_URL`
+returned `PGRST205 — Could not find the table 'public.blog_posts' in the
+schema cache`. The table does not exist on that project, so the first
+version of the file was never applied and the in-place rewrite carries no
+checksum risk. Note that `PGRST205` proves the table is not exposed through
+PostgREST rather than reading `supabase_migrations.schema_migrations`
+directly; confirm against the migration history before relying on it.
+
 ### TD-043 — Calendar modal can close itself under React Strict Mode
 
 **Severity:** Medium  
@@ -353,6 +438,24 @@ cleanup, or stop calling `closeCalendar()` from `onClose` when the effect is
 tearing down. Cover open/close with a focused test.
 
 ## Low priority
+
+### TD-049 — `BlogPostRow` is hand-maintained against the migration
+
+**Severity:** Low  
+**Area:** Blog / Type safety
+
+`lib/blog.ts` declares the `public.blog_posts` row shape by hand, and `toPost`
+/ `toRow` map it to the camelCase `BlogPost`. Nothing ties that type to
+`supabase/migrations/`, and the Supabase client is untyped, so `select()`
+results are cast rather than checked.
+
+**Impact:** Adding or renaming a column without editing the type is a silent
+runtime mismatch — an undefined field reaching a page — rather than a compile
+error.
+
+**Remediation:** Generate types with `supabase gen types typescript` into a
+checked-in file and parameterize the clients with the generated `Database`
+type. Wait until the table exists on the hosted project (TD-044, TD-045).
 
 ### TD-022 — Duplicated SVG sources and unused assets remain
 
@@ -379,6 +482,15 @@ delete unused files.
 `tsconfig.tsbuildinfo` is tracked, while `.gitignore` does not ignore
 `*.tsbuildinfo`. Running type-check or build modifies it. `.DS_Store` is also
 tracked and not ignored.
+
+**Partially addressed (2026-09-04):** the `.gitignore` entry read
+`.tsconfig.tsbuildinfo` with a leading dot, which never matches the real
+`tsconfig.tsbuildinfo` — the rule looked present but had no effect. Corrected
+to `*.tsbuildinfo`.
+
+Still outstanding: an ignore rule does not untrack an already-tracked file, so
+`git rm --cached tsconfig.tsbuildinfo` is still required, and `.DS_Store` is
+neither ignored nor untracked.
 
 **Impact:** Routine validation and Finder metadata produce noisy working-tree
 changes and merge conflicts.
@@ -646,11 +758,14 @@ These are not automatically defects:
    and skip link (TD-004, TD-005, TD-021).
 2. Finish route-integrity coverage for redirects and generated `app/` pages
    (remaining TD-009). Add CI typecheck and audit jobs (TD-039).
-3. Verify production rate-limit configuration (TD-011) and add a Firewall
-   rule for the Sentry tunnel (TD-042).
+3. Verify production rate-limit configuration (TD-011), add a Firewall
+   rule for the Sentry tunnel (TD-042), and confirm the first
+   `migrate_supabase` apply (TD-044, TD-045). Set `BLOG_WRITE_TOKEN` on
+   Vercel only once that apply succeeds.
 4. Simplify and harden testimonial and calendar interactions (TD-012–TD-014,
    TD-043).
 5. Decide analytics/consent and add security headers (TD-015, TD-016).
 6. Optimize delivery assets and profile visual effects (TD-017, TD-018).
 7. Normalize content models and remove dead/generated repository artifacts
-   (TD-019, TD-022, TD-024–TD-041).
+   (TD-019, TD-022, TD-024–TD-041). Generate the Supabase row types once the
+   table exists (TD-049).
