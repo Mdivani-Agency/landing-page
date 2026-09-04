@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-04 (blog write-API review residuals)
+Last updated: 2026-09-04 (write-API and migrate CI debt IDs)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -334,6 +334,43 @@ volume) without going through the contact-form limiter.
 **Remediation:** Add a Vercel Firewall / rate-limit rule for `/monitoring`, or
 drop the tunnel if ad-block bypass is not required.
 
+### TD-044 — `migrate_supabase` may need a database password on GitLab runners
+
+**Severity:** Medium  
+**Area:** Delivery / Supabase
+
+`migrate_supabase` authenticates with `SUPABASE_ACCESS_TOKEN` and links by
+`SUPABASE_PROJECT_REF` only. CLI 2.116 can mint a `cli_login_postgres` role
+from the access token. GitLab shared runners have previously failed that
+path with SASL / IPv6 `db.<ref>.supabase.co` connection errors.
+
+**Impact:** A green lint/test/build pipeline can still block production
+deploy when `db push` cannot reach the hosted database.
+
+**Remediation:** If the first default-branch apply fails on auth or dial,
+add a protected, masked `SUPABASE_DB_PASSWORD` and pass it to
+`supabase link` / `db push` (`-p`). Keep the token; the password is the
+CLI fallback, not a replacement.
+
+### TD-045 — Rewriting an already-applied migration breaks `db push`
+
+**Severity:** Medium  
+**Area:** Delivery / Supabase
+
+`supabase db push` checksums files already recorded in
+`supabase_migrations.schema_migrations`. Editing
+`20260903165746_create_blog_posts.sql` after it has been applied (for
+example the !26 CHECK tighten) makes CI fail with a checksum mismatch and
+blocks `deploy_production`.
+
+**Impact:** Schema review follow-ups that edit an applied file cannot ship
+through the default-branch pipeline until history is repaired.
+
+**Remediation:** Never rewrite an applied migration. Add a follow-up
+`ALTER` migration, or `supabase migration repair` only when the remote
+history is known to be wrong. Confirm whether the hosted project already
+applied the first version of that file before merging !26.
+
 ### TD-043 — Calendar modal can close itself under React Strict Mode
 
 **Severity:** Medium  
@@ -352,7 +389,7 @@ modal flash open then close.
 cleanup, or stop calling `closeCalendar()` from `onClose` when the effect is
 tearing down. Cover open/close with a focused test.
 
-### TD-044 — Blog write API still uses the in-memory store
+### TD-046 — Blog write API still uses the in-memory store
 
 **Severity:** Medium  
 **Area:** Blog / Persistence
@@ -667,8 +704,10 @@ These are not automatically defects:
    and skip link (TD-004, TD-005, TD-021).
 2. Finish route-integrity coverage for redirects and generated `app/` pages
    (remaining TD-009). Add CI typecheck and audit jobs (TD-039).
-3. Verify production rate-limit configuration (TD-011) and add a Firewall
-   rule for the Sentry tunnel (TD-042).
+3. Verify production rate-limit configuration (TD-011), add a Firewall
+   rule for the Sentry tunnel (TD-042), and confirm the first
+   `migrate_supabase` apply (TD-044, TD-045). Wire blog writes to
+   Supabase before enabling `BLOG_WRITE_TOKEN` (TD-046).
 4. Simplify and harden testimonial and calendar interactions (TD-012–TD-014,
    TD-043).
 5. Decide analytics/consent and add security headers (TD-015, TD-016).

@@ -19,8 +19,16 @@ Production deploys are gated on the GitLab pipeline in `.gitlab-ci.yml`:
 
 - `lint`, `test`, and `build` run as required jobs on every push and merge
   request.
+- `migrate_supabase` runs only on the default branch (`$CI_DEFAULT_BRANCH`,
+  currently `development`), after `lint`, `test`, and `build` succeed, and
+  before `deploy_production`. It links with `SUPABASE_PROJECT_REF` and
+  applies pending migrations via `supabase db push` (CLI `2.116.0`). The
+  job is not gated on a file glob — `db push` is idempotent, and a glob
+  would skip retries after a failed apply. A `resource_group` serializes
+  applies so two pipelines cannot race.
 - `deploy_production` runs only on the default branch, only after all three
-  check jobs pass, and deploys with the Vercel CLI
+  check jobs pass and after `migrate_supabase` when that job is in the
+  pipeline, and deploys with the Vercel CLI
   (`vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`).
   The CLI version is pinned in `devDependencies` and authenticates via the
   `VERCEL_TOKEN` environment variable (never `--token` on argv). A
@@ -31,11 +39,12 @@ Production deploys are gated on the GitLab pipeline in `.gitlab-ci.yml`:
   branch. Other branches still get preview deploys from the Git integration.
 
 Required GitLab CI/CD variables (Settings → CI/CD → Variables). The project is
-public, so each variable must be **protected**, **masked**, and scoped to the
-**`production` environment** — masking alone only redacts logs, while
-protection + environment scoping keep the token out of feature-branch and
-merge-request pipelines entirely (the deploy job declares
-`environment: name: production`):
+public, so tokens must stay off feature-branch and merge-request pipelines.
+
+The Vercel trio must be **protected**, **masked**, and scoped to the
+**`production` environment**. Masking only redacts logs; protection plus
+environment scoping keep the token out of jobs that do not declare
+`environment: name: production` (`deploy_production` does):
 
 | Name | Value |
 | --- | --- |
@@ -43,9 +52,19 @@ merge-request pipelines entirely (the deploy job declares
 | `VERCEL_ORG_ID` | From the Vercel project settings (`vercel link` writes it to `.vercel/project.json`) |
 | `VERCEL_PROJECT_ID` | Same source as `VERCEL_ORG_ID` |
 
+`migrate_supabase` does not declare an environment. These two must be
+**protected** and **masked**, available on the protected default branch, and
+**not** scoped only to `production`:
+
+| Name | Value |
+| --- | --- |
+| `SUPABASE_ACCESS_TOKEN` | Personal access token for the account that owns the hosted project. Used by `migrate_supabase` (`supabase link` / `db push`). |
+| `SUPABASE_PROJECT_REF` | Hosted project ref (20-character id from the dashboard URL). Same value as the ref in `README.md`. |
+
 The default branch must stay a protected branch so protected variables are
-available to `deploy_production`. Enable the GitLab MR setting **Pipelines must
-succeed** to make the check jobs merge-blocking as well.
+available to `deploy_production` and `migrate_supabase`. Enable the GitLab MR
+setting **Pipelines must succeed** to make the check jobs merge-blocking as
+well.
 
 If the Vercel production branch moves from `development` to `main`, also move
 the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).
