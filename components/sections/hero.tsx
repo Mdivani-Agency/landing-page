@@ -31,8 +31,7 @@ export function Hero() {
         </Link>
       </div>
       <p className="mt-auto pt-[6rem] text-xs text-muted">
-        Based in Georgia. Working with founders across the UK, US, and
-        internationally.
+        Working with founders across the UK, US, and internationally.
       </p>
     </section>
   );
