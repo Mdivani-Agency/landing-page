@@ -80,15 +80,18 @@ describe("tool registry", () => {
       ok: boolean;
       slug: string;
       status_provided: boolean;
+      featured_provided: boolean;
       value: Record<string, unknown>;
     };
     expect(payload.ok).toBe(true);
     expect(payload.slug).toBe("a-new-note");
     expect(payload.status_provided).toBe(false);
+    expect(payload.featured_provided).toBe(false);
     expect(payload.value).not.toHaveProperty("status");
     expect(payload.value).not.toHaveProperty("tags");
     expect(payload.value).not.toHaveProperty("sites");
     expect(payload.value).not.toHaveProperty("cover_image_url");
+    expect(payload.value).not.toHaveProperty("featured");
     expect(payload.value).not.toHaveProperty("slug");
   });
 
@@ -136,6 +139,7 @@ describe("tool registry", () => {
     expect(request.mock.calls[0][2]).not.toHaveProperty("tags");
     expect(request.mock.calls[0][2]).not.toHaveProperty("cover_image_url");
     expect(request.mock.calls[0][2]).not.toHaveProperty("sites");
+    expect(request.mock.calls[0][2]).not.toHaveProperty("featured");
   });
 
   it("creates a post without sending slug", async () => {

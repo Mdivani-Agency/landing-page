@@ -48,13 +48,15 @@ bypass the cap).
 | `sites` | no | `agency` and/or `talvio`. On create, defaults to this site (`agency`). On update, omitted `sites` keeps the existing list |
 | `cover_image_url` | no | Same-origin path starting with `/` (not `//`, `?`, `#`, or an absolute URL). Remote hosts and query strings are rejected because `next/image` has no remote allowlist and rejects local `src` with search |
 | `status` | no | `draft` (default) or `published` |
+| `featured` | no | Boolean. Pins a published post above the chronological `/blog` grid. On create, defaults to `false`. On update, omitted `featured` keeps the stored value. Draft + featured is stored but public reads ignore drafts. There is no cap — featuring is an editorial choice. The same column can be toggled in the Supabase table editor (`public.blog_posts.featured`). |
 
 Create versus update is decided by `slug`. Omitting it means create: if the
 generated slug is taken the API returns `409`. Sending `slug` means upsert.
 
-On update, omitted `sites`, `tags`, `cover_image_url`, and `status` keep the
-stored values. Send `tags: []`, `cover_image_url: ""`, or `status: "draft"`
-to clear or unpublish. On create, omitted `status` is still `draft`.
+On update, omitted `sites`, `tags`, `cover_image_url`, `status`, and
+`featured` keep the stored values. Send `tags: []`, `cover_image_url: ""`,
+`status: "draft"`, or `featured: false` to clear, unpublish, or unpin. On
+create, omitted `status` is still `draft` and omitted `featured` is `false`.
 
 `published_at` is set on first publish and preserved across later updates.
 `created_at` is preserved. `updated_at` is always now.
@@ -103,7 +105,7 @@ Authenticated read of one post, including drafts.
 
 ## Responses
 
-- `200` `{ "ok": true, "post": { "slug", "title", "description", "content", "cover_image_url", "tags", "sites", "status", "published_at", "created_at", "updated_at" } }` (list uses `posts`)
+- `200` `{ "ok": true, "post": { "slug", "title", "description", "content", "cover_image_url", "tags", "sites", "status", "featured", "published_at", "created_at", "updated_at" } }` (list uses `posts`)
 - `400` `{ "ok": false, "errors": { "fieldName": "…" } }`
 - `401` unauthorized
 - `404` authenticated get for an unknown slug

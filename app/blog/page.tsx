@@ -1,7 +1,7 @@
 import { BlogPostCard } from "@/components/blog-post-card";
 import { PageIntro } from "@/components/page-intro";
 import { Section } from "@/components/section";
-import { listPublishedPosts } from "@/lib/blog";
+import { listPublishedPosts, partitionPublishedPosts } from "@/lib/blog";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 3600;
@@ -16,6 +16,7 @@ export const metadata = createPageMetadata({
 
 export default async function BlogPage() {
   const posts = await listPublishedPosts();
+  const { featured, rest } = partitionPublishedPosts(posts);
 
   return (
     <article className="space-y-8 lg:space-y-16">
@@ -24,20 +25,37 @@ export default async function BlogPage() {
         title="Notes on building AI products."
         lede="Short writing on taking AI ideas into production: product definition, architecture, and the reliability work that sits between a demo and a customer."
       />
-      <Section labelledBy="blog-posts-heading">
-        <h2 id="blog-posts-heading" className="sr-only">
-          Published posts
-        </h2>
-        {posts.length === 0 ? (
-          <p className="text-sm text-muted">No posts published yet.</p>
-        ) : (
+      {featured.length > 0 ? (
+        <Section labelledBy="featured-posts-heading">
+          <h2 id="featured-posts-heading" className="sr-only">
+            Featured posts
+          </h2>
           <div className="grid gap-2">
-            {posts.map((post) => (
+            {featured.map((post) => (
               <BlogPostCard key={post.slug} post={post} />
             ))}
           </div>
-        )}
-      </Section>
+        </Section>
+      ) : null}
+      {posts.length === 0 ? (
+        <Section labelledBy="blog-posts-heading">
+          <h2 id="blog-posts-heading" className="sr-only">
+            Published posts
+          </h2>
+          <p className="text-sm text-muted">No posts published yet.</p>
+        </Section>
+      ) : rest.length === 0 ? null : (
+        <Section labelledBy="blog-posts-heading">
+          <h2 id="blog-posts-heading" className="sr-only">
+            Published posts
+          </h2>
+          <div className="grid gap-2">
+            {rest.map((post) => (
+              <BlogPostCard key={post.slug} post={post} />
+            ))}
+          </div>
+        </Section>
+      )}
     </article>
   );
 }

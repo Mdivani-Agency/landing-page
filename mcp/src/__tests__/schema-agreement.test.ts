@@ -15,6 +15,9 @@ const valid = {
 const cases: Array<{ name: string; payload: unknown }> = [
   { name: "valid create payload", payload: valid },
   { name: "explicit published status", payload: { ...valid, status: "published" } },
+  { name: "explicit featured true", payload: { ...valid, featured: true } },
+  { name: "explicit featured false", payload: { ...valid, featured: false } },
+  { name: "non-boolean featured", payload: { ...valid, featured: "true" } },
   { name: "explicit sites", payload: { ...valid, sites: ["agency", "talvio"] } },
   { name: "trimmed site", payload: { ...valid, sites: ["agency "] } },
   { name: "same-origin cover", payload: { ...valid, cover_image_url: "/assets/logo.svg" } },

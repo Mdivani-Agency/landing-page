@@ -31,6 +31,7 @@ export type BlogWriteErrors = Partial<
     | "sites"
     | "coverImageUrl"
     | "status"
+    | "featured"
     | "form",
     string
   >
@@ -45,6 +46,7 @@ export type BlogWriteInput = {
   sites: SiteKey[];
   coverImageUrl: string | null;
   status: PostStatus;
+  featured: boolean;
 };
 
 export function slugifyTitle(title: string): string {
@@ -80,6 +82,7 @@ export type BlogWriteProvided = {
   tagsProvided: boolean;
   coverProvided: boolean;
   statusProvided: boolean;
+  featuredProvided: boolean;
 };
 
 export function validateBlogWritePayload(
@@ -195,6 +198,16 @@ export function validateBlogWritePayload(
     errors.status = "Status must be draft or published.";
   }
 
+  const featuredProvided = "featured" in body;
+  let featured = false;
+  if (featuredProvided) {
+    if (typeof body.featured !== "boolean") {
+      errors.featured = "Featured must be true or false.";
+    } else {
+      featured = body.featured;
+    }
+  }
+
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors };
   }
@@ -206,6 +219,7 @@ export function validateBlogWritePayload(
     tagsProvided,
     coverProvided,
     statusProvided,
+    featuredProvided,
     value: {
       slug: slug as string,
       title: title as string,
@@ -215,6 +229,7 @@ export function validateBlogWritePayload(
       sites,
       coverImageUrl,
       status: statusRaw as PostStatus,
+      featured,
     },
   };
 }

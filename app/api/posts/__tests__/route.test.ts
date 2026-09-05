@@ -235,6 +235,76 @@ describe("POST /api/posts", () => {
     expect(stored?.sites).toEqual(["agency"]);
     expect(stored?.tags).toEqual(["AI", "product", "greenfield"]);
     expect(stored?.status).toBe("published");
+    expect(stored?.featured).toBe(true);
+  });
+
+  it("persists featured and keeps it when an update omits the field", async () => {
+    const { POST } = await importRoute();
+    const created = await POST(
+      postRequest(
+        { ...validBody, status: "published", featured: true },
+        authorized(),
+      ),
+    );
+
+    expect(created.status).toBe(200);
+    expect((await created.json()).post.featured).toBe(true);
+
+    const updated = await POST(
+      postRequest(
+        {
+          slug: "a-new-note",
+          title: "Typo fix only",
+          description: "Updated description for the card.",
+          content: "## Updated\n\nThis is enough markdown content.",
+        },
+        authorized(),
+      ),
+    );
+
+    expect(updated.status).toBe(200);
+    const payload = await updated.json();
+    expect(payload.post.featured).toBe(true);
+    expect(state.revalidatePath).toHaveBeenCalledWith("/blog");
+
+    const { getPostBySlug } = await import("@/lib/blog");
+    const stored = await getPostBySlug("a-new-note");
+    expect(stored?.featured).toBe(true);
+  });
+
+  it("unpins a featured post when featured is sent as false", async () => {
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest(
+        {
+          slug: "idea-to-production-ai",
+          title: "From idea to a production AI product",
+          description: "Enough description for the card.",
+          content: "## Start with a job\n\nThe model is not the product.",
+          featured: false,
+        },
+        authorized(),
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect((await response.json()).post.featured).toBe(false);
+
+    const { getPostBySlug } = await import("@/lib/blog");
+    const stored = await getPostBySlug("idea-to-production-ai");
+    expect(stored?.featured).toBe(false);
+    expect(stored?.status).toBe("published");
+  });
+
+  it("rejects a non-boolean featured value", async () => {
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest({ ...validBody, featured: "yes" }, authorized()),
+    );
+
+    expect(response.status).toBe(400);
+    const payload = await response.json();
+    expect(payload.errors.featured).toBeDefined();
   });
 
   it("keeps tags, cover, and published status when an update omits them", async () => {

@@ -43,6 +43,10 @@ export function writePayloadFromValidation(
     payload.status = value.status;
   }
 
+  if (provided.featuredProvided) {
+    payload.featured = value.featured;
+  }
+
   return payload;
 }
 
@@ -51,9 +55,9 @@ export const blogValidatePost = defineTool({
   title: "Validate a blog post",
   description: `Validate a blog post payload locally against the same rules as POST /api/posts. Does not write anything and does not call the network.
 
-Use this before blog_create_post or blog_update_post. Copy \`value\` into the write tool — do not add status, tags, sites, or cover_image_url unless the caller sent them.
+Use this before blog_create_post or blog_update_post. Copy \`value\` into the write tool — do not add status, tags, sites, cover_image_url, or featured unless the caller sent them.
 
-On create (no slug), omitted status becomes draft on the server. On update (slug present), omitted status, tags, cover_image_url, and sites keep the stored values. Sending status: "draft" or tags: [] is an explicit write and will unpublish or clear.
+On create (no slug), omitted status becomes draft and omitted featured becomes false on the server. On update (slug present), omitted status, tags, cover_image_url, sites, and featured keep the stored values. Sending status: "draft" or tags: [] is an explicit write and will unpublish or clear. featured: false unpins a featured post.
 
 The resolved slug is returned as \`slug\` even when generated. It is only inside \`value\` when you provided one, so a create-shaped \`value\` cannot be reused as an update.
 
@@ -81,6 +85,7 @@ ${FORMATTING_CONTRACT}`,
       tags_provided: result.tagsProvided,
       cover_provided: result.coverProvided,
       status_provided: result.statusProvided,
+      featured_provided: result.featuredProvided,
       value: writePayloadFromValidation(result.value, result),
     });
   },

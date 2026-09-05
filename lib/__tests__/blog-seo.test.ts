@@ -93,6 +93,7 @@ describe("blog SEO helpers", () => {
       tags: [],
       sites: ["agency"],
       status: "published",
+      featured: false,
       publishedAt: new Date("2026-08-01T09:00:00.000Z"),
       createdAt: new Date("2026-08-01T09:00:00.000Z"),
       updatedAt: new Date("2026-08-01T09:00:00.000Z"),
