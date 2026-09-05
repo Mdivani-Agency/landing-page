@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { site } from "@/lib/site";
 
 export const socialImage = {
-  url: "/assets/images/giorgi.jpg",
-  width: 1024,
-  height: 1024,
-  alt: `${site.personName}, ${site.personRole}`,
+  url: "/assets/images/og-logo.png",
+  width: 1280,
+  height: 1433,
+  alt: `${site.name} logo`,
 } as const;
 
 type PageMetadataOptions = {

@@ -23,6 +23,7 @@ import {
   escapeXml,
   latestUpdatedAt,
 } from "@/lib/blog-seo";
+import { socialImage } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
 beforeEach(() => {
@@ -38,7 +39,7 @@ describe("blog SEO helpers", () => {
       "@type": "Article",
       headline: post.title,
       datePublished: post.publishedAt?.toISOString(),
-      image: [`${site.url}/assets/images/giorgi.jpg`],
+      image: [`${site.url}${socialImage.url}`],
       author: { "@type": "Person", name: site.personName, url: site.url },
       publisher: {
         "@type": "Organization",
@@ -46,7 +47,7 @@ describe("blog SEO helpers", () => {
         url: site.url,
         logo: {
           "@type": "ImageObject",
-          url: `${site.url}/assets/images/giorgi.jpg`,
+          url: `${site.url}${socialImage.url}`,
         },
       },
       mainEntityOfPage: `${site.url}/blog/${post.slug}`,
