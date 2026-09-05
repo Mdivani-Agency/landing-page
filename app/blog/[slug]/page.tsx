@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { BlogShare } from "@/components/blog-share";
 import { BlogTags } from "@/components/blog-tags";
 import { Eyebrow } from "@/components/eyebrow";
 import { articleMeasureClass, Markdown } from "@/components/markdown";
@@ -8,7 +9,7 @@ import {
   getPostBySlug,
   listPublishedSlugs,
 } from "@/lib/blog";
-import { articleJsonLd, breadcrumbJsonLd } from "@/lib/blog-seo";
+import { absoluteUrl, articleJsonLd, breadcrumbJsonLd } from "@/lib/blog-seo";
 import { createPageMetadata, serializeJsonLd } from "@/lib/metadata";
 
 export const revalidate = 3600;
@@ -81,6 +82,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {post.description}
           </p>
           <BlogTags tags={post.tags} />
+          <BlogShare
+            url={absoluteUrl(`/blog/${post.slug}`)}
+            title={post.title}
+            description={post.description}
+          />
         </header>
         {post.coverImageUrl ? (
           <div className="relative mt-3 aspect-[16/9] w-full overflow-hidden rounded-card border border-subtle">
