@@ -55,7 +55,12 @@ environment scoping keep the token out of jobs that do not declare
 | `VERCEL_ORG_ID` | That user's id from `.vercel/project.json` `orgId` (same value as `GET /v2/user` → `user.id`). **Not** the dashboard username (`mdivani1`) and **not** a `team_…` id — this project has no team. A username here makes `vercel pull` fail with `Project not found`. |
 | `VERCEL_PROJECT_ID` | Project id from the same file (`prj_…`). |
 
-`deploy_production` passes `--project` from `VERCEL_PROJECT_ID` and unsets `VERCEL_ORG_ID` before the CLI, so a username-as-org-id cannot block production. A preflight logs match/mismatch flags only and does not print id values.
+`deploy_production` passes `--project` from `VERCEL_PROJECT_ID` on every CLI
+command. `VERCEL_ORG_ID` is read from the job environment (GitLab injects
+the CI/CD variable); it is not passed on argv. A preflight exits if any of
+the three Vercel variables is missing. Set `VERCEL_ORG_ID` to the user's
+`user.id`, not the dashboard username — a username makes `vercel pull` fail
+with `Project not found`.
 
 `migrate_supabase` does not declare an environment. These two must be
 **protected** and **masked**, available on the protected default branch, and
