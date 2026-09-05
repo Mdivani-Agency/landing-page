@@ -7,7 +7,7 @@ export const blogListPosts = defineTool({
   title: "List blog posts",
   description: `List blog post summaries (no body), including drafts and posts for other sites. Requires BLOG_WRITE_TOKEN.
 
-Each item has slug, title, description, tags, sites, status, and timestamps — not content. Call blog_get_post for the Markdown body.
+Each item has slug, title, description, tags, sites, status, featured, and timestamps — not content. Call blog_get_post for the Markdown body.
 
 Optional filters: status (draft|published) and site (agency|talvio). Filters run in the query.
 

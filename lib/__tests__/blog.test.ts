@@ -30,6 +30,7 @@ import {
   listPostRecords,
   listPublishedPosts,
   listPublishedSlugs,
+  partitionPublishedPosts,
   upsertPostRecord,
 } from "@/lib/blog";
 
@@ -65,6 +66,7 @@ describe("listPublishedPosts", () => {
       coverImageUrl: null,
       sites: ["agency"],
       tags: ["AI", "product", "greenfield"],
+      featured: true,
     });
     expect(post.publishedAt).toBeInstanceOf(Date);
     expect(post.createdAt).toBeInstanceOf(Date);
@@ -107,6 +109,26 @@ describe("listPublishedPosts", () => {
     );
 
     error.mockRestore();
+  });
+});
+
+describe("partitionPublishedPosts", () => {
+  it("puts featured published posts first and keeps newest-first within each group", async () => {
+    const posts = await listPublishedPosts();
+    const { featured, rest } = partitionPublishedPosts(posts);
+
+    expect(featured.map((post) => post.slug)).toEqual([
+      "idea-to-production-ai",
+    ]);
+    expect(rest.map((post) => post.slug)).toEqual(["shipping-the-first-slice"]);
+  });
+
+  it("ignores a featured flag on a draft because public reads never return it", async () => {
+    const posts = await listPublishedPosts();
+    expect(posts.map((post) => post.slug)).not.toContain("draft-internal-notes");
+    expect(partitionPublishedPosts(posts).featured.every((post) => post.status === "published")).toBe(
+      true,
+    );
   });
 });
 
@@ -203,6 +225,7 @@ describe("upsertPostRecord", () => {
       tags: ["AI"],
       sites: ["agency"],
       status: "published",
+      featured: false,
       publishedAt: "2026-09-01T09:00:00.000Z",
       createdAt: "2026-09-01T09:00:00.000Z",
       updatedAt: "2026-09-01T09:00:00.000Z",
@@ -225,6 +248,7 @@ describe("upsertPostRecord", () => {
         tags: [],
         sites: ["agency"],
         status: "draft",
+        featured: false,
         publishedAt: null,
         createdAt: "2026-09-01T09:00:00.000Z",
         updatedAt: "2026-09-01T09:00:00.000Z",

@@ -12,10 +12,13 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
   const publishedLabel = post.publishedAt
     ? formatPostDate(post.publishedAt)
     : null;
+  const eyebrow = [post.featured ? "Featured" : null, publishedLabel]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
-    <Card>
-      {publishedLabel ? <Eyebrow variant="card">{publishedLabel}</Eyebrow> : null}
+    <Card variant={post.featured ? "featured" : "default"}>
+      {eyebrow ? <Eyebrow variant="card">{eyebrow}</Eyebrow> : null}
       <CardTitle>
         <Link href={`/blog/${post.slug}`}>{post.title}</Link>
       </CardTitle>

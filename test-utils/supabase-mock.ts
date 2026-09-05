@@ -173,6 +173,7 @@ function row(overrides: FakeRow): FakeRow {
     tags: [],
     sites: ["agency"],
     status: "published",
+    featured: false,
     published_at: iso,
     created_at: iso,
     updated_at: iso,
@@ -189,6 +190,7 @@ export const fakeBlogRows: FakeRow[] = [
     slug: "idea-to-production-ai",
     title: "From idea to a production AI product",
     tags: ["AI", "product", "greenfield"],
+    featured: true,
     published_at: "2026-08-01T09:00:00.000Z",
   }),
   row({
