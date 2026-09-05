@@ -7,7 +7,7 @@ type MarkdownProps = {
 
 // ch is the "0" glyph of *this* element's font. Pair it with text-md so
 // 68ch is a body-size measure (~18px), not the 10px root.
-export const articleMeasureClass = "article-measure max-w-[68ch] text-md";
+export const articleMeasureClass = "article-measure max-w-[72ch] text-md";
 
 // react-markdown does not render raw HTML unless `rehype-raw` is added, and
 // its default URL transform blanks any protocol outside http(s), irc(s),
