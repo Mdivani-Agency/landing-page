@@ -73,4 +73,26 @@ describe("/blog/[slug]", () => {
       "lg:block",
     );
   });
+
+  it("exposes LinkedIn, X, and Reddit share links near the title", async () => {
+    const page = await BlogPostPage({
+      params: Promise.resolve({ slug: "idea-to-production-ai" }),
+    });
+    render(page);
+
+    const share = screen.getByRole("navigation", { name: "Share this post" });
+    expect(share).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Share on LinkedIn" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("linkedin.com/sharing/share-offsite"),
+    );
+    expect(screen.getByRole("link", { name: "Share on X" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("twitter.com/intent/tweet"),
+    );
+    expect(screen.getByRole("link", { name: "Share on Reddit" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("reddit.com/submit"),
+    );
+  });
 });
