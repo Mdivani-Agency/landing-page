@@ -30,13 +30,13 @@ Production deploys are gated on the GitLab pipeline in `.gitlab-ci.yml`:
   check jobs pass and after `migrate_supabase` when that job is in the
   pipeline, and deploys with the Vercel CLI
   (`vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`,
-  each with `--project prj_bPLLh4NEuwpEr070HwOvLdL4jV1l`). The project is a
-  Hobby personal account (`mdivani1` is the username, not a team). Do not
-  pass `--scope mdivani1` — on Hobby the CLI rejects a personal account as
-  `--scope`. The CLI version is pinned in `devDependencies` and authenticates
-  via the `VERCEL_TOKEN` environment variable (never `--token` on argv). A
-  `resource_group` serializes deploys so an older pipeline cannot overwrite a
-  newer one.
+  each with `--project` set from the GitLab `VERCEL_PROJECT_ID` variable).
+  The project is a Hobby personal account (`mdivani1` is the username, not a
+  team). Do not pass `--scope mdivani1` — on Hobby the CLI rejects a personal
+  account as `--scope`. The CLI version is pinned in `devDependencies` and
+  authenticates via the `VERCEL_TOKEN` environment variable (never `--token`
+  on argv). A `resource_group` serializes deploys so an older pipeline cannot
+  overwrite a newer one.
 - `vercel.json` sets `git.deploymentEnabled` to `false` for `development` and
   `main`, so the Vercel Git integration no longer auto-deploys the production
   branch. Other branches still get preview deploys from the Git integration.
@@ -53,9 +53,9 @@ environment scoping keep the token out of jobs that do not declare
 | --- | --- |
 | `VERCEL_TOKEN` | Personal account token for the Hobby user that owns the project |
 | `VERCEL_ORG_ID` | That user's id from `.vercel/project.json` `orgId` (same value as `GET /v2/user` → `user.id`). **Not** the dashboard username (`mdivani1`) and **not** a `team_…` id — this project has no team. A username here makes `vercel pull` fail with `Project not found`. |
-| `VERCEL_PROJECT_ID` | Project id from the same file (`prj_…`). Live project: `prj_bPLLh4NEuwpEr070HwOvLdL4jV1l`. |
+| `VERCEL_PROJECT_ID` | Project id from the same file (`prj_…`). |
 
-`deploy_production` passes `--project prj_bPLLh4NEuwpEr070HwOvLdL4jV1l` and unsets the two id variables before the CLI, so a username-as-org-id cannot block production. A preflight logs whether the GitLab values match the token user and live project; it is diagnostic only.
+`deploy_production` passes `--project` from `VERCEL_PROJECT_ID` and unsets `VERCEL_ORG_ID` before the CLI, so a username-as-org-id cannot block production. A preflight logs match/mismatch flags only and does not print id values.
 
 `migrate_supabase` does not declare an environment. These two must be
 **protected** and **masked**, available on the protected default branch, and
