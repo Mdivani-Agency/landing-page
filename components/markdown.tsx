@@ -5,10 +5,6 @@ type MarkdownProps = {
   children: string;
 };
 
-// ch is the "0" glyph of *this* element's font. Pair it with text-md so
-// 68ch is a body-size measure (~18px), not the 10px root.
-export const articleMeasureClass = "article-measure max-w-[72ch] text-md";
-
 // react-markdown does not render raw HTML unless `rehype-raw` is added, and
 // its default URL transform blanks any protocol outside http(s), irc(s),
 // mailto, and xmpp. Content reaches this component from the write API, so
@@ -17,7 +13,7 @@ export const articleMeasureClass = "article-measure max-w-[72ch] text-md";
 // Long-form reading styles: em-based rhythm so spacing tracks the 18px
 // body (text-md) rather than the 8px spacing scale.
 const proseClass = [
-  "article-body max-w-[68ch] text-md leading-[1.7] text-primary",
+  "article-body w-full text-md leading-[1.7] text-primary",
   "[&_a]:font-medium [&_a]:text-secondary [&_a]:underline [&_a]:underline-offset-[0.3em]",
   "[&_h2]:mt-[2em] [&_h2]:mb-[0.65em] [&_h2]:font-serif [&_h2]:text-heading [&_h2]:text-primary",
   "[&_h2:first-child]:mt-0",

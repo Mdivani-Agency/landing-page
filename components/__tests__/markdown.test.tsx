@@ -8,7 +8,7 @@ describe("Markdown", () => {
 
     const articleBody = container.querySelector(".article-body");
     expect(articleBody).toHaveClass(
-      "max-w-[68ch]",
+      "w-full",
       "text-md",
       "leading-[1.7]",
       "text-primary",

@@ -22,7 +22,7 @@ export function BlogShare({ url, title, description }: BlogShareProps) {
   return (
     <nav
       aria-label="Share this post"
-      className="mt-2 flex items-center gap-0.5"
+      className="mt-2 flex items-center gap-0.5 lg:mt-4"
     >
       <p className="mr-1 text-xs uppercase tracking-caps text-secondary">
         Share

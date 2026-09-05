@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { BlogShare } from "@/components/blog-share";
 import { BlogTags } from "@/components/blog-tags";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { articleMeasureClass, Markdown } from "@/components/markdown";
+import { Markdown } from "@/components/markdown";
 import {
   formatPostDate,
   getPostBySlug,
@@ -69,50 +69,52 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           __html: serializeJsonLd(breadcrumbJsonLd(post)),
         }}
       />
-      <div className={articleMeasureClass}>
-        <header className="flex flex-col items-start gap-1.5 pt-3">
-          <Breadcrumbs
-            items={[
-              { href: "/", label: "Home" },
-              { href: "/blog", label: "Blog" },
-              { label: post.title },
-            ]}
-          />
-          {publishedLabel ? (
-            <p className="text-xs uppercase tracking-caps text-secondary">
-              {publishedLabel}
-            </p>
-          ) : null}
-          <h1 className="max-w-[22ch] font-serif text-heading">{post.title}</h1>
-          <p className="mt-1 mb-2 leading-[1.7] text-muted">
-            {post.description}
+      <header className="flex max-w-[72ch] flex-col items-start gap-1.5 pt-3 text-md">
+        <Breadcrumbs
+          items={[
+            { href: "/", label: "Home" },
+            { href: "/blog", label: "Blog" },
+            { label: post.title },
+          ]}
+        />
+        {publishedLabel ? (
+          <p className="text-xs uppercase tracking-caps text-secondary">
+            {publishedLabel}
           </p>
-          <BlogTags tags={post.tags} />
-          <BlogShare
-            url={absoluteUrl(`/blog/${post.slug}`)}
-            title={post.title}
-            description={post.description}
-          />
-        </header>
-        {post.coverImageUrl ? (
-          <div className="relative mt-3 aspect-[16/9] w-full overflow-hidden rounded-card border border-subtle">
-            <Image
-              src={post.coverImageUrl}
-              alt={post.title}
-              fill
-              sizes="(min-width: 768px) 73rem, 100vw"
-              className="object-cover"
-            />
-          </div>
         ) : null}
-        <div className="relative mt-4">
-          <div
-            aria-hidden
-            className="article-wash pointer-events-none absolute -inset-x-3 -inset-y-4 -z-10 hidden rounded-card bg-[rgba(8,9,11,0.72)] lg:block"
+        <h1 className="max-w-[22ch] font-serif text-heading">{post.title}</h1>
+        <p className="mt-1 mb-2 leading-[1.7] text-muted">
+          {post.description}
+        </p>
+      </header>
+      {post.coverImageUrl ? (
+        <div className="relative mx-auto mt-3 aspect-[16/9] w-full max-w-[96rem] overflow-hidden rounded-card border border-subtle">
+          <Image
+            src={post.coverImageUrl}
+            alt={post.title}
+            fill
+            sizes="(min-width: 1024px) 96rem, 100vw"
+            className="object-cover"
           />
+        </div>
+      ) : null}
+      <section className="article-reading-surface relative mt-4 py-2 lg:py-4 lg:py-5">
+        <div
+          aria-hidden
+          className="article-wash pointer-events-none absolute inset-0 -z-10 rounded-card bg-[rgba(8,9,11,0.72)]"
+        />
+        <div className="article-measure mx-auto w-full max-w-[68ch] text-md lg:max-w-[72ch]">
           <Markdown>{post.content}</Markdown>
         </div>
-      </div>
+      </section>
+      <footer className="article-footer mt-3 lg:mt-5 space-y-2">
+        <BlogShare
+          url={absoluteUrl(`/blog/${post.slug}`)}
+          title={post.title}
+          description={post.description}
+        />
+        <BlogTags tags={post.tags} />
+      </footer>
     </article>
   );
 }

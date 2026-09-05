@@ -48,19 +48,25 @@ describe("/blog/[slug]", () => {
     render(page);
 
     const measure = document.querySelector(".article-measure");
-    expect(measure).toHaveClass("max-w-[68ch]", "text-md");
+    expect(measure).toHaveClass(
+      "mx-auto",
+      "w-full",
+      "max-w-[68ch]",
+      "lg:max-w-[72ch]",
+      "text-md",
+    );
 
     const dek = screen.getByText("Enough description for the card.");
     expect(dek).toHaveClass("text-muted");
     expect(dek).not.toHaveClass("text-primary");
-    expect(dek.closest(".article-measure")).toBe(measure);
+    expect(dek.closest(".article-measure")).toBeNull();
 
     const articleBody = document.querySelector(".article-body");
-    expect(articleBody).toHaveClass("text-primary");
+    expect(articleBody).toHaveClass("w-full", "text-primary");
     expect(articleBody?.closest(".article-measure")).toBe(measure);
   });
 
-  it("places a dark wash under the article column on large screens", async () => {
+  it("places a full-width dark reading surface behind the article column", async () => {
     const page = await BlogPostPage({
       params: Promise.resolve({ slug: "idea-to-production-ai" }),
     });
@@ -68,10 +74,10 @@ describe("/blog/[slug]", () => {
 
     const wash = container.querySelector(".article-wash");
     expect(wash).toHaveClass(
+      "inset-0",
       "bg-[rgba(8,9,11,0.72)]",
-      "hidden",
-      "lg:block",
     );
+    expect(wash?.parentElement).toHaveClass("article-reading-surface");
   });
 
   it("wraps Blog in breadcrumbs that match the JSON-LD trail", async () => {
@@ -93,14 +99,21 @@ describe("/blog/[slug]", () => {
     ).toBeInTheDocument();
   });
 
-  it("exposes LinkedIn, X, and Reddit share links near the title", async () => {
+  it("places tags and responsive sharing controls after the article", async () => {
     const page = await BlogPostPage({
       params: Promise.resolve({ slug: "idea-to-production-ai" }),
     });
     render(page);
 
     const share = screen.getByRole("navigation", { name: "Share this post" });
-    expect(share).toBeInTheDocument();
+    const footer = share.closest(".article-footer");
+
+    expect(footer).toHaveClass("mt-3", "lg:mt-5");
+    expect(footer?.previousElementSibling).toHaveClass(
+      "article-reading-surface",
+    );
+    expect(footer).toContainElement(screen.getByText("AI"));
+    expect(share).toHaveClass("mt-2", "lg:mt-4");
     expect(screen.getByRole("link", { name: "Share on LinkedIn" })).toHaveAttribute(
       "href",
       expect.stringContaining("linkedin.com/sharing/share-offsite"),
