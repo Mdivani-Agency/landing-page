@@ -38,6 +38,9 @@ describe("BlogPostCard", () => {
     expect(screen.getByText("AI")).toBeInTheDocument();
     expect(screen.getByText("product")).toBeInTheDocument();
     expect(screen.queryByText("Featured")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("navigation", { name: "Share this post" }),
+    ).not.toBeInTheDocument();
   });
 
   it("uses the featured card treatment and badge for a featured post", () => {
@@ -49,6 +52,9 @@ describe("BlogPostCard", () => {
     expect(container.querySelector("article")).toHaveClass(
       "border-[rgba(159,212,200,0.35)]",
     );
+    expect(
+      screen.queryByRole("navigation", { name: "Share this post" }),
+    ).not.toBeInTheDocument();
   });
 });
 
