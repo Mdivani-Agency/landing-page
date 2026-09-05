@@ -74,6 +74,25 @@ describe("/blog/[slug]", () => {
     );
   });
 
+  it("wraps Blog in breadcrumbs that match the JSON-LD trail", async () => {
+    const page = await BlogPostPage({
+      params: Promise.resolve({ slug: "idea-to-production-ai" }),
+    });
+    render(page);
+
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Blog" })).toHaveAttribute(
+      "href",
+      "/blog",
+    );
+    expect(
+      screen.getByText("From idea to a production AI product", {
+        selector: "[aria-current=page]",
+      }),
+    ).toBeInTheDocument();
+  });
+
   it("exposes LinkedIn, X, and Reddit share links near the title", async () => {
     const page = await BlogPostPage({
       params: Promise.resolve({ slug: "idea-to-production-ai" }),

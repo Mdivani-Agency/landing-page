@@ -2,7 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { BlogShare } from "@/components/blog-share";
 import { BlogTags } from "@/components/blog-tags";
-import { Eyebrow } from "@/components/eyebrow";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { articleMeasureClass, Markdown } from "@/components/markdown";
 import {
   formatPostDate,
@@ -71,7 +71,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       />
       <div className={articleMeasureClass}>
         <header className="flex flex-col items-start gap-1.5 pt-3">
-          <Eyebrow>Blog</Eyebrow>
+          <Breadcrumbs
+            items={[
+              { href: "/", label: "Home" },
+              { href: "/blog", label: "Blog" },
+              { label: post.title },
+            ]}
+          />
           {publishedLabel ? (
             <p className="text-xs uppercase tracking-caps text-secondary">
               {publishedLabel}
