@@ -4,7 +4,7 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Terms of Service",
   description:
-    "Terms of Service for Mdio (Mdivani Agency) software development services.",
+    "Website terms for mdivani.agency, including inquiries and calls. Paid engineering work is covered by a separate agreement.",
   path: "/terms-of-service",
 });
 
