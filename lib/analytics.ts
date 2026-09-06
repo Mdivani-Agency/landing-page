@@ -1,5 +1,8 @@
 const MEASUREMENT_ID_PATTERN = /^G-[A-Z0-9]+$/;
 
+/** Production/preview GA4 property documented in README and vercel-cutover. */
+export const DOCUMENTED_GA_MEASUREMENT_ID = "G-PJ84DYZ4WS";
+
 type PendingEvent = {
   name: string;
   params?: Record<string, unknown>;

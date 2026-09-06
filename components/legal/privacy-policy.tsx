@@ -4,8 +4,16 @@ import {
   LegalDocument,
   LegalTable,
 } from "@/components/legal/legal-document";
+import {
+  DOCUMENTED_GA_MEASUREMENT_ID,
+  resolveMeasurementId,
+} from "@/lib/analytics";
 
-const ga4MeasurementId = "G-GRS8QP3EG6";
+const ga4MeasurementId =
+  resolveMeasurementId(
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  ) ?? DOCUMENTED_GA_MEASUREMENT_ID;
 const gaOptOutUrl = "https://tools.google.com/dlpage/gaoptout";
 
 export function PrivacyPolicyContent() {
@@ -77,9 +85,10 @@ export function PrivacyPolicyContent() {
           <code>www.googletagmanager.com</code>. It records page views
           (including client-side route changes), device and browser data,
           approximate location, referrer, and events such as opening the
-          schedule-a-call modal. Google sets cookies (commonly{" "}
-          <code>_ga</code>, <code>_ga_*</code>). This runs without a cookie
-          banner today.
+          schedule-a-call modal (<code>schedule_call_click</code>) and a
+          successful inquiry (<code>ads_conversion_About_Us_1</code>). Google
+          sets cookies (commonly <code>_ga</code>, <code>_ga_*</code>). This
+          runs without a cookie banner today.
         </p>
         <p>
           <strong>Vercel Web Analytics</strong> (<code>@vercel/analytics</code>).
@@ -103,8 +112,18 @@ export function PrivacyPolicyContent() {
           and secure the site.
         </p>
         <p>
-          We do not use advertising pixels, Hotjar, Mixpanel, PostHog, or
-          session replay. We do not sell personal data.
+          <strong>Rate limiting (Upstash / Vercel KV).</strong>{" "}
+          <code>POST /api/contact</code> is counted by client IP in Upstash
+          Redis (via the Vercel KV REST aliases) so we can reject floods. The
+          store receives the IP and a request counter for a short window. If
+          those variables are unset, the same limit runs in memory on the
+          server and is not shared across instances.
+        </p>
+        <p>
+          We do not load Google Ads, Meta, Hotjar, Mixpanel, or PostHog pixels,
+          and we do not use session replay. A successful inquiry still sends the
+          GA4 conversion event <code>ads_conversion_About_Us_1</code>. We do
+          not sell personal data.
         </p>
       </section>
 
@@ -163,15 +182,20 @@ export function PrivacyPolicyContent() {
             <code>/api/contact</code> API on Vercel and delivered to{" "}
             <a href={`mailto:${site.email}`}>{site.email}</a>
           </li>
+          <li>
+            <strong>Upstash (Vercel KV)</strong> — IP-based rate limiting of{" "}
+            <code>/api/contact</code>
+          </li>
         </ul>
         <p>
           We may disclose information if required by law, or to professional
           advisers under confidentiality.
         </p>
         <p>
-          Google, Vercel, Sentry, and Resend may process data in the United
-          States. Where GDPR/UK GDPR applies, they rely on their published
-          transfer mechanisms (including Standard Contractual Clauses).
+          Google, Vercel, Sentry, Resend, and Upstash may process data in the
+          United States. Where GDPR/UK GDPR applies, they rely on their
+          published transfer mechanisms (including Standard Contractual
+          Clauses).
         </p>
       </section>
 
@@ -216,6 +240,15 @@ export function PrivacyPolicyContent() {
               </td>
               <td>No — only if you use booking</td>
             </tr>
+            <tr>
+              <td>Contact rate-limit counter</td>
+              <td>Upstash / Vercel KV</td>
+              <td>
+                IP and request count for <code>/api/contact</code> (typically
+                no cookie)
+              </td>
+              <td>Yes — abuse protection</td>
+            </tr>
           </tbody>
         </LegalTable>
         <p>
@@ -241,6 +274,10 @@ export function PrivacyPolicyContent() {
             Calendar bookings: according to Google Calendar and our calendar
           </li>
           <li>Error reports: according to Sentry’s retention for this project</li>
+          <li>
+            Contact rate-limit counters: the 60-second window in Upstash /
+            Vercel KV (or in memory if that store is unset)
+          </li>
           <li>Server logs: Vercel’s default log retention</li>
         </ul>
       </section>

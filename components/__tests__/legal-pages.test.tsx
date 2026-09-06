@@ -5,6 +5,7 @@ import { TermsOfServiceContent } from "@/components/legal/terms-of-service";
 import { metadata as privacyMetadata } from "@/app/privacy-policy/page";
 import { metadata as termsMetadata } from "@/app/terms-of-service/page";
 import { site } from "@/lib/site";
+import { DOCUMENTED_GA_MEASUREMENT_ID } from "@/lib/analytics";
 
 describe("legal pages", () => {
   it("titles privacy policy without Mdio and matches live tracking", () => {
@@ -14,10 +15,13 @@ describe("legal pages", () => {
       screen.getByRole("heading", { level: 1, name: "Privacy Policy" }),
     ).toBeInTheDocument();
     expect(container.textContent).toContain("Last updated: 1 September 2026");
-    expect(container.textContent).toContain("G-GRS8QP3EG6");
+    expect(container.textContent).toContain(DOCUMENTED_GA_MEASUREMENT_ID);
+    expect(container.textContent).not.toContain("G-GRS8QP3EG6");
     expect(container.textContent).toContain("Vercel Web Analytics");
     expect(container.textContent).toContain("Sentry");
     expect(container.textContent).toContain("Resend");
+    expect(container.textContent).toContain("ads_conversion_About_Us_1");
+    expect(container.textContent).toContain("Upstash");
     expect(container.textContent).toContain("/api/contact");
     expect(container.textContent).not.toMatch(/Mdio/i);
 
