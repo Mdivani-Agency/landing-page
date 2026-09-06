@@ -26,8 +26,7 @@ export function PrivacyPolicyContent() {
           <code>www.mdivani.agency</code>), send an inquiry, or book a call.
         </p>
         <p>
-          It replaces the previous policy that referred to “Mdio”. The
-          controller of personal data is {site.personName}, {site.address}.
+          The controller of personal data is {site.personName}, {site.address}.
           Contact: <a href={`mailto:${site.email}`}>{site.email}</a>.
         </p>
         <p>

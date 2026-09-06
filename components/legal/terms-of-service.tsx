@@ -27,9 +27,6 @@ export function TermsOfServiceContent() {
           <a href={`mailto:${site.email}`}>{site.email}</a>.
         </p>
         <p>
-          These Terms replace the previous version that referred to “Mdio”.
-        </p>
-        <p>
           Paid engineering work is <strong>not</strong> governed only by these
           Terms. A separate written statement of work, proposal, or contract
           (the “Service Agreement”) will apply to that work. If those documents
@@ -164,17 +161,15 @@ export function TermsOfServiceContent() {
       </section>
 
       <section>
-        <h2>11. Limitation of liability</h2>
+        <h2>11. No liability for site use</h2>
         <p>
-          To the fullest extent permitted by law, {site.name} and{" "}
-          {site.personName} are not liable for indirect, incidental, special,
-          consequential, or lost-profit damages arising from use of the site or
-          from an inquiry or call.
+          Using this site, sending an inquiry, or booking a call does not create
+          any liability for {site.name} or {site.personName}. To the fullest
+          extent permitted by law, we are not liable for any damages arising
+          from use of the site or from an inquiry or call.
         </p>
         <p>
-          For site use (not a signed Service Agreement), our total liability is
-          limited to EUR 100. Liability under a Service Agreement is whatever
-          that agreement says.
+          Liability under a Service Agreement is whatever that agreement says.
         </p>
         <p>
           Nothing in these Terms limits liability that cannot be limited under

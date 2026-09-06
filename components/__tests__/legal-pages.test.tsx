@@ -19,7 +19,7 @@ describe("legal pages", () => {
     expect(container.textContent).toContain("Sentry");
     expect(container.textContent).toContain("Resend");
     expect(container.textContent).toContain("/api/contact");
-    expect(container.textContent).not.toMatch(/Privacy Policy for Mdio/i);
+    expect(container.textContent).not.toMatch(/Mdio/i);
 
     const emailLinks = screen.getAllByRole("link", { name: site.email });
     expect(emailLinks.length).toBeGreaterThan(0);
@@ -48,8 +48,9 @@ describe("legal pages", () => {
     ).toBeInTheDocument();
     expect(container.textContent).toContain("Last updated: 1 September 2026");
     expect(container.textContent).toContain("Service Agreement");
-    expect(container.textContent).toContain("EUR 100");
-    expect(container.textContent).not.toMatch(/Terms of Service for Mdio/i);
+    expect(container.textContent).toContain("does not create any liability");
+    expect(container.textContent).not.toMatch(/EUR 100/i);
+    expect(container.textContent).not.toMatch(/Mdio/i);
 
     expect(
       screen.getByRole("link", { name: "Privacy Policy" }),
@@ -58,9 +59,9 @@ describe("legal pages", () => {
 
   it("keeps Mdio out of page titles and meta descriptions", () => {
     expect(privacyMetadata.title).toBe("Privacy Policy");
-    expect(String(privacyMetadata.description)).not.toMatch(/Mdio/i);
+    expect(JSON.stringify(privacyMetadata)).not.toMatch(/Mdio/i);
 
     expect(termsMetadata.title).toBe("Terms of Service");
-    expect(String(termsMetadata.description)).not.toMatch(/Mdio/i);
+    expect(JSON.stringify(termsMetadata)).not.toMatch(/Mdio/i);
   });
 });
