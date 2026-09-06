@@ -1,190 +1,291 @@
 import { site } from "@/lib/site";
+import {
+  LegalContact,
+  LegalDocument,
+  LegalTable,
+} from "@/components/legal/legal-document";
+
+const ga4MeasurementId = "G-GRS8QP3EG6";
+const gaOptOutUrl = "https://tools.google.com/dlpage/gaoptout";
 
 export function PrivacyPolicyContent() {
   return (
-    <article className="text-sm font-thin [&_a]:font-medium [&_a]:text-secondary [&_a]:underline [&_h1]:text-lg [&_h1]:font-semibold [&_header]:my-2.5 [&_header]:text-md [&_section]:mb-2.5 [&_section_h2]:mb-0.5 [&_section_h2]:font-bold [&_ul]:list-disc [&_ul]:pl-2.5">
+    <LegalDocument>
       <header>
-        <h1 className="text-title font-semibold">
-          Privacy Policy for Mdio (Mdivani Agency)
-        </h1>
+        <h1 className="text-title font-semibold">Privacy Policy</h1>
         <p className="text-xs font-medium">
-          <strong>Last Updated: September 1, 2026</strong>
+          <strong>Last updated: 1 September 2026</strong>
         </p>
       </header>
 
       <section>
-        <h2 className="text-md font-semibold">Introduction</h2>
         <p>
-          At Mdio (Mdivani Agency), we are committed to protecting your privacy.
-          This Privacy Policy explains how we collect, use, disclose, and
-          safeguard your information when you visit our website{" "}
-          <a href={site.url}>{site.url}</a> (the &quot;Site&quot;), interact with
-          our services, or contact us.
+          This Privacy Policy explains how <strong>{site.name}</strong>{" "}
+          (operated by {site.personName}, “we”, “us”) collects, uses, and shares
+          information when you visit <a href={site.url}>{site.url}</a> (including{" "}
+          <code>www.mdivani.agency</code>), send an inquiry, or book a call.
+        </p>
+        <p>
+          It replaces the previous policy that referred to “Mdio”. The
+          controller of personal data is {site.personName}, {site.address}.
+          Contact: <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+        <p>
+          This policy describes the website. A separate written agreement covers
+          paid engineering work.
         </p>
       </section>
 
       <section>
-        <h2 className="text-md font-semibold">Information We Collect</h2>
-        <p>
-          We may collect personal information that you provide to us directly,
-          as well as information that is collected automatically when you use
-          our website. The types of information we may collect include:
-        </p>
-        <h3>1. Personal Information</h3>
-        <ul>
-          <li>Name</li>
-          <li>Email address</li>
-          <li>Phone number</li>
-          <li>Company name</li>
-          <li>Job title</li>
-          <li>
-            Any other information you provide to us during inquiries or
-            communications
-          </li>
-        </ul>
-        <h3>2. Usage Data</h3>
-        <p>Information about how you use our Site and services.</p>
-        <h3>3. Cookies and Tracking Technologies</h3>
-        <p>
-          We may use cookies and similar tracking technologies to monitor
-          activity on our Site and store certain information. You can find more
-          about our use of cookies in the “Cookies” section below.
-        </p>
-      </section>
+        <h2 className="text-md font-semibold">1. What we collect</h2>
 
-      <section>
-        <h2 className="text-md font-semibold">How We Use Your Information</h2>
+        <h3>Information you give us</h3>
         <p>
-          We may use the information we collect for various purposes, including:
+          <strong>Project inquiry form</strong> (<code>/inquiry</code>),
+          submitted to our server at <code>/api/contact</code>:
         </p>
         <ul>
-          <li>To provide, maintain, and improve our Site and services.</li>
-          <li>
-            To communicate with you, including responding to your inquiries and
-            sending you updates.
-          </li>
-          <li>To personalize your experience on our Site.</li>
-          <li>
-            To analyze usage of our Site and improve our marketing strategies.
-          </li>
-          <li>To comply with legal obligations.</li>
+          <li>Name (required)</li>
+          <li>Email (required)</li>
+          <li>Company</li>
+          <li>Project type</li>
+          <li>Budget range</li>
+          <li>Timeline</li>
+          <li>Project description</li>
+          <li>Link to a product or site</li>
         </ul>
+        <p>
+          We use a hidden honeypot field to reject spam. Do not fill it.
+        </p>
+        <p>
+          <strong>Email.</strong> If you write to{" "}
+          <a href={`mailto:${site.email}`}>{site.email}</a>, we keep the contents
+          of that correspondence.
+        </p>
+        <p>
+          <strong>Google Calendar appointments.</strong> “Schedule a call” opens
+          an iframe of Google Calendar appointment scheduling. If you book a
+          slot, Google collects the details you enter in that booking flow
+          (typically name, email, and any notes). We receive the booking as a
+          calendar event.
+        </p>
+        <p>We do not run user accounts or logins on this site.</p>
+
+        <h3>Information collected automatically</h3>
+        <p>
+          <strong>Google Analytics 4</strong> (measurement ID{" "}
+          <code>{ga4MeasurementId}</code>), loaded from{" "}
+          <code>www.googletagmanager.com</code>. It records page views
+          (including client-side route changes), device and browser data,
+          approximate location, referrer, and events such as opening the
+          schedule-a-call modal. Google sets cookies (commonly{" "}
+          <code>_ga</code>, <code>_ga_*</code>). This runs without a cookie
+          banner today.
+        </p>
+        <p>
+          <strong>Vercel Web Analytics</strong> (<code>@vercel/analytics</code>).
+          Page views and session metrics for the hosted site. This is
+          first-party to the Vercel deployment (<code>/_vercel/insights</code> /{" "}
+          <code>va.vercel-scripts.com</code>). It is designed to be cookieless;
+          it still processes IP-derived and usage data on Vercel’s
+          infrastructure.
+        </p>
+        <p>
+          <strong>Error and performance monitoring (Sentry).</strong> We use
+          Sentry to capture application errors and a sample of performance
+          traces so we can diagnose failures. Sentry may receive technical data
+          such as the page URL, browser or runtime details, and the stack trace
+          for the error. We do not enable Sentry Session Replay (session
+          recording) on this site.
+        </p>
+        <p>
+          <strong>Hosting logs (Vercel).</strong> Standard request logs: IP
+          address, user agent, URL, timestamp, and error traces. Used to operate
+          and secure the site.
+        </p>
+        <p>
+          We do not use advertising pixels, Hotjar, Mixpanel, PostHog, or
+          session replay. We do not sell personal data.
+        </p>
       </section>
 
       <section>
-        <h2 className="text-md font-semibold">Sharing Your Information</h2>
-        <p>
-          We do not sell or rent your personal information to third parties. We
-          may share your information in the following circumstances:
-        </p>
-        <h3>Service Providers</h3>
-        <p>
-          We may employ third-party companies and individuals to facilitate our
-          services (e.g., hosting providers, analytics providers) and these
-          parties may have access to your personal information but are obligated
-          not to disclose or use it for any other purpose.
-        </p>
-        <h3>Error and performance monitoring</h3>
-        <p>
-          We use Sentry to capture application errors and a sample of
-          performance traces so we can diagnose failures. Sentry may receive
-          technical data such as the page URL, browser or runtime details, and
-          the stack trace for the error. We do not enable Sentry Session Replay
-          (session recording) on this Site.
-        </p>
-        <h3>Legal Requirements</h3>
-        <p>
-          We may disclose your personal information if required to do so by law
-          or in response to valid requests by public authorities (e.g., a court
-          or a government agency).
-        </p>
+        <h2 className="text-md font-semibold">2. Why we use it</h2>
+        <LegalTable>
+          <thead>
+            <tr>
+              <th scope="col">Purpose</th>
+              <th scope="col">
+                Legal basis (GDPR / UK GDPR, where they apply)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Reply to inquiries and book calls</td>
+              <td>Contract steps / legitimate interests</td>
+            </tr>
+            <tr>
+              <td>Run, secure, and debug the site</td>
+              <td>Legitimate interests</td>
+            </tr>
+            <tr>
+              <td>Understand how the site is used (GA4 + Vercel Analytics)</td>
+              <td>
+                Legitimate interests. If you are in the EEA/UK, you may object;
+                you can also block Analytics cookies in your browser
+              </td>
+            </tr>
+            <tr>
+              <td>Legal, tax, and dispute records</td>
+              <td>Legal obligation / legitimate interests</td>
+            </tr>
+          </tbody>
+        </LegalTable>
       </section>
 
       <section>
-        <h2 className="text-md font-semibold">Data Security</h2>
-        <p>
-          The security of your personal information is important to us, and we
-          take reasonable precautions to protect it. However, no method of
-          transmission over the Internet or method of electronic storage is 100%
-          secure, so we cannot guarantee its absolute security.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="text-md font-semibold">Your Data Protection Rights</h2>
-        <p>
-          Depending on your location, you may have the following rights
-          regarding your personal information:
-        </p>
+        <h2 className="text-md font-semibold">3. Who we share it with</h2>
+        <p>Processors that see data only to provide their service:</p>
         <ul>
           <li>
-            <strong>The right to access</strong> – You have the right to request
-            copies of your personal information.
+            <strong>Vercel Inc.</strong> — hosting, logs, Web Analytics
           </li>
           <li>
-            <strong>The right to rectification</strong> – You have the right to
-            request that we correct any information you believe is inaccurate or
-            incomplete.
+            <strong>Google LLC</strong> — Google Analytics 4; Google Calendar
+            appointment scheduling when you book
           </li>
           <li>
-            <strong>The right to erasure</strong> – You have the right to
-            request that we erase your personal information, under certain
-            conditions.
+            <strong>Functional Software, Inc. (Sentry)</strong> — error and
+            performance monitoring
           </li>
           <li>
-            <strong>The right to restrict processing</strong> – You have the
-            right to request that we restrict the processing of your personal
-            information, under certain conditions.
-          </li>
-          <li>
-            <strong>The right to object to processing</strong> – You have the
-            right to object to our processing of your personal information,
-            under certain conditions.
-          </li>
-          <li>
-            <strong>The right to data portability</strong> – You have the right
-            to request that we transfer the data that we have collected to
-            another organization, or directly to you, under certain conditions.
+            <strong>Resend</strong> — inquiry submissions are accepted by our{" "}
+            <code>/api/contact</code> API on Vercel and delivered to{" "}
+            <a href={`mailto:${site.email}`}>{site.email}</a>
           </li>
         </ul>
         <p>
-          To exercise these rights, please contact us at{" "}
-          <a href={`mailto:${site.email}`}>{site.email}</a>.
+          We may disclose information if required by law, or to professional
+          advisers under confidentiality.
         </p>
-      </section>
-
-      <section>
-        <h2 className="text-md font-semibold">Cookies</h2>
         <p>
-          Cookies are files with small amounts of data, which may include an
-          anonymous unique identifier. You can instruct your browser to refuse
-          all cookies or to indicate when a cookie is being sent. However, if
-          you do not accept cookies, you may not be able to use some portions of
-          our service.
+          Google, Vercel, Sentry, and Resend may process data in the United
+          States. Where GDPR/UK GDPR applies, they rely on their published
+          transfer mechanisms (including Standard Contractual Clauses).
         </p>
       </section>
 
       <section>
-        <h2 className="text-md font-semibold">Changes to This Privacy Policy</h2>
+        <h2 className="text-md font-semibold">4. Cookies and similar tech</h2>
+        <LegalTable>
+          <thead>
+            <tr>
+              <th scope="col">Tech</th>
+              <th scope="col">Who</th>
+              <th scope="col">What</th>
+              <th scope="col">Essential?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <code>_ga</code>, <code>_ga_*</code> (and related GA cookies)
+              </td>
+              <td>Google</td>
+              <td>Distinguish browsers, measure visits</td>
+              <td>No — analytics</td>
+            </tr>
+            <tr>
+              <td>Vercel Web Analytics</td>
+              <td>Vercel</td>
+              <td>Page/session metrics</td>
+              <td>No — analytics (typically no cookie)</td>
+            </tr>
+            <tr>
+              <td>Hosting / CDN</td>
+              <td>Vercel</td>
+              <td>Security and delivery</td>
+              <td>Yes — site operation</td>
+            </tr>
+            <tr>
+              <td>Google Calendar iframe</td>
+              <td>Google</td>
+              <td>
+                Only if you open “Schedule a call”; Google may set its own
+                cookies inside the iframe
+              </td>
+              <td>No — only if you use booking</td>
+            </tr>
+          </tbody>
+        </LegalTable>
         <p>
-          We may update our Privacy Policy from time to time. We will notify you
-          of any changes by posting the new Privacy Policy on this page. You are
-          advised to review this Privacy Policy periodically for any changes.
-          Changes to this Privacy Policy are effective when they are posted on
-          this page.
+          You can refuse non-essential cookies in your browser. Blocking
+          Analytics cookies does not stop the inquiry form or email. There is no
+          in-site cookie banner or consent switch in the current codebase.
         </p>
       </section>
 
       <section>
-        <h2 className="text-md font-semibold">Contact Us</h2>
-        <p>If you have any questions about this Privacy Policy, please contact us:</p>
+        <h2 className="text-md font-semibold">5. How long we keep it</h2>
         <ul>
           <li>
-            Email: <a href={`mailto:${site.email}`}>{site.email}</a>
+            Inquiries and related email: as long as needed to respond and for a
+            reasonable follow-up period, then deleted or archived unless we have
+            an ongoing engagement or a legal reason to keep them
           </li>
-          <li>Address: {site.address}</li>
+          <li>
+            Analytics: according to the retention set in Google Analytics and
+            Vercel (typically months, not indefinite identified profiles)
+          </li>
+          <li>
+            Calendar bookings: according to Google Calendar and our calendar
+          </li>
+          <li>Error reports: according to Sentry’s retention for this project</li>
+          <li>Server logs: Vercel’s default log retention</li>
         </ul>
       </section>
-    </article>
+
+      <section>
+        <h2 className="text-md font-semibold">6. Your rights</h2>
+        <p>
+          Depending on where you live (including the EEA, UK, and Georgia), you
+          may have the right to access, correct, delete, restrict, or object to
+          processing, and to data portability. You may also lodge a complaint
+          with your local supervisory authority.
+        </p>
+        <p>
+          To exercise rights, email{" "}
+          <a href={`mailto:${site.email}`}>{site.email}</a>. We will need enough
+          information to find your data (usually the email you used).
+        </p>
+        <p>
+          You can opt out of Google Analytics with{" "}
+          <a href={gaOptOutUrl}>Google’s opt-out browser add-on</a> or by
+          blocking third-party cookies.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">7. Children</h2>
+        <p>
+          The site is for adult founders and businesses. We do not knowingly
+          collect data from children under 16.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">8. Changes</h2>
+        <p>
+          We will post updates on this page and change the “Last updated” date.
+          Material changes to analytics or processors will be reflected here.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-md font-semibold">9. Contact</h2>
+        <LegalContact />
+      </section>
+    </LegalDocument>
   );
 }
