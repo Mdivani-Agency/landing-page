@@ -9,7 +9,9 @@ import {
   readContactEnv,
   validateContactPayload,
 } from "@/lib/contact";
+import { insertInquiry, toInquiryInsert } from "@/lib/inquiries";
 import { checkContactRateLimit, getClientIp } from "@/lib/rate-limit";
+import { readSupabaseAdminEnv } from "@/lib/supabase";
 
 const GENERIC_SEND_ERROR =
   "Something went wrong. Please try again or email us directly.";
@@ -105,12 +107,24 @@ export async function POST(request: Request) {
   }
 
   const env = readContactEnv();
+  const supabaseEnv = readSupabaseAdminEnv();
 
-  if (!env.ok) {
-    console.error("contact: missing env", env.missing.join(", "));
+  if (!env.ok || !supabaseEnv.ok) {
+    const missing = [
+      ...(env.ok ? [] : env.missing),
+      ...(supabaseEnv.ok ? [] : supabaseEnv.missing),
+    ];
+    console.error("contact: missing env", missing.join(", "));
     reportContactException(
-      new Error(`contact: missing env ${env.missing.join(", ")}`),
+      new Error(`contact: missing env ${missing.join(", ")}`),
     );
+    return sendFailed();
+  }
+
+  try {
+    await insertInquiry(toInquiryInsert(validated.value));
+  } catch (error) {
+    reportContactException(error);
     return sendFailed();
   }
 

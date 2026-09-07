@@ -67,7 +67,7 @@ Vercel deploy. That job needs `SUPABASE_ACCESS_TOKEN` and
 `SUPABASE_PUBLISHABLE_KEY`, which resolves to the `anon` role and stays subject
 to row level security. Writes go through `SUPABASE_SECRET_KEY`, which bypasses
 row level security and must never reach the browser — neither variable takes a
-`NEXT_PUBLIC_` prefix.
+`NEXT_PUBLIC_` prefix. Blog posts and contact inquiries share this client.
 
 Leftover Eleventy and retired marketing paths redirect permanently:
 
@@ -78,7 +78,12 @@ Leftover Eleventy and retired marketing paths redirect permanently:
 `/inquiry` is the contact form (posts to `POST /api/contact`). `/contact`
 temporarily redirects there — do not make that redirect permanent; a
 cached 308 from the old Eleventy `/contact` → `/` mapping is why the
-form does not live at `/contact`.
+form does not live at `/contact`. Valid submissions are inserted into
+the Supabase `inquiries` table (same project as blog posts) and then
+emailed through Resend. View rows in the Table Editor. Honeypot and
+invalid payloads are not stored. The table has row level security and
+no public read or write policies; inserts use `SUPABASE_SECRET_KEY` on
+the server.
 
 ## Vercel
 

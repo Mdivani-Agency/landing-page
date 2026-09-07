@@ -5,7 +5,7 @@
  * tests keep asserting behaviour — that drafts stay hidden, that the site
  * filter excludes other front ends — instead of the shape of a query.
  *
- * Only the surface `lib/blog.ts` uses is implemented.
+ * Only the surface `lib/blog.ts` and `lib/inquiries.ts` use is implemented.
  */
 
 export type FakeRow = Record<string, unknown>;
@@ -25,6 +25,7 @@ export type FakeQueryBuilder = {
     column: string,
     options?: { ascending?: boolean },
   ) => FakeQueryBuilder;
+  insert: (row: FakeRow | FakeRow[]) => FakeQueryBuilder;
   upsert: (
     row: FakeRow,
     options?: { onConflict?: string },
@@ -49,11 +50,24 @@ export function createFakeSupabase(
   function build(): FakeQueryBuilder {
     const filters: Array<(row: FakeRow) => boolean> = [];
     let order: { column: string; ascending: boolean } | null = null;
+    let pendingInsert: FakeRow | null = null;
     let pendingUpsert: FakeRow | null = null;
 
     function run(): QueryOutcome {
       if (options.error) {
         return { data: null, error: options.error };
+      }
+
+      if (pendingInsert) {
+        const stored = {
+          ...pendingInsert,
+          id:
+            typeof pendingInsert.id === "string"
+              ? pendingInsert.id
+              : "inquiry-1",
+        };
+        rows.push(stored);
+        return { data: [stored], error: null };
       }
 
       if (pendingUpsert) {
@@ -103,6 +117,10 @@ export function createFakeSupabase(
       },
       order: (column, orderOptions) => {
         order = { column, ascending: orderOptions?.ascending ?? true };
+        return builder;
+      },
+      insert: (row) => {
+        pendingInsert = Array.isArray(row) ? (row[0] ?? null) : row;
         return builder;
       },
       upsert: (row) => {

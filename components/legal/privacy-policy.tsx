@@ -22,7 +22,7 @@ export function PrivacyPolicyContent() {
       <header>
         <h1 className="text-title font-semibold">Privacy Policy</h1>
         <p className="text-xs font-medium">
-          <strong>Last updated: 1 September 2026</strong>
+          <strong>Last updated: 7 September 2026</strong>
         </p>
       </header>
 
@@ -62,7 +62,10 @@ export function PrivacyPolicyContent() {
           <li>Link to a product or site</li>
         </ul>
         <p>
-          We use a hidden honeypot field to reject spam. Do not fill it.
+          Valid submissions are stored in a private Supabase table (
+          <code>inquiries</code>) and emailed to us through Resend. We use a
+          hidden honeypot field to reject spam; those submissions are discarded
+          and are not stored. Do not fill it.
         </p>
         <p>
           <strong>Email.</strong> If you write to{" "}
@@ -178,9 +181,14 @@ export function PrivacyPolicyContent() {
             performance monitoring
           </li>
           <li>
-            <strong>Resend</strong> — inquiry submissions are accepted by our{" "}
-            <code>/api/contact</code> API on Vercel and delivered to{" "}
+            <strong>Resend</strong> — after a valid inquiry is stored, our{" "}
+            <code>/api/contact</code> API on Vercel emails it to{" "}
             <a href={`mailto:${site.email}`}>{site.email}</a>
+          </li>
+          <li>
+            <strong>Supabase</strong> — valid inquiry fields are stored in the{" "}
+            <code>inquiries</code> table so we still have the lead if email
+            delivery fails. The table is not publicly readable.
           </li>
           <li>
             <strong>Upstash (Vercel KV)</strong> — IP-based rate limiting of{" "}
@@ -192,8 +200,8 @@ export function PrivacyPolicyContent() {
           advisers under confidentiality.
         </p>
         <p>
-          Google, Vercel, Sentry, Resend, and Upstash may process data in the
-          United States. Where GDPR/UK GDPR applies, they rely on their
+          Google, Vercel, Sentry, Resend, Supabase, and Upstash may process data
+          in the United States. Where GDPR/UK GDPR applies, they rely on their
           published transfer mechanisms (including Standard Contractual
           Clauses).
         </p>
@@ -262,9 +270,10 @@ export function PrivacyPolicyContent() {
         <h2 className="text-md font-semibold">5. How long we keep it</h2>
         <ul>
           <li>
-            Inquiries and related email: as long as needed to respond and for a
-            reasonable follow-up period, then deleted or archived unless we have
-            an ongoing engagement or a legal reason to keep them
+            Inquiries stored in Supabase and related email: as long as needed to
+            respond and for a reasonable follow-up period, then deleted or
+            archived unless we have an ongoing engagement or a legal reason to
+            keep them
           </li>
           <li>
             Analytics: according to the retention set in Google Analytics and
