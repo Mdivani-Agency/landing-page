@@ -84,8 +84,27 @@ describe("testimonials", () => {
     }
   });
 
-  it("leads with the recommendation about the current engagement", () => {
-    expect(testimonials[0].author).toBe("David Espinosa");
+  it("requires a numeric weight on every quote", () => {
+    expect(testimonials.length).toBeGreaterThan(0);
+
+    for (const testimonial of testimonials) {
+      expect(typeof testimonial.weight).toBe("number");
+    }
+  });
+
+  it("gives current-engagement recommendations the highest weight", () => {
+    const weights = testimonials.map((testimonial) => testimonial.weight);
+    const maxWeight = Math.max(...weights);
+    const minWeight = Math.min(...weights);
+    const byAuthor = Object.fromEntries(
+      testimonials.map((testimonial) => [testimonial.author, testimonial.weight]),
+    );
+
+    expect(byAuthor["David Espinosa"]).toBe(maxWeight);
+    expect(byAuthor["Duncan Gordon"]).toBe(maxWeight);
+    expect(byAuthor["Nick Cousins"]).toBe(minWeight);
+    expect(byAuthor["Iosif Boanca"]).toBeGreaterThan(minWeight);
+    expect(byAuthor["Iosif Boanca"]).toBeLessThan(maxWeight);
   });
 
   it("offers exactly one pull-quote, extracted verbatim from its body", () => {
