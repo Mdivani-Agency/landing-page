@@ -70,6 +70,12 @@ describe("ContactForm", () => {
     expect(screen.getByLabelText(/project type/i)).toBeRequired();
     expect(screen.getByLabelText(/budget range/i)).not.toBeRequired();
     expect(screen.getByLabelText(/timeline/i)).toBeRequired();
+
+    const projectType = screen.getByLabelText(/project type/i);
+    expect(projectType).toHaveClass("appearance-none");
+    expect(
+      projectType.parentElement?.querySelector("svg[aria-hidden='true']"),
+    ).not.toBeNull();
     expect(screen.getByLabelText(/project description/i)).toBeRequired();
     expect(screen.getByLabelText(/link to product\/site/i)).not.toBeRequired();
 

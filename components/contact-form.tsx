@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { ChevronDownIcon } from "lucide-react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type SelectHTMLAttributes,
+} from "react";
 import { TextLink } from "@/components/text-link";
 import { trackAdsConversionAboutUs } from "@/lib/analytics";
 import {
@@ -39,7 +46,9 @@ const emptyValues = {
 const HONEYPOT_INPUT_ID = "contact-company-fax";
 
 const inputClass =
-  "w-full rounded-card border border-subtle bg-card p-2 text-sm text-primary placeholder:text-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-secondary";
+  "w-full rounded-card border border-subtle bg-card p-2 text-sm text-primary placeholder:text-muted/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-secondary";
+
+const selectClass = `${inputClass} appearance-none bg-none pr-5 [&::-ms-expand]:hidden`;
 
 const labelClass = "text-xs uppercase tracking-caps text-secondary";
 
@@ -56,7 +65,7 @@ function errorId(name: FieldName) {
 
 function RequiredMark() {
   return (
-    <span aria-hidden="true" className="text-secondary">
+    <span aria-hidden="true" className="text-destructive">
       {" "}
       *
     </span>
@@ -69,9 +78,26 @@ function FieldError({ name, message }: { name: FieldName; message?: string }) {
   }
 
   return (
-    <p id={errorId(name)} className="text-xs text-secondary">
+    <p id={errorId(name)} className="text-xs text-destructive">
       {message}
     </p>
+  );
+}
+
+function SelectField({
+  children,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div className="relative">
+      <select {...props} className={selectClass}>
+        {children}
+      </select>
+      <ChevronDownIcon
+        aria-hidden="true"
+        className="pointer-events-none absolute right-2 top-1/2 size-2 -translate-y-1/2 text-muted"
+      />
+    </div>
   );
 }
 
@@ -187,10 +213,13 @@ export function ContactForm() {
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-2 md:grid-cols-2">
       <div className="flex flex-col gap-0.5">
-        <label htmlFor={fieldId("name")} className={labelClass}>
-          Name
-          <RequiredMark />
-        </label>
+        <div className="flex items-center justify-between gap-1">
+          <label htmlFor={fieldId("name")} className={labelClass}>
+            Name
+            <RequiredMark />
+          </label>
+          <FieldError name="name" message={errors.name} />
+        </div>
         <input
           id={fieldId("name")}
           name="name"
@@ -203,14 +232,16 @@ export function ContactForm() {
           aria-describedby={errors.name ? errorId("name") : undefined}
           className={inputClass}
         />
-        <FieldError name="name" message={errors.name} />
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <label htmlFor={fieldId("email")} className={labelClass}>
-          Email
-          <RequiredMark />
-        </label>
+        <div className="flex items-center justify-between gap-1">
+          <label htmlFor={fieldId("email")} className={labelClass}>
+            Email
+            <RequiredMark />
+          </label>
+          <FieldError name="email" message={errors.email} />
+        </div>
         <input
           id={fieldId("email")}
           name="email"
@@ -223,13 +254,16 @@ export function ContactForm() {
           aria-describedby={errors.email ? errorId("email") : undefined}
           className={inputClass}
         />
-        <FieldError name="email" message={errors.email} />
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <label htmlFor={fieldId("company")} className={labelClass}>
-          Company
-        </label>
+        <div className="flex items-center justify-between gap-1">
+          <label htmlFor={fieldId("company")} className={labelClass}>
+            Company
+            <RequiredMark />
+          </label>
+          <FieldError name="company" message={errors.company} />
+        </div>
         <input
           id={fieldId("company")}
           name="company"
@@ -241,15 +275,17 @@ export function ContactForm() {
           aria-describedby={errors.company ? errorId("company") : undefined}
           className={inputClass}
         />
-        <FieldError name="company" message={errors.company} />
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <label htmlFor={fieldId("projectType")} className={labelClass}>
-          Project type
-          <RequiredMark />
-        </label>
-        <select
+        <div className="flex items-center justify-between gap-1">
+          <label htmlFor={fieldId("projectType")} className={labelClass}>
+            Project type
+            <RequiredMark />
+          </label>
+          <FieldError name="projectType" message={errors.projectType} />
+        </div>
+        <SelectField
           id={fieldId("projectType")}
           name="projectType"
           required
@@ -259,7 +295,6 @@ export function ContactForm() {
           aria-describedby={
             errors.projectType ? errorId("projectType") : undefined
           }
-          className={inputClass}
         >
           <option value="" disabled>
             Select…
@@ -269,22 +304,24 @@ export function ContactForm() {
               {option}
             </option>
           ))}
-        </select>
-        <FieldError name="projectType" message={errors.projectType} />
+        </SelectField>
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <label htmlFor={fieldId("budget")} className={labelClass}>
-          Budget range
-        </label>
-        <select
+        <div className="flex items-center justify-between gap-1">
+          <label htmlFor={fieldId("budget")} className={labelClass}>
+            Budget range
+            <RequiredMark />
+          </label>
+          <FieldError name="budget" message={errors.budget} />
+        </div>
+        <SelectField
           id={fieldId("budget")}
           name="budget"
           value={values.budget}
           onChange={(event) => updateField("budget", event.target.value)}
           aria-invalid={errors.budget ? true : undefined}
           aria-describedby={errors.budget ? errorId("budget") : undefined}
-          className={inputClass}
         >
           <option value="">Select…</option>
           {BUDGETS.map((option) => (
@@ -292,16 +329,18 @@ export function ContactForm() {
               {option}
             </option>
           ))}
-        </select>
-        <FieldError name="budget" message={errors.budget} />
+        </SelectField>
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <label htmlFor={fieldId("timeline")} className={labelClass}>
-          Timeline
-          <RequiredMark />
-        </label>
-        <select
+        <div className="flex items-center justify-between gap-1">
+          <label htmlFor={fieldId("timeline")} className={labelClass}>
+            Timeline
+            <RequiredMark />
+          </label>
+          <FieldError name="timeline" message={errors.timeline} />
+        </div>
+        <SelectField
           id={fieldId("timeline")}
           name="timeline"
           required
@@ -309,7 +348,6 @@ export function ContactForm() {
           onChange={(event) => updateField("timeline", event.target.value)}
           aria-invalid={errors.timeline ? true : undefined}
           aria-describedby={errors.timeline ? errorId("timeline") : undefined}
-          className={inputClass}
         >
           <option value="" disabled>
             Select…
@@ -319,15 +357,17 @@ export function ContactForm() {
               {option}
             </option>
           ))}
-        </select>
-        <FieldError name="timeline" message={errors.timeline} />
+        </SelectField>
       </div>
 
       <div className="flex flex-col gap-0.5 md:col-span-2">
-        <label htmlFor={fieldId("description")} className={labelClass}>
-          Project description
-          <RequiredMark />
-        </label>
+        <div className="flex items-center justify-between gap-1">
+          <label htmlFor={fieldId("description")} className={labelClass}>
+            Project description
+            <RequiredMark />
+          </label>
+          <FieldError name="description" message={errors.description} />
+        </div>
         <textarea
           id={fieldId("description")}
           name="description"
@@ -341,26 +381,28 @@ export function ContactForm() {
           }
           className={inputClass}
         />
-        <FieldError name="description" message={errors.description} />
       </div>
 
       <div className="flex flex-col gap-0.5 md:col-span-2">
-        <label htmlFor={fieldId("link")} className={labelClass}>
-          Link to product/site
-        </label>
+        <div className="flex items-center justify-between gap-1">
+          <label htmlFor={fieldId("link")} className={labelClass}>
+            Link to product/site
+            <RequiredMark />
+          </label>
+          <FieldError name="link" message={errors.link} />
+        </div>
         <input
           id={fieldId("link")}
           name="link"
           type="url"
           inputMode="url"
-          placeholder="https://"
+          placeholder="https://example.com"
           value={values.link}
           onChange={(event) => updateField("link", event.target.value)}
           aria-invalid={errors.link ? true : undefined}
           aria-describedby={errors.link ? errorId("link") : undefined}
           className={inputClass}
         />
-        <FieldError name="link" message={errors.link} />
       </div>
 
       <div

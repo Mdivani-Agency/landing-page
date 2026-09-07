@@ -20,6 +20,7 @@ module.exports = {
         muted: "var(--text-muted)",
         subtle: "var(--border-subtle)",
         card: "var(--card-bg)",
+        destructive: "var(--destructive)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "DM Sans", "sans-serif"],
