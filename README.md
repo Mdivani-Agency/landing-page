@@ -79,11 +79,12 @@ Leftover Eleventy and retired marketing paths redirect permanently:
 temporarily redirects there — do not make that redirect permanent; a
 cached 308 from the old Eleventy `/contact` → `/` mapping is why the
 form does not live at `/contact`. Valid submissions are inserted into
-the Supabase `inquiries` table (same project as blog posts) and then
-emailed through Resend. View rows in the Table Editor. Honeypot and
-invalid payloads are not stored. The table has row level security and
-no public read or write policies; inserts use `SUPABASE_SECRET_KEY` on
-the server.
+the Supabase `inquiries` table (same project as blog posts) and emailed
+through Resend. Either channel succeeding still returns success, so a
+persist outage does not drop the email and a Resend outage does not hide
+a stored lead. View rows in the Table Editor. Honeypot and invalid
+payloads are not stored. The table has row level security and no public
+read or write policies; inserts use `SUPABASE_SECRET_KEY` on the server.
 
 ## Vercel
 

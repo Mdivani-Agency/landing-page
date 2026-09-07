@@ -207,19 +207,14 @@ describe("POST /api/contact", () => {
     expect(insertInquiry).toHaveBeenCalledTimes(CONTACT_RATE_LIMIT_MAX_REQUESTS);
   });
 
-  it("returns a generic 500 when env vars are missing", async () => {
+  it("still persists when Resend env vars are missing", async () => {
     vi.stubEnv("RESEND_API_KEY", "");
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const { POST } = await importRoute();
     const response = await POST(postRequest(validPayload));
 
-    expect(response.status).toBe(500);
-    await expect(response.json()).resolves.toEqual({
-      ok: false,
-      errors: {
-        form: "Something went wrong. Please try again or email us directly.",
-      },
-    });
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ ok: true });
     expect(error).toHaveBeenCalledWith("contact: missing env", "RESEND_API_KEY");
     expect(captureException).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -229,13 +224,30 @@ describe("POST /api/contact", () => {
         tags: { area: "contact" },
       }),
     );
+    expect(insertInquiry).toHaveBeenCalledTimes(1);
     expect(send).not.toHaveBeenCalled();
-    expect(insertInquiry).not.toHaveBeenCalled();
   });
 
-  it("returns a generic 500 when Supabase env vars are missing", async () => {
+  it("still emails when Supabase env vars are missing", async () => {
     vi.stubEnv("SUPABASE_SECRET_KEY", "");
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { POST } = await importRoute();
+    const response = await POST(postRequest(validPayload));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ ok: true });
+    expect(error).toHaveBeenCalledWith(
+      "contact: missing env",
+      "SUPABASE_SECRET_KEY",
+    );
+    expect(insertInquiry).not.toHaveBeenCalled();
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns a generic 500 when both persist and email env vars are missing", async () => {
+    vi.stubEnv("RESEND_API_KEY", "");
+    vi.stubEnv("SUPABASE_SECRET_KEY", "");
+    vi.spyOn(console, "error").mockImplementation(() => {});
     const { POST } = await importRoute();
     const response = await POST(postRequest(validPayload));
 
@@ -246,29 +258,20 @@ describe("POST /api/contact", () => {
         form: "Something went wrong. Please try again or email us directly.",
       },
     });
-    expect(error).toHaveBeenCalledWith(
-      "contact: missing env",
-      "SUPABASE_SECRET_KEY",
-    );
     expect(insertInquiry).not.toHaveBeenCalled();
     expect(send).not.toHaveBeenCalled();
   });
 
-  it("returns a generic 500 when the inquiry insert fails and does not email", async () => {
+  it("still emails when the inquiry insert fails", async () => {
     insertInquiry.mockRejectedValue(new Error("contact: inquiry insert failed"));
     const { POST } = await importRoute();
     const response = await POST(postRequest(validPayload));
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body).toEqual({
-      ok: false,
-      errors: {
-        form: "Something went wrong. Please try again or email us directly.",
-      },
-    });
+    expect(body).toEqual({ ok: true });
     expect(JSON.stringify(body)).not.toContain("inquiry insert failed");
-    expect(send).not.toHaveBeenCalled();
+    expect(send).toHaveBeenCalledTimes(1);
     expect(captureException).toHaveBeenCalledWith(
       expect.objectContaining({
         message: "contact: inquiry insert failed",
@@ -279,20 +282,15 @@ describe("POST /api/contact", () => {
     );
   });
 
-  it("returns a generic 500 when Resend fails", async () => {
+  it("still succeeds when Resend fails after a persisted row", async () => {
     send.mockResolvedValue({ data: null, error: { message: "secret" } });
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const { POST } = await importRoute();
     const response = await POST(postRequest(validPayload));
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body).toEqual({
-      ok: false,
-      errors: {
-        form: "Something went wrong. Please try again or email us directly.",
-      },
-    });
+    expect(body).toEqual({ ok: true });
     expect(JSON.stringify(body)).not.toContain("secret");
     expect(error).toHaveBeenCalledWith("contact: resend failed", {
       message: "secret",
@@ -310,6 +308,25 @@ describe("POST /api/contact", () => {
     expect(insertInquiry).toHaveBeenCalledTimes(1);
   });
 
+  it("returns a generic 500 when persist and email both fail", async () => {
+    insertInquiry.mockRejectedValue(new Error("contact: inquiry insert failed"));
+    send.mockResolvedValue({ data: null, error: { message: "secret" } });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const { POST } = await importRoute();
+    const response = await POST(postRequest(validPayload));
+
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body).toEqual({
+      ok: false,
+      errors: {
+        form: "Something went wrong. Please try again or email us directly.",
+      },
+    });
+    expect(JSON.stringify(body)).not.toContain("secret");
+    expect(JSON.stringify(body)).not.toContain("inquiry insert failed");
+  });
+
   it("includes the Resend status code when reporting a send error", async () => {
     send.mockResolvedValue({
       data: null,
@@ -319,7 +336,7 @@ describe("POST /api/contact", () => {
     const { POST } = await importRoute();
     const response = await POST(postRequest(validPayload));
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(200);
     expect(captureException).toHaveBeenCalledWith(
       expect.objectContaining({ message: "rate limited" }),
       expect.objectContaining({
@@ -327,6 +344,7 @@ describe("POST /api/contact", () => {
         extra: { statusCode: 429 },
       }),
     );
+    expect(insertInquiry).toHaveBeenCalledTimes(1);
   });
 });
 
