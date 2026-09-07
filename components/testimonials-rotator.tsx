@@ -5,12 +5,16 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type PointerEvent,
 } from "react";
 import { Card } from "@/components/card";
 import { LinkedInIcon } from "@/components/icons";
 import type { Testimonial } from "@/lib/content";
-import { orderTestimonialsByWeight } from "@/lib/testimonials";
+import {
+  orderTestimonialsByWeight,
+  sortTestimonialsByWeight,
+} from "@/lib/testimonials";
 
 const IDLE_MS = 5000;
 const FADE_MS = 400;
@@ -29,8 +33,46 @@ function nextIndex(current: number, length: number) {
   return (current + 1) % length;
 }
 
+type PlaylistCache = {
+  items: readonly Testimonial[];
+  playlist: Testimonial[];
+};
+
+function subscribeNever() {
+  return () => {};
+}
+
+function readCachedPlaylist(
+  cache: { current: PlaylistCache | null },
+  items: readonly Testimonial[],
+  build: (items: readonly Testimonial[]) => Testimonial[],
+) {
+  let cached = cache.current;
+
+  if (cached?.items !== items) {
+    cached = { items, playlist: build(items) };
+    cache.current = cached;
+  }
+
+  return cached.playlist;
+}
+
+function useSessionPlaylist(items: readonly Testimonial[]) {
+  const clientCache = useRef<PlaylistCache | null>(null);
+  const serverCache = useRef<PlaylistCache | null>(null);
+
+  // Server snapshot is weight-sorted and stable so SSR HTML hydrates.
+  // Client snapshot shuffles equal-weight ties once per mount.
+  return useSyncExternalStore(
+    subscribeNever,
+    () =>
+      readCachedPlaylist(clientCache, items, orderTestimonialsByWeight),
+    () => readCachedPlaylist(serverCache, items, sortTestimonialsByWeight),
+  );
+}
+
 export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) {
-  const [playlist] = useState(() => orderTestimonialsByWeight(testimonials));
+  const playlist = useSessionPlaylist(testimonials);
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
   const [paused, setPaused] = useState(false);

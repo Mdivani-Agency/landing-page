@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { Testimonial } from "@/lib/content";
-import { orderTestimonialsByWeight } from "@/lib/testimonials";
+import { testimonials, type Testimonial } from "@/lib/content";
+import {
+  orderTestimonialsByWeight,
+  sortTestimonialsByWeight,
+} from "@/lib/testimonials";
 
 function quote(author: string, weight: number): Testimonial {
   return {
@@ -90,5 +93,40 @@ describe("orderTestimonialsByWeight", () => {
 
     expect(orderTestimonialsByWeight(items)).toEqual([]);
     expect(orderTestimonialsByWeight(items)).not.toBe(items);
+  });
+});
+
+describe("sortTestimonialsByWeight", () => {
+  it("keeps original order for equal weights", () => {
+    const items = [quote("First", 100), quote("Second", 100), quote("Low", 1)];
+
+    expect(
+      sortTestimonialsByWeight(items).map((item) => item.author),
+    ).toEqual(["First", "Second", "Low"]);
+  });
+});
+
+describe("homepage testimonials playlist", () => {
+  it("always leads with a max-weight quote and ends with the min-weight quote", () => {
+    const weights = testimonials.map((testimonial) => testimonial.weight);
+    const maxWeight = Math.max(...weights);
+    const minWeight = Math.min(...weights);
+    const firstAuthors = new Set<string>();
+
+    for (let index = 0; index < 40; index += 1) {
+      const playlist = orderTestimonialsByWeight(testimonials);
+
+      expect(playlist[0]?.weight).toBe(maxWeight);
+      expect(playlist.at(-1)?.weight).toBe(minWeight);
+      expect(playlist.map((item) => item.weight)).toEqual(
+        [...weights].sort((left, right) => right - left),
+      );
+
+      if (playlist[0]) {
+        firstAuthors.add(playlist[0].author);
+      }
+    }
+
+    expect(firstAuthors.size).toBeGreaterThan(1);
   });
 });

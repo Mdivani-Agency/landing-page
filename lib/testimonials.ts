@@ -8,6 +8,15 @@ function shuffleInPlace<T>(items: T[], random: () => number) {
 }
 
 /**
+ * Weight descending, original order kept for ties. Safe for SSR/hydration.
+ */
+export function sortTestimonialsByWeight(
+  items: readonly Testimonial[],
+): Testimonial[] {
+  return [...items].sort((left, right) => right.weight - left.weight);
+}
+
+/**
  * Returns a new array: weight descending, ties shuffled. Does not mutate input.
  */
 export function orderTestimonialsByWeight(
