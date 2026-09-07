@@ -9,7 +9,9 @@ import {
   readContactEnv,
   validateContactPayload,
 } from "@/lib/contact";
+import { insertInquiry, toInquiryInsert } from "@/lib/inquiries";
 import { checkContactRateLimit, getClientIp } from "@/lib/rate-limit";
+import { readSupabaseAdminEnv } from "@/lib/supabase";
 
 const GENERIC_SEND_ERROR =
   "Something went wrong. Please try again or email us directly.";
@@ -105,40 +107,68 @@ export async function POST(request: Request) {
   }
 
   const env = readContactEnv();
+  const supabaseEnv = readSupabaseAdminEnv();
 
   if (!env.ok) {
     console.error("contact: missing env", env.missing.join(", "));
     reportContactException(
       new Error(`contact: missing env ${env.missing.join(", ")}`),
     );
-    return sendFailed();
   }
 
-  const { subject, text } = formatContactEmail(validated.value);
+  if (!supabaseEnv.ok) {
+    console.error("contact: missing env", supabaseEnv.missing.join(", "));
+    reportContactException(
+      new Error(`contact: missing env ${supabaseEnv.missing.join(", ")}`),
+    );
+  }
 
-  try {
-    const resend = new Resend(env.apiKey);
-    const { error } = await resend.emails.send({
-      from: `Mdivani Website <${env.fromEmail}>`,
-      to: env.toEmail,
-      replyTo: validated.value.email,
-      subject,
-      text,
-    });
-
-    if (error) {
-      console.error("contact: resend failed", error);
-      reportContactException(error, {
-        statusCode:
-          "statusCode" in error && typeof error.statusCode === "number"
-            ? error.statusCode
-            : undefined,
-      });
-      return sendFailed();
+  // Persist and email are independent. Either channel succeeding is enough
+  // for the visitor: a missing `inquiries` table must not drop the Resend
+  // lead, and a Resend outage must not look like a failed submit after the
+  // row is already stored.
+  let persisted = false;
+  if (supabaseEnv.ok) {
+    try {
+      await insertInquiry(toInquiryInsert(validated.value));
+      persisted = true;
+    } catch (error) {
+      reportContactException(error);
     }
-  } catch (error) {
-    console.error("contact: resend failed", error);
-    reportContactException(error);
+  }
+
+  let emailed = false;
+  if (env.ok) {
+    const { subject, text } = formatContactEmail(validated.value);
+
+    try {
+      const resend = new Resend(env.apiKey);
+      const { error } = await resend.emails.send({
+        from: `Mdivani Website <${env.fromEmail}>`,
+        to: env.toEmail,
+        replyTo: validated.value.email,
+        subject,
+        text,
+      });
+
+      if (error) {
+        console.error("contact: resend failed", error);
+        reportContactException(error, {
+          statusCode:
+            "statusCode" in error && typeof error.statusCode === "number"
+              ? error.statusCode
+              : undefined,
+        });
+      } else {
+        emailed = true;
+      }
+    } catch (error) {
+      console.error("contact: resend failed", error);
+      reportContactException(error);
+    }
+  }
+
+  if (!persisted && !emailed) {
     return sendFailed();
   }
 
