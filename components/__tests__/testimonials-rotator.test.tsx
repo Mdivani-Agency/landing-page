@@ -11,16 +11,19 @@ const testimonials: readonly Testimonial[] = [
     author: "Ada Lovelace",
     linkedinUrl: "https://www.linkedin.com/in/ada/",
     body: "First quote",
+    weight: 100,
   },
   {
     author: "Grace Hopper",
     linkedinUrl: "https://www.linkedin.com/in/grace/",
     body: "Second quote",
+    weight: 50,
   },
   {
     author: "Alan Turing",
     linkedinUrl: "https://www.linkedin.com/in/alan/",
     body: "Third quote",
+    weight: 1,
   },
 ];
 
@@ -39,8 +42,6 @@ function expectActiveFigure(activeIndex: number) {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  // nextIndex picks a random other testimonial; pin it to "the next one".
-  vi.spyOn(Math, "random").mockReturnValue(0);
 });
 
 afterEach(() => {
@@ -80,6 +81,11 @@ describe("TestimonialsRotator", () => {
       vi.advanceTimersByTime(IDLE_MS + FADE_MS);
     });
     expectActiveFigure(2);
+
+    act(() => {
+      vi.advanceTimersByTime(IDLE_MS + FADE_MS);
+    });
+    expectActiveFigure(0);
   });
 
   it("does not rotate a single testimonial", () => {
@@ -173,5 +179,26 @@ describe("TestimonialsRotator", () => {
       vi.advanceTimersByTime(IDLE_MS + FADE_MS);
     });
     expectActiveFigure(1);
+  });
+
+  it("cycles the playlist in weight order even when the source array is not", () => {
+    render(
+      <TestimonialsRotator
+        testimonials={[testimonials[2], testimonials[1], testimonials[0]]}
+      />,
+    );
+
+    expect(screen.getByText("First quote")).toBeInTheDocument();
+    expectActiveFigure(0);
+
+    act(() => {
+      vi.advanceTimersByTime(IDLE_MS + FADE_MS);
+    });
+    expectActiveFigure(1);
+
+    act(() => {
+      vi.advanceTimersByTime(IDLE_MS + FADE_MS);
+    });
+    expectActiveFigure(2);
   });
 });

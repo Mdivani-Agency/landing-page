@@ -5,11 +5,16 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type PointerEvent,
 } from "react";
 import { Card } from "@/components/card";
 import { LinkedInIcon } from "@/components/icons";
 import type { Testimonial } from "@/lib/content";
+import {
+  orderTestimonialsByWeight,
+  sortTestimonialsByWeight,
+} from "@/lib/testimonials";
 
 const IDLE_MS = 5000;
 const FADE_MS = 400;
@@ -25,10 +30,49 @@ function nextIndex(current: number, length: number) {
     return current;
   }
 
-  return (current + 1 + Math.floor(Math.random() * (length - 1))) % length;
+  return (current + 1) % length;
+}
+
+type PlaylistCache = {
+  items: readonly Testimonial[];
+  playlist: Testimonial[];
+};
+
+function subscribeNever() {
+  return () => {};
+}
+
+function readCachedPlaylist(
+  cache: { current: PlaylistCache | null },
+  items: readonly Testimonial[],
+  build: (items: readonly Testimonial[]) => Testimonial[],
+) {
+  let cached = cache.current;
+
+  if (cached?.items !== items) {
+    cached = { items, playlist: build(items) };
+    cache.current = cached;
+  }
+
+  return cached.playlist;
+}
+
+function useSessionPlaylist(items: readonly Testimonial[]) {
+  const clientCache = useRef<PlaylistCache | null>(null);
+  const serverCache = useRef<PlaylistCache | null>(null);
+
+  // Server snapshot is weight-sorted and stable so SSR HTML hydrates.
+  // Client snapshot shuffles equal-weight ties once per mount.
+  return useSyncExternalStore(
+    subscribeNever,
+    () =>
+      readCachedPlaylist(clientCache, items, orderTestimonialsByWeight),
+    () => readCachedPlaylist(serverCache, items, sortTestimonialsByWeight),
+  );
 }
 
 export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) {
+  const playlist = useSessionPlaylist(testimonials);
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
   const [paused, setPaused] = useState(false);
@@ -142,7 +186,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
         cancelled ||
         pausedRef.current ||
         fadingRef.current ||
-        testimonials.length < 2
+        playlist.length < 2
       ) {
         return;
       }
@@ -152,7 +196,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
           return;
         }
 
-        const upcoming = nextIndex(indexRef.current, testimonials.length);
+        const upcoming = nextIndex(indexRef.current, playlist.length);
 
         if (reduceMotionRef.current) {
           setIndex(upcoming);
@@ -186,7 +230,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
       clearIdle();
       window.clearTimeout(fadeTimer);
     };
-  }, [testimonials.length]);
+  }, [playlist.length]);
 
   const applyPaused = useCallback(() => {
     const next = reasonsRef.current.size > 0;
@@ -276,7 +320,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
     toggleSticky();
   };
 
-  if (testimonials.length === 0) {
+  if (playlist.length === 0) {
     return null;
   }
 
@@ -295,7 +339,7 @@ export function TestimonialsRotator({ testimonials }: TestimonialsRotatorProps) 
         onPointerEnter={() => addReason("hover")}
         onPointerLeave={() => removeReason("hover")}
       >
-        {testimonials.map((testimonial, itemIndex) => {
+        {playlist.map((testimonial, itemIndex) => {
           const isActive = itemIndex === index;
           const isVisible = isActive && visible;
           const paragraphs = testimonial.body.split(/\n\n+/);
