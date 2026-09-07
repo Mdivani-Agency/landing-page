@@ -216,6 +216,11 @@ export type Testimonial = {
   title?: string;
   linkedinUrl: string;
   /**
+   * Homepage rotator priority. Higher values lead; equal weights shuffle
+   * among themselves for the session playlist.
+   */
+  weight: number;
+  /**
    * Verbatim extract used for the homepage pull-quote. Quotes are published
    * recommendations, so an extract has to be a contiguous span of the body —
    * never a reworded version of it.
@@ -223,13 +228,12 @@ export type Testimonial = {
   pullQuote?: string;
 };
 
-// David leads: the rotator opens on the first entry, and his recommendation is
-// the only one written about the current senior-partner engagement.
 export const testimonials = [
   {
     author: "David Espinosa",
     linkedinUrl: "https://www.linkedin.com/in/espinosa-david/",
     title: "CTO at Eolas Medical",
+    weight: 100,
     pullQuote:
       "Giorgi is the best example of what a full-stack engineer should be. He can work in any part of a product's life cycle.",
     body: "Giorgi is the best example of what a full-stack engineer should be. He can work in any part of a product's life cycle. From its design, through the backend implementation, the creation of the infrastructure, as well as the visual layer where he can work great both on the web and on mobile.\n\nBut even so, what I will always remember most about having worked with him is how easy it is to work with him, always a pleasure, without a doubt he is a great team player.\n\nGiorgi would be an asset to any team and earns my highest recommendation.",
@@ -237,18 +241,21 @@ export const testimonials = [
   {
     author: "Iosif Boanca",
     linkedinUrl: "https://www.linkedin.com/in/iosifb/",
+    weight: 50,
     body: "If you have the chance to get Giorgi on your team, your team's productivity will explode.",
   },
   {
     author: "Nick Cousins",
     title: "Founder/CEO at Relative",
     linkedinUrl: "https://www.linkedin.com/in/nickcousins/",
+    weight: 1,
     body: "I hired George in 2018 as a contractor, and only the second developer I'd hired into my new company - Relative. The plan was for him - as a remote developer on the other side of the world - to help us out for a few weeks while we were under pressure. I was very wrong. George is quite simply one of the most incredible developers I've ever worked with.",
   },
   {
     author: "Duncan Gordon",
     title: "PMO at Pinter",
     linkedinUrl: "https://www.linkedin.com/in/duncansgordon/",
+    weight: 100,
     body: "I could not speak more highly of George. As a start-up growing extremely quickly as well as being in another country and time-zone, there were a lot of difficult expectations and pressures placed on George but he took them all in stride and was critical to the build, launch and success of our mobile app. Always happy to go the extra mile and able to execute a very high level even no matter what the stresses and circumstances. George's spread of knowledge and skills as well as his ability to adapt/learn/execute on the fly is extremely impressive.",
   },
 ] satisfies readonly Testimonial[];
