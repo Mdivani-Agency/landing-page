@@ -14,12 +14,14 @@ describe("legal pages", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Privacy Policy" }),
     ).toBeInTheDocument();
-    expect(container.textContent).toContain("Last updated: 1 September 2026");
+    expect(container.textContent).toContain("Last updated: 7 September 2026");
     expect(container.textContent).toContain(DOCUMENTED_GA_MEASUREMENT_ID);
     expect(container.textContent).not.toContain("G-GRS8QP3EG6");
     expect(container.textContent).toContain("Vercel Web Analytics");
     expect(container.textContent).toContain("Sentry");
     expect(container.textContent).toContain("Resend");
+    expect(container.textContent).toContain("Supabase");
+    expect(container.textContent).toContain("inquiries");
     expect(container.textContent).toContain("ads_conversion_About_Us_1");
     expect(container.textContent).toContain("Upstash");
     expect(container.textContent).toContain("/api/contact");

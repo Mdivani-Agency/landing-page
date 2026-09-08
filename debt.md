@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-04 (MDI-103 review: TD-050 recorded)
+Last updated: 2026-09-07 (MDI-118 review: TD-051, TD-052 recorded)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -184,6 +184,26 @@ removes reliable distributed throttling from `/api/contact`.
 **Remediation:** Validate required rate-limit variables during production
 deployment, add monitoring for store failures, and consider a Vercel Firewall
 rule. Decide explicitly whether production should fail open or closed.
+
+### TD-051 — Inquiry retries can duplicate rows after a Resend miss
+
+**Severity:** Medium  
+**Area:** Reliability / Contact form
+
+`POST /api/contact` now returns 200 if the `inquiries` insert succeeded even
+when Resend fails, so the visitor is not told to retry solely because email
+delivery missed. There is still no `emailed_at` column and no reuse of a
+recent row for the same email + description. A client timeout, refresh, or
+later “try again” still inserts another row. Table Editor also cannot show
+whether the notification email went out.
+
+**Impact:** Duplicate leads during Resend incidents; operators cannot tell a
+stored inquiry from a notified one without checking the inbox.
+
+**Remediation:** Add `emailed_at timestamptz` (null until send succeeds) and
+set it after a successful Resend call. If retries must re-send mail, look up
+a recent matching row instead of inserting again. Recorded from MDI-118
+review; out of scope for the persist dual-write change.
 
 ### TD-012 — Testimonials behavior is complex and has interaction edge cases
 
@@ -472,6 +492,29 @@ localhost or production. Preview-host writes are not a supported path today.
 **Remediation:** If preview publishing becomes a real workflow, add an explicit
 allowlist of known Vercel hostnames (not a `*.vercel.app` wildcard) and keep
 `redirect: "error"` on the token-bearing fetch.
+
+### TD-052 — `inquiries` has no CHECK integrity floor
+
+**Severity:** Low  
+**Area:** Contact form / Schema
+
+`public.inquiries` stores `project_type`, `timeline`, `budget`, and the
+free-text fields as unconstrained `text`. `blog_posts` encodes an integrity
+floor with CHECK constraints. The validated `POST /api/contact` path is the
+only writer today, so this is not an access-control hole, but a Table Editor
+edit or a later second writer can store values `validateContactPayload`
+would reject (empty `project_type`, overlong description).
+
+**Impact:** Filtering by the form enums silently misses dashboard-edited
+rows. Hardcoding `PROJECT_TYPES` / `BUDGETS` / `TIMELINES` in SQL will drift
+the next time the form options change (MDI-95 already dropped `< $10k`).
+
+**Remediation:** Add CHECKs that match `lib/contact.ts` (enum membership plus
+`char_length` bounds), or generate them from the same source. If the table
+already exists, use the idempotent `DO $$ ... pg_constraint ...` pattern —
+Postgres has no `ADD CONSTRAINT IF NOT EXISTS`. Recorded from MDI-118
+review; left out of that migration so form option changes do not require a
+schema deploy.
 
 ### TD-022 — Duplicated SVG sources and unused assets remain
 
@@ -777,7 +820,8 @@ These are not automatically defects:
 3. Verify production rate-limit configuration (TD-011), add a Firewall
    rule for the Sentry tunnel (TD-042), and confirm the first
    `migrate_supabase` apply (TD-044, TD-045). Set `BLOG_WRITE_TOKEN` on
-   Vercel only once that apply succeeds.
+   Vercel only once that apply succeeds. Inquiry `emailed_at` / retry
+   dedupe is TD-051.
 4. Simplify and harden testimonial and calendar interactions (TD-012–TD-014,
    TD-043).
 5. Decide analytics/consent and add security headers (TD-015, TD-016).
