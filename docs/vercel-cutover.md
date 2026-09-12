@@ -26,11 +26,14 @@ Production deploys are gated on GitHub Actions in `.github/workflows/ci.yml`:
   duplicate `push` pipeline.
 - `migrate_supabase` runs only on push to `development`, after `lint`,
   `test`, and `build` succeed, and before `deploy_production`. It links
-  with `SUPABASE_PROJECT_REF` and applies pending migrations via
+  with `SUPABASE_PROJECT_REF` and   applies pending migrations via
   `supabase db push` (CLI `2.116.0`). The job is not gated on a file glob —
   `db push` is idempotent, and a glob would skip retries after a failed
   apply. A `concurrency` group (`supabase-migrations`) serializes applies
-  so two workflows cannot race.
+  so two workflows cannot race. After the group is acquired, the job
+  skips `db push` unless `github.sha` is still `origin/development`.
+  `timeout-minutes: 20` stops a hung CLI from holding the group for the
+  runner default (6 hours).
 - `deploy_production` runs only on push to `development`, only after all
   three check jobs pass and after `migrate_supabase`, and deploys with the
   Vercel CLI (`vercel pull` → `vercel build --prod` →
@@ -41,7 +44,10 @@ Production deploys are gated on GitHub Actions in `.github/workflows/ci.yml`:
   the CLI rejects a personal account as `--scope`. The CLI version is
   pinned in `devDependencies` and authenticates via the `VERCEL_TOKEN`
   environment variable. A `concurrency` group (`vercel-production`)
-  serializes deploys so an older workflow cannot overwrite a newer one.
+  serializes deploys. After the group is acquired, the job skips deploy
+  unless `github.sha` is still `origin/development`, so a slower older
+  run cannot overwrite a newer production deploy. `timeout-minutes: 20`
+  matches migrate.
 - `vercel.json` sets `git.deploymentEnabled` to `false` for `development`
   and `main`, so the Vercel Git integration no longer auto-deploys those
   branches. Keep that. Other branches still get preview deploys from the
@@ -52,14 +58,18 @@ laptop; production stays CI-gated.
 
 ### GitHub Actions secrets
 
-Create these in the GitHub repo. Do not commit values. The repo is public,
-so tokens must stay off pull-request jobs.
+Create these in the GitHub repo. Do not commit values. **Do not use
+repository secrets** for these tokens. Same-repo `pull_request` workflows
+can read repository `secrets.*`, including from a branch that edits
+`.github/workflows/ci.yml`. Environment secrets are only injected when a
+job declares that environment, and only if the ref is allowed.
 
 Create a GitHub Environment named **`production`** with URL
-`https://mdivani.agency`. Put the Vercel trio on that environment only
-(`Settings` → `Environments` → `production` → `Environment secrets`).
+`https://mdivani.agency`. Restrict **Deployment branches** to `development`
+only. Put the Vercel trio on that environment only (`Settings` →
+`Environments` → `production` → `Environment secrets`).
 `deploy_production` declares `environment: production`, so only that job
-receives them:
+receives them, and only from `development`:
 
 | Name | Where | What to set |
 | --- | --- | --- |
@@ -70,19 +80,20 @@ receives them:
 A preflight exits if any of the three Vercel secrets is missing. Set
 `VERCEL_ORG_ID` to the user's `user.id`, not the dashboard username.
 
-`migrate_supabase` does not use the `production` environment. Set these as
-**repository** secrets (`Settings` → `Secrets and variables` → `Actions`).
-Do not scope them to `production` only, or the migrate job cannot read them:
+`migrate_supabase` uses a separate Environment named **`supabase`** (not
+`production`). Restrict **Deployment branches** to `development` only. Put
+these on that environment (`Settings` → `Environments` → `supabase` →
+`Environment secrets`):
 
 | Name | Where | What to set |
 | --- | --- | --- |
-| `SUPABASE_ACCESS_TOKEN` | Repository secret | Personal access token for the account that owns the hosted project. Used by `migrate_supabase` (`supabase link` / `db push`). |
-| `SUPABASE_PROJECT_REF` | Repository secret | Hosted project ref (20-character id from the dashboard URL). Same value as the ref in `README.md`. |
+| `SUPABASE_ACCESS_TOKEN` | Environment `supabase` | Personal access token for the account that owns the hosted project. Used by `migrate_supabase` (`supabase link` / `db push`). |
+| `SUPABASE_PROJECT_REF` | Environment `supabase` | Hosted project ref (20-character id from the dashboard URL). Same value as the ref in `README.md`. |
 
 Protect `development` and require the `lint`, `test`, and `build` checks
-so a red workflow cannot merge. Restrict the `production` environment to
-the `development` branch if you want dashboard confirmation that only that
-ref can deploy.
+so a red workflow cannot merge. `.github/CODEOWNERS` requires a review
+on workflow changes so a feature-branch edit cannot quietly remap
+`${{ secrets.* }}` onto a check job.
 
 If the Vercel production branch moves from `development` to `main`, update
 `on.push.branches` and the `migrate_supabase` / `deploy_production` `if:`

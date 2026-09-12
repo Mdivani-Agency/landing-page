@@ -1,0 +1,3 @@
+# Workflow and Action changes can expose production tokens. Require a
+# reviewer with write access before merging edits under .github/.
+.github/ @mdivanigiorgi @mdivani

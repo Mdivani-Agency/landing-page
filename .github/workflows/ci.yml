@@ -6,6 +6,10 @@
 # Trigger shape avoids duplicate PR + push pipelines: feature-branch work
 # runs on pull_request; development runs on push (checks, then migrate and
 # deploy). Open a PR to get checks on a feature branch.
+#
+# SUPABASE_* and VERCEL_* must live on GitHub Environments restricted to
+# the development branch (supabase and production). Do not store them as
+# repository secrets — same-repo pull_request workflows can read those.
 
 name: CI
 
@@ -30,21 +34,21 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-yarn
       - run: node .yarn/releases/yarn-4.9.2.cjs lint
 
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-yarn
       - run: node .yarn/releases/yarn-4.9.2.cjs test
 
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-yarn
       - run: node .yarn/releases/yarn-4.9.2.cjs build
 
@@ -52,8 +56,8 @@ jobs:
   # Runs on every development-branch push after lint, test, and build pass,
   # and before deploy_production. db push is idempotent, so gating on a
   # migration-file glob would skip retries after a failed apply. Requires
-  # repository secrets SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF
-  # (not production-environment-only).
+  # Environment supabase secrets SUPABASE_ACCESS_TOKEN and
+  # SUPABASE_PROJECT_REF, with that environment limited to development.
   migrate_supabase:
     if: github.event_name == 'push' && github.ref == 'refs/heads/development'
     needs:
@@ -61,32 +65,41 @@ jobs:
       - test
       - build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     concurrency:
       group: supabase-migrations
       cancel-in-progress: false
+    environment:
+      name: supabase
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/require-development-head
+        id: head
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: steps.head.outputs.skip != 'true'
         with:
           node-version-file: .nvmrc
       - name: Require Supabase secrets
+        if: steps.head.outputs.skip != 'true'
         run: |
           if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ] || [ -z "${SUPABASE_PROJECT_REF:-}" ]; then
-            echo "SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF must be set as GitHub Actions secrets."
+            echo "SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF must be set as supabase environment secrets."
             exit 1
           fi
-      - run: npx --yes supabase@2.116.0 link --yes --project-ref "$SUPABASE_PROJECT_REF"
-      - run: npx --yes supabase@2.116.0 db push --yes --linked
+      - if: steps.head.outputs.skip != 'true'
+        run: npx --yes supabase@2.116.0 link --yes --project-ref "$SUPABASE_PROJECT_REF"
+      - if: steps.head.outputs.skip != 'true'
+        run: npx --yes supabase@2.116.0 db push --yes --linked
 
   # Deploys development to production after lint, test, and build pass.
   # Requires VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID on the
-  # GitHub Environment named production. .vercel/ is not in the repo, so
-  # the CLI resolves the project link from those env vars. The CLI is
-  # pinned in devDependencies and reads VERCEL_TOKEN from the environment,
-  # keeping the token off argv.
+  # GitHub Environment named production, limited to the development branch.
+  # .vercel/ is not in the repo, so the CLI resolves the project link from
+  # those env vars. The CLI is pinned in devDependencies and reads
+  # VERCEL_TOKEN from the environment, keeping the token off argv.
   deploy_production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/development'
     needs:
@@ -95,6 +108,7 @@ jobs:
       - build
       - migrate_supabase
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     concurrency:
       group: vercel-production
       cancel-in-progress: false
@@ -106,14 +120,21 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/require-development-head
+        id: head
       - uses: ./.github/actions/setup-yarn
+        if: steps.head.outputs.skip != 'true'
       - name: Require Vercel secrets
+        if: steps.head.outputs.skip != 'true'
         run: |
           if [ -z "${VERCEL_TOKEN:-}" ] || [ -z "${VERCEL_ORG_ID:-}" ] || [ -z "${VERCEL_PROJECT_ID:-}" ]; then
             echo "VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID must be set as production environment secrets."
             exit 1
           fi
-      - run: node .yarn/releases/yarn-4.9.2.cjs run vercel pull --yes --environment=production
-      - run: node .yarn/releases/yarn-4.9.2.cjs run vercel build --prod
-      - run: node .yarn/releases/yarn-4.9.2.cjs run vercel deploy --prebuilt --prod
+      - if: steps.head.outputs.skip != 'true'
+        run: node .yarn/releases/yarn-4.9.2.cjs run vercel pull --yes --environment=production
+      - if: steps.head.outputs.skip != 'true'
+        run: node .yarn/releases/yarn-4.9.2.cjs run vercel build --prod
+      - if: steps.head.outputs.skip != 'true'
+        run: node .yarn/releases/yarn-4.9.2.cjs run vercel deploy --prebuilt --prod

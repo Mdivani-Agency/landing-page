@@ -60,7 +60,7 @@ Both need an access token for the account that owns the project:
 On push to `development`, GitHub Actions applies pending files in
 `supabase/migrations/` after lint, test, and build pass and before the
 Vercel deploy. That job needs `SUPABASE_ACCESS_TOKEN` and
-`SUPABASE_PROJECT_REF` as repository secrets — see
+`SUPABASE_PROJECT_REF` as GitHub Environment `supabase` secrets — see
 [`docs/vercel-cutover.md`](docs/vercel-cutover.md).
 
 `lib/supabase.ts` builds the clients. Reads go through
