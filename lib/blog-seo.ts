@@ -1,5 +1,5 @@
 import type { BlogPost } from "@/lib/blog";
-import { socialImage } from "@/lib/metadata";
+import { brandLogo, socialImage } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
 export function latestUpdatedAt(
@@ -52,7 +52,7 @@ export function articleJsonLd(post: BlogPost) {
       url: site.url,
       logo: {
         "@type": "ImageObject",
-        url: absoluteUrl(socialImage.url),
+        url: absoluteUrl(brandLogo.url),
       },
     },
     mainEntityOfPage: url,

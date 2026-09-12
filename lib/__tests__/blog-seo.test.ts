@@ -23,7 +23,7 @@ import {
   escapeXml,
   latestUpdatedAt,
 } from "@/lib/blog-seo";
-import { socialImage } from "@/lib/metadata";
+import { brandLogo, socialImage } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
 beforeEach(() => {
@@ -47,7 +47,7 @@ describe("blog SEO helpers", () => {
         url: site.url,
         logo: {
           "@type": "ImageObject",
-          url: `${site.url}${socialImage.url}`,
+          url: `${site.url}${brandLogo.url}`,
         },
       },
       mainEntityOfPage: `${site.url}/blog/${post.slug}`,

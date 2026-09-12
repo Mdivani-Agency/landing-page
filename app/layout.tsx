@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 import { GradientBackground } from "@/components/gradient-background";
 import { Header } from "@/components/header";
 import { Providers } from "@/components/providers";
-import { serializeJsonLd, socialImage } from "@/lib/metadata";
+import { serializeJsonLd, siteIcons, socialImage } from "@/lib/metadata";
 import { profileLinks, site } from "@/lib/site";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next"
 import "./globals.css";
@@ -31,9 +31,7 @@ export const metadata: Metadata = {
     template: "%s | Mdivani",
   },
   description: site.description,
-  icons: {
-    icon: [{ url: "/assets/favicon.png", sizes: "32x32", type: "image/png" }],
-  },
+  icons: siteIcons,
   openGraph: {
     title: site.ogTitle,
     description: site.ogDescription,
