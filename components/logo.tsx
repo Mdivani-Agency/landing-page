@@ -17,7 +17,7 @@ export function Logo({ onClick }: LogoProps) {
       <Image
         src="/assets/logo-wordmark.svg"
         alt="Mdivani"
-        width={162}
+        width={130}
         height={36}
         className="block h-9 w-auto"
         priority
