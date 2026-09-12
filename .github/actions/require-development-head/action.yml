@@ -1,0 +1,23 @@
+name: Require development HEAD
+description: Skip remaining job steps when this SHA is no longer origin/development
+
+outputs:
+  skip:
+    description: true when this commit is not development HEAD
+    value: ${{ steps.check.outputs.skip }}
+
+runs:
+  using: composite
+  steps:
+    - id: check
+      shell: bash
+      run: |
+        set -euo pipefail
+        git fetch --no-tags --depth=1 origin development
+        expected="$(git rev-parse origin/development)"
+        if [ "$expected" != "$GITHUB_SHA" ]; then
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+          echo "Skipping: $GITHUB_SHA is not origin/development ($expected)."
+        else
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+        fi

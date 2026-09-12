@@ -1,0 +1,5 @@
+# Workflow and Action changes can expose production tokens.
+# GitHub ignores owners without write access. @mdivanigiorgi is the
+# write-access owner today. This file does not block merges until
+# development requires a review from Code Owners (TD-053).
+.github/ @mdivanigiorgi

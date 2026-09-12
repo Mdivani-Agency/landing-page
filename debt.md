@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-07 (MDI-118 review: TD-051, TD-052 recorded)
+Last updated: 2026-09-12 (GitHub Actions review: TD-053 recorded)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -516,6 +516,30 @@ Postgres has no `ADD CONSTRAINT IF NOT EXISTS`. Recorded from MDI-118
 review; left out of that migration so form option changes do not require a
 schema deploy.
 
+### TD-053 — CODEOWNERS does not enforce a second reviewer
+
+**Severity:** Low  
+**Area:** Delivery / Access control
+
+`.github/CODEOWNERS` covers `.github/` so workflow edits that remap
+`${{ secrets.* }}` get a named owner. GitHub ignores owners without write
+access, so `@mdivani` was dropped. The remaining owner is
+`@mdivanigiorgi`. CODEOWNERS does not block merges unless `development`
+requires a review from Code Owners, and an author-only approval still
+lands if that owner is also the last pusher.
+
+**Impact:** A write-access PR can change CI to print environment secrets
+without an independent review.
+
+**Remediation:** In GitHub branch protection for `development`, require a
+review from Code Owners and a review from someone other than the last
+pusher. Add a second write-access CODEOWNER if one exists. Creating the
+`supabase` and `production` Environments (deployment branch `development`
+only) is a separate dashboard prerequisite, not this item.
+
+Recorded from the GitHub Actions cutover re-review; left out of that PR
+because it is repository settings, not workflow YAML.
+
 ### TD-022 — Duplicated SVG sources and unused assets remain
 
 **Severity:** Low  
@@ -818,7 +842,8 @@ These are not automatically defects:
 2. Finish route-integrity coverage for redirects and generated `app/` pages
    (remaining TD-009). Add CI typecheck and audit jobs (TD-039).
 3. Verify production rate-limit configuration (TD-011), add a Firewall
-   rule for the Sentry tunnel (TD-042), and confirm the first
+   rule for the Sentry tunnel (TD-042), require code-owner reviews on
+   `development` (TD-053), and confirm the first
    `migrate_supabase` apply (TD-044, TD-045). Set `BLOG_WRITE_TOKEN` on
    Vercel only once that apply succeeds. Inquiry `emailed_at` / retry
    dedupe is TD-051.
