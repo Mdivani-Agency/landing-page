@@ -26,7 +26,7 @@ Production deploys are gated on GitHub Actions in `.github/workflows/ci.yml`:
   duplicate `push` pipeline.
 - `migrate_supabase` runs only on push to `development`, after `lint`,
   `test`, and `build` succeed, and before `deploy_production`. It links
-  with `SUPABASE_PROJECT_REF` and   applies pending migrations via
+  with `SUPABASE_PROJECT_REF` and applies pending migrations via
   `supabase db push` (CLI `2.116.0`). The job is not gated on a file glob —
   `db push` is idempotent, and a glob would skip retries after a failed
   apply. A `concurrency` group (`supabase-migrations`) serializes applies
