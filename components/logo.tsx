@@ -8,13 +8,18 @@ export function Logo({ onClick }: LogoProps) {
   return (
     // Native hash link: App Router Link often skips same-page /#home scrolling.
     // eslint-disable-next-line @next/next/no-html-link-for-pages
-    <a title="scroll to top" href="/#home" className="size-9" onClick={onClick}>
+    <a
+      title="scroll to top"
+      href="/#home"
+      className="inline-flex h-9 items-center"
+      onClick={onClick}
+    >
       <Image
-        src="/assets/logo.svg"
+        src="/assets/logo-wordmark.svg"
         alt="Mdivani"
-        width={72}
-        height={72}
-        className="block size-full"
+        width={130}
+        height={36}
+        className="block h-9 w-auto"
         priority
       />
     </a>

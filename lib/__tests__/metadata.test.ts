@@ -1,10 +1,32 @@
 import { describe, expect, it } from "vitest";
 import {
+  brandLogo,
   createPageMetadata,
   serializeJsonLd,
+  siteIcons,
   socialImage,
 } from "@/lib/metadata";
 import { site } from "@/lib/site";
+
+describe("brand assets", () => {
+  it("declares a 1200×630 Open Graph image and a real favicon set", () => {
+    expect(socialImage).toEqual({
+      url: "/assets/images/og-image.png",
+      width: 1200,
+      height: 630,
+      alt: site.ogTitle,
+    });
+    expect(brandLogo.url).toBe("/assets/logo.svg");
+    expect(siteIcons.icon).toEqual([
+      { url: "/assets/favicon.svg", type: "image/svg+xml" },
+      { url: "/assets/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "16x16", type: "image/x-icon" },
+    ]);
+    expect(siteIcons.apple).toEqual([
+      { url: "/apple-touch-icon.png", sizes: "180x180" },
+    ]);
+  });
+});
 
 describe("createPageMetadata", () => {
   it("builds canonical, Open Graph, and Twitter metadata for a page", () => {

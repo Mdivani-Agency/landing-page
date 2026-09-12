@@ -1,12 +1,26 @@
 import type { Metadata } from "next";
 import { site } from "@/lib/site";
 
-export const socialImage = {
-  url: "/assets/images/og-logo.png",
-  width: 1280,
-  height: 1433,
-  alt: `${site.name} logo`,
+export const brandLogo = {
+  url: "/assets/logo.svg",
+  alt: `${site.name} mark`,
 } as const;
+
+export const socialImage = {
+  url: "/assets/images/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: site.ogTitle,
+} as const;
+
+export const siteIcons = {
+  icon: [
+    { url: "/assets/favicon.svg", type: "image/svg+xml" },
+    { url: "/assets/favicon-32.png", sizes: "32x32", type: "image/png" },
+    { url: "/favicon.ico", sizes: "16x16", type: "image/x-icon" },
+  ],
+  apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+} satisfies Metadata["icons"];
 
 type PageMetadataOptions = {
   title: string;
