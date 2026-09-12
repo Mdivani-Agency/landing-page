@@ -91,9 +91,10 @@ these on that environment (`Settings` → `Environments` → `supabase` →
 | `SUPABASE_PROJECT_REF` | Environment `supabase` | Hosted project ref (20-character id from the dashboard URL). Same value as the ref in `README.md`. |
 
 Protect `development` and require the `lint`, `test`, and `build` checks
-so a red workflow cannot merge. `.github/CODEOWNERS` requires a review
-on workflow changes so a feature-branch edit cannot quietly remap
-`${{ secrets.* }}` onto a check job.
+so a red workflow cannot merge. `.github/CODEOWNERS` lists the write-access
+owner for `.github/`; it does not block merges until branch protection
+requires a review from Code Owners (and, if you want a non-author review,
+from someone other than the last pusher). That dashboard step is TD-053.
 
 If the Vercel production branch moves from `development` to `main`, update
 `on.push.branches` and the `migrate_supabase` / `deploy_production` `if:`
