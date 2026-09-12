@@ -4,7 +4,8 @@ The marketing site deploys from this repo as a Next.js app on Vercel. Eleventy a
 
 ## Project settings
 
-- GitLab: `mdivani-agency/landing-page`
+- GitHub (source of truth): [Mdivani-Agency/landing-page](https://github.com/Mdivani-Agency/landing-page)
+- Default branch: `development`
 - Framework: Next.js
 - Install: `node .yarn/releases/yarn-4.9.2.cjs install --immutable`
 - Build: `yarn build`
@@ -13,71 +14,80 @@ The marketing site deploys from this repo as a Next.js app on Vercel. Eleventy a
 
 Do not set a dashboard Install Command that runs classic Yarn 1.
 
+GitLab CI (`.gitlab-ci.yml`) is retired. Do not add new jobs there.
+
 ## CI-gated production deploys (MDI-68)
 
-Production deploys are gated on the GitLab pipeline in `.gitlab-ci.yml`:
+Production deploys are gated on GitHub Actions in `.github/workflows/ci.yml`:
 
-- `lint`, `test`, and `build` run as required jobs on every push and merge
-  request.
-- `migrate_supabase` runs only on the default branch (`$CI_DEFAULT_BRANCH`,
-  currently `development`), after `lint`, `test`, and `build` succeed, and
-  before `deploy_production`. It links with `SUPABASE_PROJECT_REF` and
-  applies pending migrations via `supabase db push` (CLI `2.116.0`). The
-  job is not gated on a file glob — `db push` is idempotent, and a glob
-  would skip retries after a failed apply. A `resource_group` serializes
-  applies so two pipelines cannot race.
-- `deploy_production` runs only on the default branch, only after all three
-  check jobs pass and after `migrate_supabase` when that job is in the
-  pipeline, and deploys with the Vercel CLI
-  (`vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`,
-  each with `--project` set from the GitLab `VERCEL_PROJECT_ID` variable).
-  The project is a Hobby personal account (`mdivani1` is the username, not a
-  team). Do not pass `--scope mdivani1` — on Hobby the CLI rejects a personal
-  account as `--scope`. The CLI version is pinned in `devDependencies` and
-  authenticates via the `VERCEL_TOKEN` environment variable (never `--token`
-  on argv). A `resource_group` serializes deploys so an older pipeline cannot
-  overwrite a newer one.
-- `vercel.json` sets `git.deploymentEnabled` to `false` for `development` and
-  `main`, so the Vercel Git integration no longer auto-deploys the production
-  branch. Other branches still get preview deploys from the Git integration.
+- `lint`, `test`, and `build` run as required jobs on every pull request and
+  on every push to `development`. Feature-branch work is checked via the
+  `pull_request` event so a branch with an open PR does not also get a
+  duplicate `push` pipeline.
+- `migrate_supabase` runs only on push to `development`, after `lint`,
+  `test`, and `build` succeed, and before `deploy_production`. It links
+  with `SUPABASE_PROJECT_REF` and applies pending migrations via
+  `supabase db push` (CLI `2.116.0`). The job is not gated on a file glob —
+  `db push` is idempotent, and a glob would skip retries after a failed
+  apply. A `concurrency` group (`supabase-migrations`) serializes applies
+  so two workflows cannot race.
+- `deploy_production` runs only on push to `development`, only after all
+  three check jobs pass and after `migrate_supabase`, and deploys with the
+  Vercel CLI (`vercel pull` → `vercel build --prod` →
+  `vercel deploy --prebuilt --prod`). The CLI reads `VERCEL_ORG_ID` and
+  `VERCEL_PROJECT_ID` from the job environment (never `--project` or
+  `--token` on argv). The project is a Hobby personal account (`mdivani1`
+  is the username, not a team). Do not pass `--scope mdivani1` — on Hobby
+  the CLI rejects a personal account as `--scope`. The CLI version is
+  pinned in `devDependencies` and authenticates via the `VERCEL_TOKEN`
+  environment variable. A `concurrency` group (`vercel-production`)
+  serializes deploys so an older workflow cannot overwrite a newer one.
+- `vercel.json` sets `git.deploymentEnabled` to `false` for `development`
+  and `main`, so the Vercel Git integration no longer auto-deploys those
+  branches. Keep that. Other branches still get preview deploys from the
+  Vercel Git integration.
 
-Required GitLab CI/CD variables (Settings → CI/CD → Variables). The project is
-public, so tokens must stay off feature-branch and merge-request pipelines.
+Do not change Vercel dashboard git settings or deploy production from a
+laptop; production stays CI-gated.
 
-The Vercel trio must be **protected**, **masked**, and scoped to the
-**`production` environment**. Masking only redacts logs; protection plus
-environment scoping keep the token out of jobs that do not declare
-`environment: name: production` (`deploy_production` does):
+### GitHub Actions secrets
 
-| Name | Value |
-| --- | --- |
-| `VERCEL_TOKEN` | Personal account token for the Hobby user that owns the project |
-| `VERCEL_ORG_ID` | That user's id from `.vercel/project.json` `orgId` (same value as `GET /v2/user` → `user.id`). **Not** the dashboard username (`mdivani1`) and **not** a `team_…` id — this project has no team. A username here makes `vercel pull` fail with `Project not found`. |
-| `VERCEL_PROJECT_ID` | Project id from the same file (`prj_…`). |
+Create these in the GitHub repo. Do not commit values. The repo is public,
+so tokens must stay off pull-request jobs.
 
-`deploy_production` passes `--project` from `VERCEL_PROJECT_ID` on every CLI
-command. `VERCEL_ORG_ID` is read from the job environment (GitLab injects
-the CI/CD variable); it is not passed on argv. A preflight exits if any of
-the three Vercel variables is missing. Set `VERCEL_ORG_ID` to the user's
-`user.id`, not the dashboard username — a username makes `vercel pull` fail
-with `Project not found`.
+Create a GitHub Environment named **`production`** with URL
+`https://mdivani.agency`. Put the Vercel trio on that environment only
+(`Settings` → `Environments` → `production` → `Environment secrets`).
+`deploy_production` declares `environment: production`, so only that job
+receives them:
 
-`migrate_supabase` does not declare an environment. These two must be
-**protected** and **masked**, available on the protected default branch, and
-**not** scoped only to `production`:
+| Name | Where | What to set |
+| --- | --- | --- |
+| `VERCEL_TOKEN` | Environment `production` | Personal account token for the Hobby user that owns the project |
+| `VERCEL_ORG_ID` | Environment `production` | That user's id from `.vercel/project.json` `orgId` (same value as `GET /v2/user` → `user.id`). **Not** the dashboard username (`mdivani1`) and **not** a `team_…` id — this project has no team. A username here makes `vercel pull` fail with `Project not found`. |
+| `VERCEL_PROJECT_ID` | Environment `production` | Project id from the same file (`prj_…`). |
 
-| Name | Value |
-| --- | --- |
-| `SUPABASE_ACCESS_TOKEN` | Personal access token for the account that owns the hosted project. Used by `migrate_supabase` (`supabase link` / `db push`). |
-| `SUPABASE_PROJECT_REF` | Hosted project ref (20-character id from the dashboard URL). Same value as the ref in `README.md`. |
+A preflight exits if any of the three Vercel secrets is missing. Set
+`VERCEL_ORG_ID` to the user's `user.id`, not the dashboard username.
 
-The default branch must stay a protected branch so protected variables are
-available to `deploy_production` and `migrate_supabase`. Enable the GitLab MR
-setting **Pipelines must succeed** to make the check jobs merge-blocking as
-well.
+`migrate_supabase` does not use the `production` environment. Set these as
+**repository** secrets (`Settings` → `Secrets and variables` → `Actions`).
+Do not scope them to `production` only, or the migrate job cannot read them:
 
-If the Vercel production branch moves from `development` to `main`, also move
-the GitLab default branch (the deploy job follows `$CI_DEFAULT_BRANCH`).
+| Name | Where | What to set |
+| --- | --- | --- |
+| `SUPABASE_ACCESS_TOKEN` | Repository secret | Personal access token for the account that owns the hosted project. Used by `migrate_supabase` (`supabase link` / `db push`). |
+| `SUPABASE_PROJECT_REF` | Repository secret | Hosted project ref (20-character id from the dashboard URL). Same value as the ref in `README.md`. |
+
+Protect `development` and require the `lint`, `test`, and `build` checks
+so a red workflow cannot merge. Restrict the `production` environment to
+the `development` branch if you want dashboard confirmation that only that
+ref can deploy.
+
+If the Vercel production branch moves from `development` to `main`, update
+`on.push.branches` and the `migrate_supabase` / `deploy_production` `if:`
+conditions in `.github/workflows/ci.yml` to match, and move the GitHub
+default branch.
 
 ## Environment variables (dashboard, not git)
 

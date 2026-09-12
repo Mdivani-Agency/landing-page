@@ -37,7 +37,7 @@ yarn mcp      # stdio MCP server for blog authoring
 
 Analytics uses GA4/gtag with `NEXT_PUBLIC_GA_MEASUREMENT_ID` or `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`. Copy `.env.example` and leave the values empty to run locally without tracking.
 
-Error monitoring uses Sentry (`@sentry/nextjs`). Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` to the project DSN. Events are sent only on Vercel preview and production (`NEXT_PUBLIC_VERCEL_ENV` / `VERCEL_ENV`); local `yarn dev` and GitLab check jobs do not ingest even when a DSN is present. For readable production stack traces, add `SENTRY_AUTH_TOKEN` as a build-time secret (not `NEXT_PUBLIC_`) so source maps upload during `yarn build`.
+Error monitoring uses Sentry (`@sentry/nextjs`). Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` to the project DSN. Events are sent only on Vercel preview and production (`NEXT_PUBLIC_VERCEL_ENV` / `VERCEL_ENV`); local `yarn dev` and GitHub Actions check jobs do not ingest even when a DSN is present. For readable production stack traces, add `SENTRY_AUTH_TOKEN` as a build-time secret (not `NEXT_PUBLIC_`) so source maps upload during `yarn build`.
 
 Programmatic blog writes: [`docs/blog-write-api.md`](docs/blog-write-api.md).
 Agent authoring: [`docs/blog-mcp.md`](docs/blog-mcp.md) and `.cursor/mcp.json`.
@@ -57,10 +57,10 @@ Both need an access token for the account that owns the project:
 `SUPABASE_ACCESS_TOKEN=... supabase db push`. Exporting it per command keeps
 `supabase login` pointed at whichever account you use elsewhere.
 
-On the default branch, GitLab applies pending files in
+On push to `development`, GitHub Actions applies pending files in
 `supabase/migrations/` after lint, test, and build pass and before the
 Vercel deploy. That job needs `SUPABASE_ACCESS_TOKEN` and
-`SUPABASE_PROJECT_REF` as CI/CD variables — see
+`SUPABASE_PROJECT_REF` as repository secrets — see
 [`docs/vercel-cutover.md`](docs/vercel-cutover.md).
 
 `lib/supabase.ts` builds the clients. Reads go through
@@ -85,6 +85,14 @@ persist outage does not drop the email and a Resend outage does not hide
 a stored lead. View rows in the Table Editor. Honeypot and invalid
 payloads are not stored. The table has row level security and no public
 read or write policies; inserts use `SUPABASE_SECRET_KEY` on the server.
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) runs `lint`, `test`, and `build`
+on pull requests and on push to `development`. Push to `development` then
+applies Supabase migrations and deploys production with the Vercel CLI.
+GitLab CI is retired. Required secrets are listed in
+[`docs/vercel-cutover.md`](docs/vercel-cutover.md).
 
 ## Vercel
 

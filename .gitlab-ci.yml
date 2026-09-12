@@ -1,3 +1,7 @@
+# Retired. GitHub is the source of truth
+# (https://github.com/Mdivani-Agency/landing-page). Equivalent jobs live in
+# .github/workflows/ci.yml. This file is kept for reference and must not run.
+
 # Lint, test, and build are required checks for every push and merge request.
 # Production deploys happen from this pipeline via the Vercel CLI, and the
 # Vercel Git integration is disabled for the production branch in vercel.json,
@@ -12,15 +16,7 @@ stages:
 
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    # Always run a branch pipeline on the default branch, even when an MR is
-    # open from it (e.g. development -> main): deploy_production only runs in
-    # branch pipelines, so suppressing it would freeze production deploys.
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    # Avoid duplicate branch + MR pipelines for the same commit.
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
-      when: never
-    - if: $CI_COMMIT_BRANCH
+    - when: never
 
 variables:
   # Keep the Yarn 4 download cache inside the project dir so GitLab can cache it.
