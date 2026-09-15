@@ -49,7 +49,7 @@ export function createFakeSupabase(
 
   function build(): FakeQueryBuilder {
     const filters: Array<(row: FakeRow) => boolean> = [];
-    let order: { column: string; ascending: boolean } | null = null;
+    const orders: Array<{ column: string; ascending: boolean }> = [];
     let pendingInsert: FakeRow | null = null;
     let pendingUpsert: FakeRow | null = null;
 
@@ -88,12 +88,19 @@ export function createFakeSupabase(
         filters.every((matches) => matches(row)),
       );
 
-      if (order) {
-        const { column, ascending } = order;
+      if (orders.length > 0) {
         result = [...result].sort((left, right) => {
-          const a = String(left[column] ?? "");
-          const b = String(right[column] ?? "");
-          return ascending ? a.localeCompare(b) : b.localeCompare(a);
+          for (const { column, ascending } of orders) {
+            const a = String(left[column] ?? "");
+            const b = String(right[column] ?? "");
+            const comparison = a.localeCompare(b);
+
+            if (comparison !== 0) {
+              return ascending ? comparison : -comparison;
+            }
+          }
+
+          return 0;
         });
       }
 
@@ -116,7 +123,7 @@ export function createFakeSupabase(
         return builder;
       },
       order: (column, orderOptions) => {
-        order = { column, ascending: orderOptions?.ascending ?? true };
+        orders.push({ column, ascending: orderOptions?.ascending ?? true });
         return builder;
       },
       insert: (row) => {
@@ -180,7 +187,7 @@ export function supabaseModuleMock(
   };
 }
 
-function row(overrides: FakeRow): FakeRow {
+export function fakeBlogRow(overrides: FakeRow): FakeRow {
   const iso = "2026-08-01T09:00:00.000Z";
 
   return {
@@ -204,19 +211,19 @@ function row(overrides: FakeRow): FakeRow {
  * draft, two published dates, and a post belonging to the other front end.
  */
 export const fakeBlogRows: FakeRow[] = [
-  row({
+  fakeBlogRow({
     slug: "idea-to-production-ai",
     title: "From idea to a production AI product",
     tags: ["AI", "product", "greenfield"],
     featured: true,
     published_at: "2026-08-01T09:00:00.000Z",
   }),
-  row({
+  fakeBlogRow({
     slug: "shipping-the-first-slice",
     title: "Shipping the first slice",
     published_at: "2026-08-15T09:00:00.000Z",
   }),
-  row({
+  fakeBlogRow({
     slug: "draft-internal-notes",
     title: "Internal notes (draft)",
     description: "This draft must never appear on the public blog.",
@@ -224,7 +231,7 @@ export const fakeBlogRows: FakeRow[] = [
     status: "draft",
     published_at: null,
   }),
-  row({
+  fakeBlogRow({
     slug: "talvio-only-post",
     title: "Only for Talvio",
     sites: ["talvio"],

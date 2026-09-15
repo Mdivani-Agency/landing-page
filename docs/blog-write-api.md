@@ -8,8 +8,15 @@ Writes persist in Supabase `public.blog_posts` through the admin client
 `migrate_supabase` has applied that table (TD-044 / TD-045). Persistence
 failures return `500` and are reported to Sentry.
 
-Successful writes call `revalidatePath` for `/blog`, `/blog/[slug]`,
-`/feed.xml`, and `/sitemap.xml`.
+Successful writes call `revalidatePath` for `/blog` (including the layout, so
+paginated `/blog/page/[page]` routes refresh), `/blog/[slug]`, `/feed.xml`,
+and `/sitemap.xml`.
+
+The public listing paginates the chronological grid at 6 posts per page
+(`BLOG_LIST_PAGE_SIZE` in `lib/blog.ts`). Page 1 is `/blog`; later pages are
+`/blog/page/2`, `/blog/page/3`, and so on. Featured posts stay on page 1
+above the grid and are not counted toward the page size. Pagination controls
+are hidden when the catalog fits on one page.
 
 Field bounds and slug rules live in `lib/blog-schema.ts`. The route handler
 and the MCP tool schemas both import that module.
@@ -43,7 +50,7 @@ bypass the cap).
 | `title` | yes | 3–160 characters |
 | `description` | yes | 10–320 characters, plain text |
 | `content` | yes | Markdown, at least 20 characters |
-| `slug` | no | `[a-z0-9]+(-[a-z0-9]+)*`, max 80. Generated from `title` when omitted. Omit only to create; send `slug` to update |
+| `slug` | no | `[a-z0-9]+(-[a-z0-9]+)*`, max 80. Generated from `title` when omitted. Omit only to create; send `slug` to update. `page` is reserved for `/blog/page/[page]` |
 | `tags` | no | Array of strings; blanks dropped |
 | `sites` | no | `agency` and/or `talvio`. On create, defaults to this site (`agency`). On update, omitted `sites` keeps the existing list |
 | `cover_image_url` | no | Same-origin path starting with `/` (not `//`, `?`, `#`, or an absolute URL). Remote hosts and query strings are rejected because `next/image` has no remote allowlist and rejects local `src` with search |

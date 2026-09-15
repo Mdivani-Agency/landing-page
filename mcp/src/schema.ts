@@ -8,6 +8,7 @@ import {
   SLUG_PATTERN,
   TITLE_MAX_LENGTH,
   TITLE_MIN_LENGTH,
+  isReservedSlug,
   isSameOriginCoverPath,
   siteKeys,
 } from "../../lib/blog-schema";
@@ -30,15 +31,22 @@ export const slugField = z
   .string()
   .trim()
   .max(SLUG_MAX_LENGTH)
-  .regex(SLUG_PATTERN);
+  .regex(SLUG_PATTERN)
+  .refine((value) => !isReservedSlug(value), {
+    message: "That slug is reserved.",
+  });
 
 export const optionalSlugField = z
   .string()
   .trim()
   .max(SLUG_MAX_LENGTH)
-  .refine((value) => value === "" || SLUG_PATTERN.test(value), {
-    message: "Use a lowercase slug with letters, numbers, and hyphens.",
-  })
+  .refine(
+    (value) =>
+      value === "" || (SLUG_PATTERN.test(value) && !isReservedSlug(value)),
+    {
+      message: "Use a lowercase slug with letters, numbers, and hyphens.",
+    },
+  )
   .optional();
 
 export const tagsField = z.array(z.string()).optional();

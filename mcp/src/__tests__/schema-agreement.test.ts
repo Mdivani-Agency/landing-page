@@ -23,6 +23,7 @@ const cases: Array<{ name: string; payload: unknown }> = [
   { name: "same-origin cover", payload: { ...valid, cover_image_url: "/assets/logo.svg" } },
   { name: "tags with blanks", payload: { ...valid, tags: ["AI", "  ", "product"] } },
   { name: "valid slug", payload: { ...valid, slug: "custom-slug" } },
+  { name: "reserved slug", payload: { ...valid, slug: "page" } },
   { name: "title too short", payload: { ...valid, title: "A" } },
   { name: "title too long", payload: { ...valid, title: "x".repeat(161) } },
   { name: "description too short", payload: { ...valid, description: "short" } },
@@ -73,6 +74,9 @@ describe("MCP write schema agrees with validateBlogWritePayload", () => {
     ).toBe(true);
     expect(
       updatePostInputSchema.safeParse({ ...valid, slug: "Nope!" }).success,
+    ).toBe(false);
+    expect(
+      updatePostInputSchema.safeParse({ ...valid, slug: "page" }).success,
     ).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { listPublishedPosts } from "@/lib/blog";
+import { blogListPageNumbers, blogListPath, listPublishedPosts } from "@/lib/blog";
 import { latestUpdatedAt } from "@/lib/blog-seo";
 import { legalLinks, navLinks, site } from "@/lib/site";
 
@@ -32,8 +32,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: pagePriority[path] ?? 0.3,
   })) satisfies MetadataRoute.Sitemap;
 
+  const listingUpdatedAt = latestUpdatedAt(posts);
+  const listingPages = blogListPageNumbers(posts).map((page) => ({
+    url: `${site.url}${blogListPath(page)}`,
+    lastModified: listingUpdatedAt,
+    changeFrequency: "weekly" as const,
+    priority: 0.5,
+  }));
+
   return [
     ...pages,
+    ...listingPages,
     ...posts.map((post) => ({
       url: `${site.url}/blog/${post.slug}`,
       lastModified: post.updatedAt,
