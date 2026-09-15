@@ -49,7 +49,7 @@ export function createFakeSupabase(
 
   function build(): FakeQueryBuilder {
     const filters: Array<(row: FakeRow) => boolean> = [];
-    let order: { column: string; ascending: boolean } | null = null;
+    const orders: Array<{ column: string; ascending: boolean }> = [];
     let pendingInsert: FakeRow | null = null;
     let pendingUpsert: FakeRow | null = null;
 
@@ -88,12 +88,19 @@ export function createFakeSupabase(
         filters.every((matches) => matches(row)),
       );
 
-      if (order) {
-        const { column, ascending } = order;
+      if (orders.length > 0) {
         result = [...result].sort((left, right) => {
-          const a = String(left[column] ?? "");
-          const b = String(right[column] ?? "");
-          return ascending ? a.localeCompare(b) : b.localeCompare(a);
+          for (const { column, ascending } of orders) {
+            const a = String(left[column] ?? "");
+            const b = String(right[column] ?? "");
+            const comparison = a.localeCompare(b);
+
+            if (comparison !== 0) {
+              return ascending ? comparison : -comparison;
+            }
+          }
+
+          return 0;
         });
       }
 
@@ -116,7 +123,7 @@ export function createFakeSupabase(
         return builder;
       },
       order: (column, orderOptions) => {
-        order = { column, ascending: orderOptions?.ascending ?? true };
+        orders.push({ column, ascending: orderOptions?.ascending ?? true });
         return builder;
       },
       insert: (row) => {

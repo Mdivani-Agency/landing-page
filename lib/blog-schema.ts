@@ -14,6 +14,13 @@ export const SLUG_MAX_LENGTH = 80;
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+/** URL segments that collide with `/blog/page/[page]` listing routes. */
+export const RESERVED_SLUGS = ["page"] as const;
+
+export function isReservedSlug(slug: string): boolean {
+  return (RESERVED_SLUGS as readonly string[]).includes(slug);
+}
+
 export const POST_STATUSES = ["draft", "published"] as const;
 
 export type PostStatus = (typeof POST_STATUSES)[number];
@@ -128,11 +135,15 @@ export function validateBlogWritePayload(
   if (slug) {
     if (!SLUG_PATTERN.test(slug) || slug.length > SLUG_MAX_LENGTH) {
       errors.slug = "Use a lowercase slug with letters, numbers, and hyphens.";
+    } else if (isReservedSlug(slug)) {
+      errors.slug = "That slug is reserved.";
     }
   } else if (title && !errors.title) {
     slug = slugifyTitle(title);
     if (!slug) {
       errors.slug = "Could not build a slug from the title.";
+    } else if (isReservedSlug(slug)) {
+      errors.slug = "That slug is reserved.";
     }
   }
 

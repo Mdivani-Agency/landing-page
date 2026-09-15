@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createFakeSupabase,
+  fakeBlogRow,
   fakeBlogRows,
   type FakeSupabase,
 } from "@/test-utils/supabase-mock";
@@ -55,6 +56,39 @@ describe("listPublishedPosts", () => {
       "shipping-the-first-slice",
       "idea-to-production-ai",
     ]);
+  });
+
+  it("breaks published_at ties by slug so page slices stay stable", async () => {
+    const tiedAt = "2026-08-20T09:00:00.000Z";
+
+    state.client = createFakeSupabase([
+      ...fakeBlogRows,
+      fakeBlogRow({
+        slug: "zebra-note",
+        title: "Zebra note",
+        published_at: tiedAt,
+      }),
+      fakeBlogRow({
+        slug: "apple-note",
+        title: "Apple note",
+        published_at: tiedAt,
+      }),
+    ]);
+
+    const slugs = (await listPublishedPosts()).map((post) => post.slug);
+
+    expect(slugs).toEqual([
+      "apple-note",
+      "zebra-note",
+      "shipping-the-first-slice",
+      "idea-to-production-ai",
+    ]);
+
+    const first = paginateBlogListing(await listPublishedPosts(), 1, 1);
+    const second = paginateBlogListing(await listPublishedPosts(), 2, 1);
+
+    expect(first.posts.map((post) => post.slug)).toEqual(["apple-note"]);
+    expect(second.posts.map((post) => post.slug)).toEqual(["zebra-note"]);
   });
 
   it("hides drafts and posts belonging only to another site", async () => {

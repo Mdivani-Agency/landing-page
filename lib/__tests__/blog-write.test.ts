@@ -205,6 +205,27 @@ describe("validateBlogWritePayload", () => {
     }
   });
 
+  it("rejects a reserved listing slug", () => {
+    const explicit = validateBlogWritePayload({
+      ...validPayload,
+      slug: "page",
+    });
+    const generated = validateBlogWritePayload({
+      ...validPayload,
+      title: "Page",
+    });
+
+    expect(explicit.ok).toBe(false);
+    if (!explicit.ok) {
+      expect(explicit.errors.slug).toBe("That slug is reserved.");
+    }
+
+    expect(generated.ok).toBe(false);
+    if (!generated.ok) {
+      expect(generated.errors.slug).toBe("That slug is reserved.");
+    }
+  });
+
   it("rejects a bad slug and an unknown status", () => {
     const result = validateBlogWritePayload({
       ...validPayload,

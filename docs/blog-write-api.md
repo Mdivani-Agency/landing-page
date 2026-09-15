@@ -50,7 +50,7 @@ bypass the cap).
 | `title` | yes | 3–160 characters |
 | `description` | yes | 10–320 characters, plain text |
 | `content` | yes | Markdown, at least 20 characters |
-| `slug` | no | `[a-z0-9]+(-[a-z0-9]+)*`, max 80. Generated from `title` when omitted. Omit only to create; send `slug` to update |
+| `slug` | no | `[a-z0-9]+(-[a-z0-9]+)*`, max 80. Generated from `title` when omitted. Omit only to create; send `slug` to update. `page` is reserved for `/blog/page/[page]` |
 | `tags` | no | Array of strings; blanks dropped |
 | `sites` | no | `agency` and/or `talvio`. On create, defaults to this site (`agency`). On update, omitted `sites` keeps the existing list |
 | `cover_image_url` | no | Same-origin path starting with `/` (not `//`, `?`, `#`, or an absolute URL). Remote hosts and query strings are rejected because `next/image` has no remote allowlist and rejects local `src` with search |

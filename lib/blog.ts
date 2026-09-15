@@ -153,7 +153,8 @@ export async function listPublishedPosts(): Promise<BlogPost[]> {
     .select(COLUMNS)
     .eq("status", "published")
     .contains("sites", [siteKey])
-    .order("published_at", { ascending: false });
+    .order("published_at", { ascending: false })
+    .order("slug", { ascending: true });
 
   if (error) {
     console.error("blog: list published failed", error);
