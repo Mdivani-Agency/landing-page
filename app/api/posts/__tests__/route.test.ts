@@ -168,6 +168,7 @@ describe("POST /api/posts", () => {
     expect(state.revalidatePath).toHaveBeenCalledWith("/blog");
     expect(state.revalidatePath).toHaveBeenCalledWith("/blog", "layout");
     expect(state.revalidatePath).toHaveBeenCalledWith("/blog/a-new-note");
+    expect(state.revalidatePath).toHaveBeenCalledWith("/blog/[slug]", "page");
     expect(state.revalidatePath).toHaveBeenCalledWith("/feed.xml");
     expect(state.revalidatePath).toHaveBeenCalledWith("/sitemap.xml");
   });

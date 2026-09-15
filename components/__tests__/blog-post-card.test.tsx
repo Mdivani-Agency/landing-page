@@ -2,13 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { BlogPostCard } from "@/components/blog-post-card";
 import { BlogTags } from "@/components/blog-tags";
-import type { BlogPost } from "@/lib/blog";
+import type { BlogPostSummary } from "@/lib/blog";
 
-const post: BlogPost = {
+const post: BlogPostSummary = {
   slug: "idea-to-production-ai",
   title: "From idea to a production AI product",
   description: "How the first slice gets to production.",
-  content: "## Start with a job\n\nThe model is not the product.",
   coverImageUrl: null,
   tags: ["AI", "product"],
   sites: ["agency"],

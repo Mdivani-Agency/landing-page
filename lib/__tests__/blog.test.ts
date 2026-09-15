@@ -29,9 +29,11 @@ import {
   blogListPageNumbers,
   blogListPath,
   blogPaginationItems,
+  featuredPostsExcept,
   formatPostDate,
   getPostBySlug,
   getPostRecordBySlug,
+  listFeaturedPublishedSummaries,
   listPostRecords,
   listPublishedPosts,
   listPublishedSlugs,
@@ -169,6 +171,76 @@ describe("partitionPublishedPosts", () => {
     expect(partitionPublishedPosts(posts).featured.every((post) => post.status === "published")).toBe(
       true,
     );
+  });
+});
+
+describe("featuredPostsExcept", () => {
+  it("returns other featured posts and drops the current slug", async () => {
+    const posts = await listPublishedPosts();
+    const featured = {
+      ...posts[1],
+      slug: "second-featured",
+      featured: true,
+    };
+
+    expect(
+      featuredPostsExcept([...posts, featured], "idea-to-production-ai").map(
+        (post) => post.slug,
+      ),
+    ).toEqual(["second-featured"]);
+  });
+
+  it("returns an empty list when the current post is the only featured one", async () => {
+    const posts = await listPublishedPosts();
+
+    expect(featuredPostsExcept(posts, "idea-to-production-ai")).toEqual([]);
+  });
+
+  it("keeps featured posts when the current post is not featured", async () => {
+    const posts = await listPublishedPosts();
+
+    expect(
+      featuredPostsExcept(posts, "shipping-the-first-slice").map(
+        (post) => post.slug,
+      ),
+    ).toEqual(["idea-to-production-ai"]);
+  });
+});
+
+describe("listFeaturedPublishedSummaries", () => {
+  it("returns featured published summaries for this site, newest first", async () => {
+    const posts = await listFeaturedPublishedSummaries();
+
+    expect(posts.map((post) => post.slug)).toEqual(["idea-to-production-ai"]);
+    expect(posts[0]).not.toHaveProperty("content");
+    expect(posts[0]).toMatchObject({
+      title: "From idea to a production AI product",
+      featured: true,
+      status: "published",
+    });
+  });
+
+  it("hides drafts and posts belonging only to another site", async () => {
+    const slugs = (await listFeaturedPublishedSummaries()).map(
+      (post) => post.slug,
+    );
+
+    expect(slugs).not.toContain("draft-internal-notes");
+    expect(slugs).not.toContain("talvio-only-post");
+    expect(slugs).not.toContain("shipping-the-first-slice");
+  });
+
+  it("degrades to an empty list when the query errors", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    state.client = createFakeSupabase([], { error: { message: "boom" } });
+
+    await expect(listFeaturedPublishedSummaries()).resolves.toEqual([]);
+    expect(state.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({ tags: { area: "blog-read" } }),
+    );
+
+    error.mockRestore();
   });
 });
 

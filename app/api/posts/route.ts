@@ -101,10 +101,13 @@ export async function POST(request: Request) {
   }
 
   // Unconditional: unpublishing has to drop the post from these as surely as
-  // publishing adds it. The layout type also covers `/blog/page/[page]`.
+  // publishing adds it. The layout type covers `/blog/page/[page]`. A
+  // page-type revalidate of `/blog/[slug]` busts sibling articles that
+  // render the featured strip — a literal `revalidatePath("/blog")` does not.
   revalidatePath("/blog");
   revalidatePath("/blog", "layout");
   revalidatePath(`/blog/${post.slug}`);
+  revalidatePath("/blog/[slug]", "page");
   revalidatePath("/feed.xml");
   revalidatePath("/sitemap.xml");
 

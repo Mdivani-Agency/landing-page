@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-15 (MDI-140 review: TD-054 recorded)
+Last updated: 2026-09-15 (MDI-140: TD-054; MDI-141: TD-055 recorded)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -457,6 +457,33 @@ cleanup, or stop calling `closeCalendar()` from `onClose` when the effect is
 tearing down. Cover open/close with a focused test.
 
 ## Low priority
+
+### TD-055 — Public blog lists still download every essay body
+
+**Severity:** Low  
+**Area:** Blog / Performance
+
+MDI-141 taught the post-page featured strip to use
+`listFeaturedPublishedSummaries()` (`LIST_COLUMNS`, `featured = true`). The
+`/blog` listing (including `/blog/page/[page]`), `/sitemap.xml`, and
+`/feed.xml` still call `listPublishedPosts()`, which selects `COLUMNS`
+including `content`. Those surfaces only need card or feed fields
+(`BlogPostSummary`: slug, title, description, dates, tags, featured). RSS
+items use `description`, not the Markdown body.
+
+Left out of that PR: changing the shared listing query is broader than the
+post-page strip and would retouch sitemap, feed, and `listPublishedSlugs`.
+
+**Impact:** Each ISR refresh of `/blog`, the sitemap, and the feed transfers
+every published essay body. A large `content` column slows regeneration; a
+list-query failure still degrades to an empty catalog for up to
+`revalidate = 3600`.
+
+**Remediation:** Add a published-summary helper on `LIST_COLUMNS` (or reuse
+the featured-summary mapper without the `featured = true` filter). Point
+`/blog`, sitemap, and feed at it. Keep `listPublishedPosts` / `getPostBySlug`
+for callers that need the body, or drop the full-list helper if nothing
+remains.
 
 ### TD-049 — `BlogPostRow` is hand-maintained against the migration
 

@@ -127,4 +127,100 @@ describe("/blog/[slug]", () => {
       expect.stringContaining("reddit.com/submit"),
     );
   });
+
+  it("shows featured cards when reading a non-featured post", async () => {
+    const page = await BlogPostPage({
+      params: Promise.resolve({ slug: "shipping-the-first-slice" }),
+    });
+    render(page);
+
+    const featuredLink = screen.getByRole("link", {
+      name: "From idea to a production AI product",
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "More featured posts" }),
+    ).toBeInTheDocument();
+    expect(featuredLink).toHaveAttribute("href", "/blog/idea-to-production-ai");
+    expect(featuredLink.closest("article")).toHaveClass(
+      "border-[rgba(159,212,200,0.35)]",
+    );
+    expect(
+      screen.queryByRole("link", { name: "Shipping the first slice" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("hides the featured strip when no other featured posts exist", async () => {
+    state.client = createFakeSupabase(
+      fakeBlogRows.map((row) => ({ ...row, featured: false })),
+    );
+
+    const page = await BlogPostPage({
+      params: Promise.resolve({ slug: "shipping-the-first-slice" }),
+    });
+    render(page);
+
+    expect(
+      screen.queryByRole("heading", { name: "More featured posts" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("hides the featured strip when the current post is the only featured one", async () => {
+    const page = await BlogPostPage({
+      params: Promise.resolve({ slug: "idea-to-production-ai" }),
+    });
+    render(page);
+
+    expect(
+      screen.queryByRole("heading", { name: "More featured posts" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", {
+        name: "From idea to a production AI product",
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows other featured cards after share controls and excludes the current post", async () => {
+    state.client = createFakeSupabase([
+      ...fakeBlogRows,
+      {
+        ...fakeBlogRows[0],
+        slug: "second-featured",
+        title: "A second featured post",
+        featured: true,
+        published_at: "2026-08-20T09:00:00.000Z",
+      },
+    ]);
+
+    const page = await BlogPostPage({
+      params: Promise.resolve({ slug: "idea-to-production-ai" }),
+    });
+    render(page);
+
+    const heading = screen.getByRole("heading", { name: "More featured posts" });
+    const featuredLink = screen.getByRole("link", {
+      name: "A second featured post",
+    });
+    const footer = screen
+      .getByRole("navigation", { name: "Share this post" })
+      .closest(".article-footer");
+
+    expect(
+      heading.compareDocumentPosition(footer!) &
+        Node.DOCUMENT_POSITION_PRECEDING,
+    ).toBeTruthy();
+    expect(featuredLink).toHaveAttribute("href", "/blog/second-featured");
+    expect(featuredLink.closest("article")).toHaveClass(
+      "border-[rgba(159,212,200,0.35)]",
+    );
+    expect(
+      screen.queryByRole("link", {
+        name: "From idea to a production AI product",
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Shipping the first slice" }),
+    ).not.toBeInTheDocument();
+  });
 });
