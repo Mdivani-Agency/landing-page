@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-15 (MDI-141 review: TD-054 recorded)
+Last updated: 2026-09-15 (MDI-141 review: TD-055 recorded)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -458,7 +458,7 @@ tearing down. Cover open/close with a focused test.
 
 ## Low priority
 
-### TD-054 — Public blog lists still download every essay body
+### TD-055 — Public blog lists still download every essay body
 
 **Severity:** Low  
 **Area:** Blog / Performance
