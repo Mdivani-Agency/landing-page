@@ -101,9 +101,12 @@ export async function POST(request: Request) {
   }
 
   // Unconditional: unpublishing has to drop the post from these as surely as
-  // publishing adds it.
+  // publishing adds it. `/blog/[slug]` pages also render the featured strip,
+  // so a page-type revalidate of that segment busts sibling articles — a
+  // literal `revalidatePath("/blog")` does not.
   revalidatePath("/blog");
   revalidatePath(`/blog/${post.slug}`);
+  revalidatePath("/blog/[slug]", "page");
   revalidatePath("/feed.xml");
   revalidatePath("/sitemap.xml");
 
