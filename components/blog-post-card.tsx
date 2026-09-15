@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Card, CardText, CardTitle } from "@/components/card";
 import { Eyebrow } from "@/components/eyebrow";
 import { BlogTags } from "@/components/blog-tags";
-import { formatPostDate, type BlogPost } from "@/lib/blog";
+import { formatPostDate, type BlogPostSummary } from "@/lib/blog";
 
 type BlogPostCardProps = {
-  post: BlogPost;
+  post: BlogPostSummary;
 };
 
 export function BlogPostCard({ post }: BlogPostCardProps) {

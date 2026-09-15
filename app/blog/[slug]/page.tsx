@@ -10,7 +10,7 @@ import {
   featuredPostsExcept,
   formatPostDate,
   getPostBySlug,
-  listPublishedPosts,
+  listFeaturedPublishedSummaries,
   listPublishedSlugs,
 } from "@/lib/blog";
 import { absoluteUrl, articleJsonLd, breadcrumbJsonLd } from "@/lib/blog-seo";
@@ -49,7 +49,10 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const [post, featured] = await Promise.all([
+    getPostBySlug(slug),
+    listFeaturedPublishedSummaries(),
+  ]);
 
   if (!post) {
     notFound();
@@ -58,7 +61,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const publishedLabel = post.publishedAt
     ? formatPostDate(post.publishedAt)
     : null;
-  const otherFeatured = featuredPostsExcept(await listPublishedPosts(), slug);
+  const otherFeatured = featuredPostsExcept(featured, slug);
 
   return (
     <>

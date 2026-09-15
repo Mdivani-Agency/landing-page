@@ -81,6 +81,23 @@ function toPost(row: BlogPostRow): BlogPost {
   };
 }
 
+function toSummary(row: Omit<BlogPostRow, "content">): BlogPostSummary {
+  const post = toPost({ ...row, content: "" });
+  return {
+    slug: post.slug,
+    title: post.title,
+    description: post.description,
+    coverImageUrl: post.coverImageUrl,
+    tags: post.tags,
+    sites: post.sites,
+    status: post.status,
+    featured: post.featured,
+    publishedAt: post.publishedAt,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+  };
+}
+
 function toRow(record: BlogPostRecord): BlogPostRow {
   return {
     slug: record.slug,
@@ -192,13 +209,42 @@ export function partitionPublishedPosts(posts: BlogPost[]): {
  * post being read so a card never links to the current page. Callers hide
  * the strip when this returns an empty list.
  */
-export function featuredPostsExcept(
-  posts: BlogPost[],
+export function featuredPostsExcept<T extends { featured: boolean; slug: string }>(
+  posts: T[],
   slug: string,
-): BlogPost[] {
-  return partitionPublishedPosts(posts).featured.filter(
-    (post) => post.slug !== slug,
-  );
+): T[] {
+  return posts.filter((post) => post.featured && post.slug !== slug);
+}
+
+/**
+ * Card fields for the post-page discovery strip. Omits `content` and asks
+ * the database for featured published rows only — the essay bodies are not
+ * needed to render `BlogPostCard`.
+ */
+export async function listFeaturedPublishedSummaries(): Promise<
+  BlogPostSummary[]
+> {
+  const client = readClient();
+
+  if (!client) {
+    return [];
+  }
+
+  const { data, error } = await client
+    .from(TABLE)
+    .select(LIST_COLUMNS)
+    .eq("status", "published")
+    .eq("featured", true)
+    .contains("sites", [siteKey])
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    console.error("blog: list featured failed", error);
+    reportReadFailure("blog: list featured failed", error);
+    return [];
+  }
+
+  return ((data ?? []) as Omit<BlogPostRow, "content">[]).map(toSummary);
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -280,22 +326,7 @@ export async function listPostRecords(filters?: {
     throw new Error(`blog: list records failed: ${error.message}`);
   }
 
-  return ((data ?? []) as Omit<BlogPostRow, "content">[]).map((row) => {
-    const post = toPost({ ...row, content: "" });
-    return {
-      slug: post.slug,
-      title: post.title,
-      description: post.description,
-      coverImageUrl: post.coverImageUrl,
-      tags: post.tags,
-      sites: post.sites,
-      status: post.status,
-      featured: post.featured,
-      publishedAt: post.publishedAt,
-      createdAt: post.createdAt,
-      updatedAt: post.updatedAt,
-    };
-  });
+  return ((data ?? []) as Omit<BlogPostRow, "content">[]).map(toSummary);
 }
 
 export async function upsertPostRecord(
