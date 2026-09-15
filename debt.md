@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-15 (MDI-141 review: TD-055 recorded)
+Last updated: 2026-09-15 (MDI-140: TD-054; MDI-141: TD-055 recorded)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -465,11 +465,11 @@ tearing down. Cover open/close with a focused test.
 
 MDI-141 taught the post-page featured strip to use
 `listFeaturedPublishedSummaries()` (`LIST_COLUMNS`, `featured = true`). The
-`/blog` listing, `/sitemap.xml`, and `/feed.xml` still call
-`listPublishedPosts()`, which selects `COLUMNS` including `content`. Those
-surfaces only need card or feed fields (`BlogPostSummary`: slug, title,
-description, dates, tags, featured). RSS items use `description`, not the
-Markdown body.
+`/blog` listing (including `/blog/page/[page]`), `/sitemap.xml`, and
+`/feed.xml` still call `listPublishedPosts()`, which selects `COLUMNS`
+including `content`. Those surfaces only need card or feed fields
+(`BlogPostSummary`: slug, title, description, dates, tags, featured). RSS
+items use `description`, not the Markdown body.
 
 Left out of that PR: changing the shared listing query is broader than the
 post-page strip and would retouch sitemap, feed, and `listPublishedSlugs`.
@@ -566,6 +566,26 @@ only) is a separate dashboard prerequisite, not this item.
 
 Recorded from the GitHub Actions cutover re-review; left out of that PR
 because it is repository settings, not workflow YAML.
+
+### TD-054 — `blog_posts_slug_check` still allows reserved slug `page`
+
+**Severity:** Low  
+**Area:** Blog / Schema
+
+`validateBlogWritePayload` and the MCP Zod slug fields reject `page` so it
+cannot collide with `/blog/page/[page]`. `public.blog_posts` CHECK
+`blog_posts_slug_check` only enforces the hyphenated pattern and length, so a
+Table Editor or SQL insert can still store `page`. A published row would 404
+at `/blog/page` because the static `page` segment wins over `[slug]`.
+
+**Impact:** Dashboard or SQL writers can create an unreachable public post.
+
+**Remediation:** Add a follow-up `ALTER` migration that excludes reserved
+slugs, ideally from the same `RESERVED_SLUGS` list as `lib/blog-schema.ts`.
+Do not rewrite `20260903165746_create_blog_posts.sql` (TD-045).
+
+Recorded from MDI-140 review; left out of that PR because product writes
+already reject the slug and a schema deploy is a separate migration.
 
 ### TD-022 — Duplicated SVG sources and unused assets remain
 
@@ -873,7 +893,7 @@ These are not automatically defects:
    `development` (TD-053), and confirm the first
    `migrate_supabase` apply (TD-044, TD-045). Set `BLOG_WRITE_TOKEN` on
    Vercel only once that apply succeeds. Inquiry `emailed_at` / retry
-   dedupe is TD-051.
+   dedupe is TD-051. Reserved-slug CHECK `page` is TD-054.
 4. Simplify and harden testimonial and calendar interactions (TD-012–TD-014,
    TD-043).
 5. Decide analytics/consent and add security headers (TD-015, TD-016).

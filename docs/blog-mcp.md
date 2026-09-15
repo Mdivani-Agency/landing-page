@@ -41,7 +41,8 @@ sent them, so a validate-then-update path cannot replay create defaults.
 Write tools carry `destructiveHint`, so Cursor prompts before they run.
 Publishing a new post requires an explicit `status: "published"`. Send
 `featured: true` to pin a published post above the chronological `/blog`
-grid. There is no featured cap.
+grid on page 1. There is no featured cap. The public listing paginates the
+non-featured grid at 6 posts per page (`/blog`, then `/blog/page/2`).
 
 `BLOG_API_BASE_URL` is allowlisted to localhost and `mdivani.agency`. The
 HTTP client uses `redirect: "error"` so the write token cannot follow a

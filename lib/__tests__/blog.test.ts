@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createFakeSupabase,
+  fakeBlogRow,
   fakeBlogRows,
   type FakeSupabase,
 } from "@/test-utils/supabase-mock";
@@ -24,6 +25,10 @@ vi.mock("@sentry/nextjs", () => ({
 }));
 
 import {
+  BLOG_LIST_PAGE_SIZE,
+  blogListPageNumbers,
+  blogListPath,
+  blogPaginationItems,
   featuredPostsExcept,
   formatPostDate,
   getPostBySlug,
@@ -32,6 +37,8 @@ import {
   listPostRecords,
   listPublishedPosts,
   listPublishedSlugs,
+  paginateBlogListing,
+  parseBlogListPageParam,
   partitionPublishedPosts,
   upsertPostRecord,
 } from "@/lib/blog";
@@ -51,6 +58,39 @@ describe("listPublishedPosts", () => {
       "shipping-the-first-slice",
       "idea-to-production-ai",
     ]);
+  });
+
+  it("breaks published_at ties by slug so page slices stay stable", async () => {
+    const tiedAt = "2026-08-20T09:00:00.000Z";
+
+    state.client = createFakeSupabase([
+      ...fakeBlogRows,
+      fakeBlogRow({
+        slug: "zebra-note",
+        title: "Zebra note",
+        published_at: tiedAt,
+      }),
+      fakeBlogRow({
+        slug: "apple-note",
+        title: "Apple note",
+        published_at: tiedAt,
+      }),
+    ]);
+
+    const slugs = (await listPublishedPosts()).map((post) => post.slug);
+
+    expect(slugs).toEqual([
+      "apple-note",
+      "zebra-note",
+      "shipping-the-first-slice",
+      "idea-to-production-ai",
+    ]);
+
+    const first = paginateBlogListing(await listPublishedPosts(), 1, 1);
+    const second = paginateBlogListing(await listPublishedPosts(), 2, 1);
+
+    expect(first.posts.map((post) => post.slug)).toEqual(["apple-note"]);
+    expect(second.posts.map((post) => post.slug)).toEqual(["zebra-note"]);
   });
 
   it("hides drafts and posts belonging only to another site", async () => {
@@ -201,6 +241,102 @@ describe("listFeaturedPublishedSummaries", () => {
     );
 
     error.mockRestore();
+  });
+});
+
+describe("blog listing pagination", () => {
+  it("documents the public listing page size", () => {
+    expect(BLOG_LIST_PAGE_SIZE).toBe(6);
+  });
+
+  it("uses /blog for page 1 and /blog/page/N after that", () => {
+    expect(blogListPath(1)).toBe("/blog");
+    expect(blogListPath(2)).toBe("/blog/page/2");
+  });
+
+  it("accepts only positive integer page params", () => {
+    expect(parseBlogListPageParam("2")).toBe(2);
+    expect(parseBlogListPageParam("1")).toBe(1);
+    expect(parseBlogListPageParam("0")).toBeNull();
+    expect(parseBlogListPageParam("02")).toBeNull();
+    expect(parseBlogListPageParam("page")).toBeNull();
+    expect(parseBlogListPageParam("-1")).toBeNull();
+  });
+
+  it("paginates only the chronological grid and keeps featured out of the slice", async () => {
+    const extras = Array.from({ length: 8 }, (_, index) => ({
+      slug: `extra-${index + 1}`,
+      title: `Extra ${index + 1}`,
+      description: "Enough description for the card.",
+      content: "## Hello\n\nThis is enough markdown content.",
+      coverImageUrl: null,
+      tags: [],
+      sites: ["agency" as const],
+      status: "published" as const,
+      featured: false,
+      publishedAt: new Date(`2026-07-${String(index + 1).padStart(2, "0")}T09:00:00.000Z`),
+      createdAt: new Date("2026-07-01T09:00:00.000Z"),
+      updatedAt: new Date("2026-07-01T09:00:00.000Z"),
+    }));
+
+    const posts = [...(await listPublishedPosts()), ...extras];
+    const first = paginateBlogListing(posts, 1);
+    const second = paginateBlogListing(posts, 2);
+
+    expect(first.featured.map((post) => post.slug)).toEqual([
+      "idea-to-production-ai",
+    ]);
+    expect(first.posts).toHaveLength(6);
+    expect(first.posts.map((post) => post.slug)).not.toContain(
+      "idea-to-production-ai",
+    );
+    expect(first.pageCount).toBe(2);
+    expect(first.inRange).toBe(true);
+
+    expect(second.posts).toHaveLength(3);
+    expect(second.featured.map((post) => post.slug)).toEqual([
+      "idea-to-production-ai",
+    ]);
+    expect(second.inRange).toBe(true);
+    expect(paginateBlogListing(posts, 3).inRange).toBe(false);
+  });
+
+  it("lists only page numbers after page 1 for static paths and the sitemap", async () => {
+    expect(blogListPageNumbers(await listPublishedPosts())).toEqual([]);
+
+    const extras = Array.from({ length: 6 }, (_, index) => ({
+      slug: `extra-${index + 1}`,
+      title: `Extra ${index + 1}`,
+      description: "Enough description for the card.",
+      content: "## Hello\n\nThis is enough markdown content.",
+      coverImageUrl: null,
+      tags: [],
+      sites: ["agency" as const],
+      status: "published" as const,
+      featured: false,
+      publishedAt: new Date(`2026-07-${String(index + 1).padStart(2, "0")}T09:00:00.000Z`),
+      createdAt: new Date("2026-07-01T09:00:00.000Z"),
+      updatedAt: new Date("2026-07-01T09:00:00.000Z"),
+    }));
+
+    expect(blogListPageNumbers([...(await listPublishedPosts()), ...extras])).toEqual([
+      2,
+    ]);
+  });
+
+  it("collapses long page ranges around the current page", () => {
+    expect(blogPaginationItems(1, 4)).toEqual([1, 2, 3, 4]);
+    expect(blogPaginationItems(1, 20)).toEqual([1, 2, "ellipsis", 20]);
+    expect(blogPaginationItems(10, 20)).toEqual([
+      1,
+      "ellipsis",
+      9,
+      10,
+      11,
+      "ellipsis",
+      20,
+    ]);
+    expect(blogPaginationItems(20, 20)).toEqual([1, "ellipsis", 19, 20]);
   });
 });
 
