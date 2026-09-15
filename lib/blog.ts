@@ -187,6 +187,20 @@ export function partitionPublishedPosts(posts: BlogPost[]): {
   return { featured, rest };
 }
 
+/**
+ * Featured posts for the discovery strip on `/blog/[slug]`. Excludes the
+ * post being read so a card never links to the current page. Callers hide
+ * the strip when this returns an empty list.
+ */
+export function featuredPostsExcept(
+  posts: BlogPost[],
+  slug: string,
+): BlogPost[] {
+  return partitionPublishedPosts(posts).featured.filter(
+    (post) => post.slug !== slug,
+  );
+}
+
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const client = readClient();
 

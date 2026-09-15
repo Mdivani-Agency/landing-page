@@ -24,6 +24,7 @@ vi.mock("@sentry/nextjs", () => ({
 }));
 
 import {
+  featuredPostsExcept,
   formatPostDate,
   getPostBySlug,
   getPostRecordBySlug,
@@ -129,6 +130,39 @@ describe("partitionPublishedPosts", () => {
     expect(partitionPublishedPosts(posts).featured.every((post) => post.status === "published")).toBe(
       true,
     );
+  });
+});
+
+describe("featuredPostsExcept", () => {
+  it("returns other featured posts and drops the current slug", async () => {
+    const posts = await listPublishedPosts();
+    const featured = {
+      ...posts[1],
+      slug: "second-featured",
+      featured: true,
+    };
+
+    expect(
+      featuredPostsExcept([...posts, featured], "idea-to-production-ai").map(
+        (post) => post.slug,
+      ),
+    ).toEqual(["second-featured"]);
+  });
+
+  it("returns an empty list when the current post is the only featured one", async () => {
+    const posts = await listPublishedPosts();
+
+    expect(featuredPostsExcept(posts, "idea-to-production-ai")).toEqual([]);
+  });
+
+  it("keeps featured posts when the current post is not featured", async () => {
+    const posts = await listPublishedPosts();
+
+    expect(
+      featuredPostsExcept(posts, "shipping-the-first-slice").map(
+        (post) => post.slug,
+      ),
+    ).toEqual(["idea-to-production-ai"]);
   });
 });
 
