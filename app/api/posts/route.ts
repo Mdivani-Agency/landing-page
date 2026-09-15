@@ -101,8 +101,9 @@ export async function POST(request: Request) {
   }
 
   // Unconditional: unpublishing has to drop the post from these as surely as
-  // publishing adds it.
+  // publishing adds it. The layout type also covers `/blog/page/[page]`.
   revalidatePath("/blog");
+  revalidatePath("/blog", "layout");
   revalidatePath(`/blog/${post.slug}`);
   revalidatePath("/feed.xml");
   revalidatePath("/sitemap.xml");

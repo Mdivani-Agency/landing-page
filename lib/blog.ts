@@ -187,6 +187,100 @@ export function partitionPublishedPosts(posts: BlogPost[]): {
   return { featured, rest };
 }
 
+/**
+ * Chronological `/blog` grid page size. Featured posts sit above the grid on
+ * page 1 only and are excluded from this count, so a catalog of 1 featured +
+ * 6 regular posts still fits on a single page.
+ */
+export const BLOG_LIST_PAGE_SIZE = 6;
+
+export type BlogPaginationItem = number | "ellipsis";
+
+export type BlogListingPage = {
+  featured: BlogPost[];
+  posts: BlogPost[];
+  page: number;
+  pageCount: number;
+  pageSize: number;
+  total: number;
+  inRange: boolean;
+};
+
+export function blogListPath(page: number): string {
+  return page <= 1 ? "/blog" : `/blog/page/${page}`;
+}
+
+export function parseBlogListPageParam(value: string): number | null {
+  if (!/^[1-9]\d{0,5}$/.test(value)) {
+    return null;
+  }
+
+  return Number(value);
+}
+
+export function paginateBlogListing(
+  posts: BlogPost[],
+  page: number,
+  pageSize = BLOG_LIST_PAGE_SIZE,
+): BlogListingPage {
+  const { featured, rest } = partitionPublishedPosts(posts);
+  const size = Math.max(1, pageSize);
+  const total = rest.length;
+  const pageCount = Math.max(1, Math.ceil(total / size));
+  const inRange = Number.isInteger(page) && page >= 1 && page <= pageCount;
+  const current = inRange ? page : 1;
+  const start = (current - 1) * size;
+
+  return {
+    featured,
+    posts: rest.slice(start, start + size),
+    page: current,
+    pageCount,
+    pageSize: size,
+    total,
+    inRange,
+  };
+}
+
+export function blogListPageNumbers(posts: BlogPost[]): number[] {
+  const { rest } = partitionPublishedPosts(posts);
+  const pageCount = Math.ceil(rest.length / BLOG_LIST_PAGE_SIZE);
+
+  return Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) => index + 2);
+}
+
+/**
+ * Compact page list: every page when there are few, otherwise first/last plus
+ * a window around the current page with ellipses for the gaps.
+ */
+export function blogPaginationItems(
+  current: number,
+  pageCount: number,
+): BlogPaginationItem[] {
+  if (pageCount <= 7) {
+    return Array.from({ length: pageCount }, (_, index) => index + 1);
+  }
+
+  const start = Math.max(2, current - 1);
+  const end = Math.min(pageCount - 1, current + 1);
+  const items: BlogPaginationItem[] = [1];
+
+  if (start > 2) {
+    items.push("ellipsis");
+  }
+
+  for (let page = start; page <= end; page += 1) {
+    items.push(page);
+  }
+
+  if (end < pageCount - 1) {
+    items.push("ellipsis");
+  }
+
+  items.push(pageCount);
+  return items;
+}
+
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const client = readClient();
 

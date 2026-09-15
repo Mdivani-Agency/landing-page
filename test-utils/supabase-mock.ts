@@ -180,7 +180,7 @@ export function supabaseModuleMock(
   };
 }
 
-function row(overrides: FakeRow): FakeRow {
+export function fakeBlogRow(overrides: FakeRow): FakeRow {
   const iso = "2026-08-01T09:00:00.000Z";
 
   return {
@@ -204,19 +204,19 @@ function row(overrides: FakeRow): FakeRow {
  * draft, two published dates, and a post belonging to the other front end.
  */
 export const fakeBlogRows: FakeRow[] = [
-  row({
+  fakeBlogRow({
     slug: "idea-to-production-ai",
     title: "From idea to a production AI product",
     tags: ["AI", "product", "greenfield"],
     featured: true,
     published_at: "2026-08-01T09:00:00.000Z",
   }),
-  row({
+  fakeBlogRow({
     slug: "shipping-the-first-slice",
     title: "Shipping the first slice",
     published_at: "2026-08-15T09:00:00.000Z",
   }),
-  row({
+  fakeBlogRow({
     slug: "draft-internal-notes",
     title: "Internal notes (draft)",
     description: "This draft must never appear on the public blog.",
@@ -224,7 +224,7 @@ export const fakeBlogRows: FakeRow[] = [
     status: "draft",
     published_at: null,
   }),
-  row({
+  fakeBlogRow({
     slug: "talvio-only-post",
     title: "Only for Talvio",
     sites: ["talvio"],
