@@ -48,6 +48,24 @@ export const capabilities = [
   },
 ] as const;
 
+export const namedOutcomes = [
+  {
+    id: "prototype-production",
+    title: "Prototype → production sprint",
+    body: "You have something that almost works — or a clear wedge that doesn’t exist yet. We audit what’s real, cut what isn’t, and ship a production path to launch: architecture, product surface, and the boring bits that make it shippable.",
+  },
+  {
+    id: "ai-survives-users",
+    title: "AI that survives users",
+    body: "Agents, RAG, document workflows, and LLM features wired into a real product. Evaluated, observable, and owned like any other production system — not a slide deck.",
+  },
+  {
+    id: "fractional-ownership",
+    title: "Fractional senior ownership",
+    body: "Architecture decisions, critical-path engineering, and technical leadership while you stay lean. Start with me. Scale the bench only when the roadmap is bigger than one senior should carry.",
+  },
+] as const;
+
 export const processSteps = [
   {
     title: "Understand",

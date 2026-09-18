@@ -2,10 +2,10 @@ import { HomeSections } from "@/components/sections/home-sections";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
-  title: "Build your AI product from idea to production | Giorgi Mdivani",
+  title: "Senior software ownership for founders who need to ship | Mdivani Agency",
   exactTitle: true,
   description:
-    "Work directly with a senior AI engineer. Architecture, the first production build, and a team when you need one.",
+    "Prototype-to-production sprints, AI that survives real users, and fractional senior ownership — for UK and US founders who need a critical path owner, not a staff-aug bench.",
   path: "/",
 });
 

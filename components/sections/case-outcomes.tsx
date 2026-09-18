@@ -20,7 +20,7 @@ export function CaseOutcomes() {
         eyebrow="Proof"
         headingId="proof-heading"
         title={<>Named products, <br /> in production, with outcomes.</>}
-        copy="Outcomes below are from public descriptions of that work — not invented testimonials."
+        copy="Proof beats another “senior team” claim."
       />
       <div className="grid gap-2 md:grid-cols-3">
         {featuredCases.map((item) => (

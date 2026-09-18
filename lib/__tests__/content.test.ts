@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   capabilities,
+  namedOutcomes,
   processSteps,
   selectedWork,
   testimonials,
 } from "@/lib/content";
 import sitemap from "@/app/sitemap";
 import {
+  auditInquiryHref,
   footerLinks,
   legalLinks,
   navLinks,
@@ -28,6 +30,22 @@ describe("capabilities", () => {
       expect(capability).not.toHaveProperty("href");
       expect(capability.summary).not.toBe("");
       expect(capability.items.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("namedOutcomes", () => {
+  it("leads with three named founder outcomes, not a service catalog", () => {
+    expect(namedOutcomes).toHaveLength(3);
+
+    const ids = namedOutcomes.map((outcome) => outcome.id);
+    expect(new Set(ids).size).toBe(ids.length);
+
+    for (const outcome of namedOutcomes) {
+      expect(outcome).not.toHaveProperty("href");
+      expect(outcome).not.toHaveProperty("items");
+      expect(outcome.title).not.toBe("");
+      expect(outcome.body).not.toBe("");
     }
   });
 });
@@ -139,6 +157,7 @@ describe("site config", () => {
 
     expect(navHrefs).toContain("/inquiry");
     expect(navHrefs).toContain("/blog");
+    expect(auditInquiryHref).toBe("/inquiry#audit");
     expect(footerHrefs).not.toContain("/startup-development");
   });
 

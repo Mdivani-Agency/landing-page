@@ -30,6 +30,9 @@ describe("/how-i-work", () => {
 
     expect(
       screen.getAllByRole("link", { name: /Let’s talk about your product/ }),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
+    expect(
+      screen.getAllByRole("link", { name: /Tell me what you’re shipping/ }),
+    ).toHaveLength(1);
   });
 });

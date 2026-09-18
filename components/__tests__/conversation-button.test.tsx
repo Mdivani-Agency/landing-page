@@ -90,6 +90,18 @@ describe("ContactCtaLink", () => {
 
     expect(screen.queryByTitle("Google Calendar")).not.toBeInTheDocument();
   });
+
+  it("accepts an inquiry hash so audit CTAs reuse the same form", () => {
+    render(
+      <ContactCtaLink href="/inquiry#audit" title="Book a production-readiness audit">
+        Book a production-readiness audit
+      </ContactCtaLink>,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Book a production-readiness audit" }),
+    ).toHaveAttribute("href", "/inquiry#audit");
+  });
 });
 
 describe("page CTAs", () => {
@@ -106,16 +118,20 @@ describe("page CTAs", () => {
       </>,
     );
 
-    const links = screen.getAllByRole("link", {
+    const shippingLinks = screen.getAllByRole("link", {
+      name: "Tell me what you’re shipping",
+    });
+    const introLink = screen.getByRole("link", {
       name: "Let’s talk about your product",
     });
 
-    expect(links).toHaveLength(3);
-    for (const link of links) {
+    expect(shippingLinks).toHaveLength(2);
+    for (const link of shippingLinks) {
       expect(link).toHaveAttribute("href", "/inquiry");
     }
+    expect(introLink).toHaveAttribute("href", "/inquiry");
     expect(
-      screen.queryByRole("button", { name: "Let’s talk about your product" }),
+      screen.queryByRole("button", { name: "Tell me what you’re shipping" }),
     ).not.toBeInTheDocument();
   });
 

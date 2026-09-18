@@ -1,41 +1,21 @@
-import { Card, CardText, CardTitle, cardSubgrid } from "@/components/card";
-import { Eyebrow } from "@/components/eyebrow";
+import { Card, CardText, CardTitle } from "@/components/card";
 import { Section } from "@/components/section";
 import { SectionHeader } from "@/components/section-header";
-import { capabilities } from "@/lib/content";
+import { namedOutcomes } from "@/lib/content";
 
 export function WhatIBuild() {
   return (
-    <Section id="build" labelledBy="build-heading">
+    <Section id="start" labelledBy="start-heading">
       <SectionHeader
-        eyebrow="What I build"
-        headingId="build-heading"
-        title={<>One engagement, <br /> not three service lines.</>}
-        copy="A first build needs AI that holds up with real users, a product around it that ships, and an architecture underneath that still makes sense later. That is one piece of work, and there is nothing here you have to choose between."
+        eyebrow="Named outcomes"
+        headingId="start-heading"
+        title="Three ways founders usually start."
       />
-      {/* Four row tracks per band feed `cardSubgrid`, so every card in a band
-          aligns row for row. The body track absorbs the slack left by shorter
-          lists, which keeps the cards in a band at a shared height. */}
-      <div className="grid gap-2 md:grid-cols-2 md:grid-rows-[repeat(2,auto_auto_auto_1fr)] lg:grid-cols-[1.2fr_1fr_1fr] lg:grid-rows-[auto_auto_auto_1fr]">
-        {capabilities.map((capability) => (
-          <Card
-            key={capability.id}
-            variant={capability.featured ? "featured" : "default"}
-            className={[
-              cardSubgrid,
-              capability.featured ? "md:col-span-full lg:col-auto" : null,
-            ]
-              .filter(Boolean)
-              .join(" ")}
-          >
-            <Eyebrow variant="card">{capability.eyebrow}</Eyebrow>
-            <CardTitle>{capability.title}</CardTitle>
-            <CardText>{capability.summary}</CardText>
-            <ul className="mt-2.5 flex flex-col gap-1 text-sm">
-              {capability.items.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+      <div className="grid gap-2 md:grid-cols-3">
+        {namedOutcomes.map((outcome) => (
+          <Card key={outcome.id}>
+            <CardTitle>{outcome.title}</CardTitle>
+            <CardText>{outcome.body}</CardText>
           </Card>
         ))}
       </div>
