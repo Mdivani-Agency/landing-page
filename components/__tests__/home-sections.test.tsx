@@ -19,7 +19,7 @@ describe("HomeSections", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Ship the product. Own the architecture. Skip the staff-aug bench.",
+        name: /Ship the product\. Own the architecture\.\s*Skip the staff-aug bench\./,
       }),
     ).toBeInTheDocument();
 

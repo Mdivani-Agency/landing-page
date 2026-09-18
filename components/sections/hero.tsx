@@ -14,7 +14,9 @@ export function Hero() {
         {site.personName} · {site.personRole}
       </Eyebrow>
       <h1 id="hero-heading" className="max-w-[22ch] font-serif text-display">
-        Ship the product. Own the architecture. Skip the staff-aug bench.
+        Ship the product. Own the architecture.{" "}
+        <br />
+        Skip the staff-aug bench.
       </h1>
       <p className="mt-3 max-w-[62rem] text-md leading-[1.55] text-muted">
         Founders hire me when they need senior software ownership — product,
