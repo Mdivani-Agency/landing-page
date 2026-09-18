@@ -19,7 +19,11 @@ export default function InquiryPage() {
         lede="Share a bit of context and I will reply within 1–2 business days. Prefer a live conversation? Book a call from the header."
         showConversationButton={false}
       />
-      <Section labelledBy="contact-form-heading" className="max-w-[72rem]">
+      <Section
+        id="audit"
+        labelledBy="contact-form-heading"
+        className="max-w-[72rem]"
+      >
         <h2 id="contact-form-heading" className="sr-only">
           Project inquiry
         </h2>

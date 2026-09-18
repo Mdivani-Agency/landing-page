@@ -13,8 +13,8 @@ export function Footer() {
         <section className="flex flex-col gap-2 max-w-md">
           <Logo />
           <p className="text-sm text-muted">
-            {site.personName}, {site.personRole}. Senior-led engineering for
-            founders — scalable when the product needs a team.
+            {site.personName} — senior software ownership for founders.
+            Scalable when the product needs a team.
           </p>
           <MailLink />
         </section>

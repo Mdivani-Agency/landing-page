@@ -25,6 +25,9 @@ export type SiteKey = (typeof siteKeys)[number];
 
 export const siteKey: SiteKey = "agency";
 
+/** Inquiry form, with a hash so audit CTAs land on the same page without a new route. */
+export const auditInquiryHref = "/inquiry#audit";
+
 export const navLinks = [
   { href: "/work", label: "Selected Work", title: "Selected work" },
   { href: "/how-i-work", label: "How I Work", title: "How I work" },

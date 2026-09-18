@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ContactCtaLink } from "@/components/conversation-button";
 import { Eyebrow } from "@/components/eyebrow";
-import { site } from "@/lib/site";
+import { auditInquiryHref, site } from "@/lib/site";
 
 export function Hero() {
   return (
@@ -13,25 +13,32 @@ export function Hero() {
       <Eyebrow>
         {site.personName} · {site.personRole}
       </Eyebrow>
-      <h1 id="hero-heading" className="max-w-[18ch] font-serif text-display">
-        Build your AI product from idea to production.
+      <h1 id="hero-heading" className="max-w-[22ch] font-serif text-display">
+        Ship the product. Own the architecture.{" "}
+        <br />
+        Skip the staff-aug bench.
       </h1>
       <p className="mt-3 max-w-[62rem] text-md leading-[1.55] text-muted">
-        Founders hire me to take an AI product from idea to production. You work
-        with me. I bring people when the build needs more than one senior.
+        Founders hire me when they need senior software ownership — product,
+        architecture, and AI that has to work with real users — without standing
+        up a full engineering org first.
+      </p>
+      <p className="mt-2 max-w-[62rem] text-md leading-[1.55] text-muted">
+        You work with me. I bring people only when the critical path needs more
+        than one senior.
       </p>
       <div className="mt-4 flex flex-wrap gap-1.5">
-        <ContactCtaLink>Let’s talk about your product</ContactCtaLink>
+        <ContactCtaLink>Tell me what you’re shipping</ContactCtaLink>
         <Link
-          href="/work"
+          href={auditInquiryHref}
           className="inline-flex min-h-6 items-center justify-center rounded-full border border-subtle bg-transparent px-3 text-sm leading-[1.2] text-primary no-underline hover:opacity-[0.86]"
-          title="See selected work"
+          title="Book a production-readiness audit"
         >
-          See my work
+          Book a production-readiness audit
         </Link>
       </div>
       <p className="mt-auto pt-[6rem] text-xs text-muted">
-        Working with founders across the UK, US, and internationally.
+        Working with founders across the UK and US.
       </p>
     </section>
   );

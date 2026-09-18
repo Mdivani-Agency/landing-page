@@ -6,25 +6,23 @@ export function StudioModel() {
   return (
     <Section id="studio" labelledBy="studio-heading">
       <SectionHeader
-        eyebrow="The studio"
+        eyebrow="How it works"
         headingId="studio-heading"
-        title="Senior-led. Scalable when needed."
-        copy="Mdivani Agency is the studio behind the work, not a traditional development shop. I stay the technical contact. When a product needs more than one senior engineer, I bring trusted people in — without inserting account managers between you and the build."
+        title="One owner on the critical path."
+        copy="A first build usually needs product that ships, AI that holds up with real users, and architecture that still makes sense in six months. That is one piece of work — not three packages you have to assemble."
       />
       <div className="grid gap-2 md:grid-cols-2">
         <Card>
           <CardTitle>You work with me</CardTitle>
           <CardText>
-            Discovery, architecture, and the critical path are mine. That is
-            the point: a founder gets a senior partner, not a relay of PMs and
-            layered developers.
+            Discovery, architecture, and the critical path stay with Giorgi.
           </CardText>
         </Card>
         <Card>
-          <CardTitle>The agency scales the bench</CardTitle>
+          <CardTitle>The studio scales when needed</CardTitle>
           <CardText>
-            Extra engineers and specialists join when the scope needs them.
-            I remain accountable for quality, architecture, and what ships.
+            Extra engineers join for scope that needs them. No account-manager
+            layer between you and the build.
           </CardText>
         </Card>
       </div>

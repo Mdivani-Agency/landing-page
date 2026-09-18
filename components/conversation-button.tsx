@@ -21,6 +21,8 @@ type ContactCtaLinkProps = {
   variant?: CtaVariant;
   size?: CtaSize;
   className?: string;
+  href?: string;
+  title?: string;
 };
 
 const baseClass =
@@ -77,11 +79,13 @@ export function ContactCtaLink({
   variant = "primary",
   size = "md",
   className = "",
+  href = "/inquiry",
+  title = "Tell me about your project",
 }: ContactCtaLinkProps) {
   return (
     <Link
-      href="/inquiry"
-      title="Tell me about your project"
+      href={href}
+      title={title}
       className={ctaButtonClassName({ variant, size, className })}
     >
       <MessageCircleIcon className="size-2.5 mr-1" />

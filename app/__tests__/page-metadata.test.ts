@@ -41,7 +41,10 @@ function titleText(title: unknown): string {
 describe("primary page metadata", () => {
   it("leads the homepage with the promise, not a job title", () => {
     expect(titleText(homeMetadata.title)).toBe(
-      "Build your AI product from idea to production | Giorgi Mdivani",
+      "Senior software ownership for founders who need to ship | Mdivani Agency",
+    );
+    expect(homeMetadata.description).toBe(
+      "Prototype-to-production sprints, AI that survives real users, and fractional senior ownership — for UK and US founders who need a critical path owner, not a staff-aug bench.",
     );
   });
 

@@ -16,8 +16,8 @@ const cardShell = "flex h-full flex-col rounded-card border bg-card p-3";
  * out of step with the neighbouring cards.
  *
  * Requires exactly four direct children, and a parent grid that declares four
- * row tracks per band (see `WhatIBuild`). Row gaps are zeroed because cards
- * space their own children with margins; the parent gap still separates bands.
+ * row tracks per band. Row gaps are zeroed because cards space their own
+ * children with margins; the parent gap still separates bands.
  */
 export const cardSubgrid =
   "md:row-span-4 md:grid md:grid-rows-subgrid md:gap-y-0";
