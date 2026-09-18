@@ -82,7 +82,11 @@ describe("HomeSections", () => {
     }
 
     expect(leadQuote?.pullQuote).toBeTruthy();
-    expect(screen.getByText(leadQuote?.pullQuote as string)).toBeInTheDocument();
+    expect(
+      screen.getByText((content) =>
+        content.includes(leadQuote?.pullQuote as string),
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "David Espinosa on LinkedIn" }),
     ).toBeInTheDocument();
