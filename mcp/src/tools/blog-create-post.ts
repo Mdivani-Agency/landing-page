@@ -10,6 +10,8 @@ export const blogCreatePost = defineTool({
 
 On create, omitted status becomes draft and omitted featured becomes false. Publishing requires an explicit status: "published". Send featured: true to pin the post above the chronological /blog grid once it is published. Draft + featured is stored but ignored by public reads. There is no featured cap.
 
+Route the post with sites, not with a bare site-key tag. On this site, a tag equal to talvio, Talvio, or TALVIO hides a published post from /blog, the sitemap, and the feed unless tags also include agency, Agency, or AGENCY. A longer tag such as talvio-product still shows.
+
 Prefer blog_validate_post first, and send its \`value\` as-is — do not add status/tags/cover defaults. The result echoes the target base URL so you can see whether this write hit production or localhost.
 
 ${FORMATTING_CONTRACT}`,

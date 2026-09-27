@@ -67,7 +67,7 @@ const LIST_COLUMNS =
 type SiteScopedQuery = {
   eq: (column: string, value: string) => SiteScopedQuery;
   contains: (column: string, value: readonly string[]) => SiteScopedQuery;
-  not: (column: string, operator: string, value: string) => SiteScopedQuery;
+  or: (filters: string) => SiteScopedQuery;
 };
 
 /**
@@ -79,26 +79,38 @@ function siteKeyTagVariants(key: string): string[] {
   return [...new Set([key, titled, key.toUpperCase()])];
 }
 
-/**
- * PostgREST array literal for the other front ends' tag spellings.
- * Quoted elements so a comma stays inside the value.
- */
-function otherSiteTagList(): string {
-  const tags = siteKeys
-    .filter((key) => key !== siteKey)
-    .flatMap(siteKeyTagVariants);
+function quotedTag(tag: string): string {
+  return `{"${tag}"}`;
+}
 
-  return `{${tags.map((tag) => `"${tag}"`).join(",")}}`;
+/**
+ * Show the row unless tags name another site and do not name this one.
+ *
+ * `and(tags.not.ov.{"talvio"}, ...)` is "no other-site key". That clause is
+ * OR'd with `tags.ov.{"agency"}` (and the other casings), so a post tagged
+ * `agency` + `Talvio` stays. A longer tag such as `talvio-product` does not
+ * overlap. Each array literal is a single element so the comma that splits
+ * `or` conditions stays outside the value.
+ */
+function audienceOrFilter(): string {
+  const foreign = siteKeys
+    .filter((key) => key !== siteKey)
+    .flatMap(siteKeyTagVariants)
+    .map((tag) => `tags.not.ov.${quotedTag(tag)}`);
+  const local = siteKeyTagVariants(siteKey).map(
+    (tag) => `tags.ov.${quotedTag(tag)}`,
+  );
+
+  return `and(${foreign.join(",")}),${local.join(",")}`;
 }
 
 /**
  * Published rows that belong on this front end.
  *
  * `sites` must contain this site — that is the column the write API sets.
- * A tag equal to another site key (`talvio`, `Talvio`, `TALVIO`) also
- * withholds the row. Overlap is exact, so a longer tag such as
- * `talvio-product` still passes. Both checks run in the query, before
- * `order` and before any caller paginates or applies a limit.
+ * Tags are a backstop for rows whose `sites` still list this site while the
+ * only site key in `tags` is another front end. Both checks run in the
+ * query, before `order` and before any caller paginates or applies a limit.
  */
 function publishedOnThisSite<T>(query: T): T {
   // The Supabase filter builder is generic enough that constraining `T`
@@ -109,7 +121,7 @@ function publishedOnThisSite<T>(query: T): T {
   return scoped
     .eq("status", "published")
     .contains("sites", [siteKey])
-    .not("tags", "ov", otherSiteTagList()) as T;
+    .or(audienceOrFilter()) as T;
 }
 
 function toPost(row: BlogPostRow): BlogPost {

@@ -100,7 +100,7 @@ describe("listPublishedPosts", () => {
     expect(slugs).not.toContain("talvio-only-post");
   });
 
-  it("hides posts tagged for another site before pagination, even when sites still lists this one", async () => {
+  it("hides posts tagged only for another site before pagination, even when sites still lists this one", async () => {
     state.client = createFakeSupabase([
       ...fakeBlogRows,
       fakeBlogRow({
@@ -132,6 +132,13 @@ describe("listPublishedPosts", () => {
         sites: ["agency"],
         published_at: "2026-09-19T09:00:00.000Z",
       }),
+      fakeBlogRow({
+        slug: "agency-talvio-case-study",
+        title: "What we learned building Talvio",
+        tags: ["Agency", "talvio"],
+        sites: ["agency"],
+        published_at: "2026-09-18T09:00:00.000Z",
+      }),
     ]);
 
     const posts = await listPublishedPosts();
@@ -143,6 +150,7 @@ describe("listPublishedPosts", () => {
     expect(slugs).not.toContain("resume-tips-title-case");
     expect(slugs).toContain("shared-engineering-note");
     expect(slugs).toContain("talvio-product-mention");
+    expect(slugs).toContain("agency-talvio-case-study");
     expect(slugs).toContain("shipping-the-first-slice");
 
     const listing = paginateBlogListing(posts, 1);
@@ -169,6 +177,9 @@ describe("listPublishedPosts", () => {
     ).resolves.toBeNull();
     await expect(getPostBySlug("shared-engineering-note")).resolves.toMatchObject({
       slug: "shared-engineering-note",
+    });
+    await expect(getPostBySlug("agency-talvio-case-study")).resolves.toMatchObject({
+      slug: "agency-talvio-case-study",
     });
   });
 

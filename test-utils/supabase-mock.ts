@@ -48,11 +48,84 @@ function arrayOverlaps(cell: unknown, expected: string[]): boolean {
   );
 }
 
+function splitTopLevel(input: string): string[] {
+  const parts: string[] = [];
+  let current = "";
+  let depth = 0;
+  let inQuotes = false;
+
+  for (const char of input) {
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      current += char;
+      continue;
+    }
+
+    if (!inQuotes && char === "(") {
+      depth += 1;
+    }
+
+    if (!inQuotes && char === ")") {
+      depth -= 1;
+    }
+
+    if (!inQuotes && depth === 0 && char === ",") {
+      parts.push(current);
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current) {
+    parts.push(current);
+  }
+
+  return parts;
+}
+
+function matchesCondition(row: FakeRow, condition: string): boolean {
+  const match = condition.match(/^([A-Za-z0-9_]+)\.(not\.)?([a-z]+)\.(.*)$/);
+
+  if (!match) {
+    throw new Error(`fake supabase: unsupported filter ${condition}`);
+  }
+
+  const [, column, negated, operator, value] = match;
+
+  if (operator !== "ov") {
+    throw new Error(`fake supabase: unsupported operator ${operator}`);
+  }
+
+  const overlaps = arrayOverlaps(row[column], parsePostgrestArray(value));
+  return negated ? !overlaps : overlaps;
+}
+
+function matchesLogic(row: FakeRow, expression: string): boolean {
+  const trimmed = expression.trim();
+
+  if (trimmed.startsWith("and(") && trimmed.endsWith(")")) {
+    return splitTopLevel(trimmed.slice(4, -1)).every((part) =>
+      matchesLogic(row, part),
+    );
+  }
+
+  if (trimmed.startsWith("or(") && trimmed.endsWith(")")) {
+    return splitTopLevel(trimmed.slice(3, -1)).some((part) =>
+      matchesLogic(row, part),
+    );
+  }
+
+  return matchesCondition(row, trimmed);
+}
+
 export type FakeQueryBuilder = {
   select: (columns?: string) => FakeQueryBuilder;
   eq: (column: string, value: unknown) => FakeQueryBuilder;
   contains: (column: string, values: unknown[]) => FakeQueryBuilder;
   not: (column: string, operator: string, value: string) => FakeQueryBuilder;
+  or: (filters: string) => FakeQueryBuilder;
   order: (
     column: string,
     options?: { ascending?: boolean },
@@ -161,6 +234,10 @@ export function createFakeSupabase(
 
         const expected = parsePostgrestArray(value);
         filters.push((row) => !arrayOverlaps(row[column], expected));
+        return builder;
+      },
+      or: (expression) => {
+        filters.push((row) => matchesLogic(row, `or(${expression})`));
         return builder;
       },
       order: (column, orderOptions) => {

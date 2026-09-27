@@ -51,7 +51,7 @@ bypass the cap).
 | `description` | yes | 10–320 characters, plain text |
 | `content` | yes | Markdown, at least 20 characters |
 | `slug` | no | `[a-z0-9]+(-[a-z0-9]+)*`, max 80. Generated from `title` when omitted. Omit only to create; send `slug` to update. `page` is reserved for `/blog/page/[page]` |
-| `tags` | no | Array of strings; blanks dropped |
+| `tags` | no | Array of strings; blanks dropped. Free-text labels, not the routing column. See public reads below |
 | `sites` | no | `agency` and/or `talvio`. On create, defaults to this site (`agency`). On update, omitted `sites` keeps the existing list |
 | `cover_image_url` | no | Same-origin path starting with `/` (not `//`, `?`, `#`, or an absolute URL). Remote hosts and query strings are rejected because `next/image` has no remote allowlist and rejects local `src` with search |
 | `status` | no | `draft` (default) or `published` |
@@ -67,6 +67,21 @@ create, omitted `status` is still `draft` and omitted `featured` is `false`.
 
 `published_at` is set on first publish and preserved across later updates.
 `created_at` is preserved. `updated_at` is always now.
+
+## Public reads on this site
+
+`sites` is the routing column. A published post is listed, linked, and
+included in the sitemap and feed here only when `sites` contains `agency`.
+
+Tags are a backstop for rows that still list `agency` in `sites` while the
+only site key in `tags` is another front end. A tag equal to `talvio`,
+`Talvio`, or `TALVIO` withholds the post on this site unless `tags` also
+contains `agency`, `Agency`, or `AGENCY`. Overlap is the whole tag, so
+`talvio-product` still appears. An agency essay about Talvio should use a
+longer tag, or include an `agency` tag when the bare site key has to stay.
+
+`GET /api/posts` is the authenticated editor listing and does not apply this
+rule. Drafts stay hidden from public reads either way.
 
 Example:
 
