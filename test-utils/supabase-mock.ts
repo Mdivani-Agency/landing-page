@@ -17,10 +17,115 @@ export type FakeSupabase = {
 
 type QueryOutcome = { data: FakeRow[] | null; error: { message: string } | null };
 
+function parsePostgrestArray(value: string): string[] {
+  const trimmed = value.trim();
+
+  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) {
+    throw new Error(`fake supabase: expected an array literal, received ${value}`);
+  }
+
+  const inner = trimmed.slice(1, -1).trim();
+
+  if (!inner) {
+    return [];
+  }
+
+  return inner.split(",").map((part) => {
+    const item = part.trim();
+
+    if (item.startsWith('"') && item.endsWith('"')) {
+      return item.slice(1, -1);
+    }
+
+    return item;
+  });
+}
+
+function arrayOverlaps(cell: unknown, expected: string[]): boolean {
+  return (
+    Array.isArray(cell) &&
+    cell.some((item) => expected.includes(String(item)))
+  );
+}
+
+function splitTopLevel(input: string): string[] {
+  const parts: string[] = [];
+  let current = "";
+  let depth = 0;
+  let inQuotes = false;
+
+  for (const char of input) {
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      current += char;
+      continue;
+    }
+
+    if (!inQuotes && char === "(") {
+      depth += 1;
+    }
+
+    if (!inQuotes && char === ")") {
+      depth -= 1;
+    }
+
+    if (!inQuotes && depth === 0 && char === ",") {
+      parts.push(current);
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current) {
+    parts.push(current);
+  }
+
+  return parts;
+}
+
+function matchesCondition(row: FakeRow, condition: string): boolean {
+  const match = condition.match(/^([A-Za-z0-9_]+)\.(not\.)?([a-z]+)\.(.*)$/);
+
+  if (!match) {
+    throw new Error(`fake supabase: unsupported filter ${condition}`);
+  }
+
+  const [, column, negated, operator, value] = match;
+
+  if (operator !== "ov") {
+    throw new Error(`fake supabase: unsupported operator ${operator}`);
+  }
+
+  const overlaps = arrayOverlaps(row[column], parsePostgrestArray(value));
+  return negated ? !overlaps : overlaps;
+}
+
+function matchesLogic(row: FakeRow, expression: string): boolean {
+  const trimmed = expression.trim();
+
+  if (trimmed.startsWith("and(") && trimmed.endsWith(")")) {
+    return splitTopLevel(trimmed.slice(4, -1)).every((part) =>
+      matchesLogic(row, part),
+    );
+  }
+
+  if (trimmed.startsWith("or(") && trimmed.endsWith(")")) {
+    return splitTopLevel(trimmed.slice(3, -1)).some((part) =>
+      matchesLogic(row, part),
+    );
+  }
+
+  return matchesCondition(row, trimmed);
+}
+
 export type FakeQueryBuilder = {
   select: (columns?: string) => FakeQueryBuilder;
   eq: (column: string, value: unknown) => FakeQueryBuilder;
   contains: (column: string, values: unknown[]) => FakeQueryBuilder;
+  not: (column: string, operator: string, value: string) => FakeQueryBuilder;
+  or: (filters: string) => FakeQueryBuilder;
   order: (
     column: string,
     options?: { ascending?: boolean },
@@ -120,6 +225,19 @@ export function createFakeSupabase(
             Array.isArray(cell) && values.every((value) => cell.includes(value))
           );
         });
+        return builder;
+      },
+      not: (column, operator, value) => {
+        if (operator !== "ov") {
+          throw new Error(`fake supabase: unsupported not operator ${operator}`);
+        }
+
+        const expected = parsePostgrestArray(value);
+        filters.push((row) => !arrayOverlaps(row[column], expected));
+        return builder;
+      },
+      or: (expression) => {
+        filters.push((row) => matchesLogic(row, `or(${expression})`));
         return builder;
       },
       order: (column, orderOptions) => {

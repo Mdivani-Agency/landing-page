@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 Last audited: 2026-08-31  
-Last updated: 2026-09-15 (MDI-140: TD-054; MDI-141: TD-055 recorded)
+Last updated: 2026-09-27 (TD-056: correct Talvio-only blog `sites`)
 
 This is a point-in-time static audit of the Next.js application, supporting
 configuration, tests, and deployment documentation. It prioritizes observable
@@ -457,6 +457,47 @@ cleanup, or stop calling `closeCalendar()` from `onClose` when the effect is
 tearing down. Cover open/close with a focused test.
 
 ## Low priority
+
+### TD-056 — Talvio-only essays still store `sites` that include `agency`
+
+**Severity:** Low  
+**Area:** Blog / Content
+
+Public reads on this site withhold a post when `tags` contain another site
+key and do not contain this site's key. That is a backstop. `sites` is still
+the routing column, and the write API defaults omitted `sites` to `{agency}`.
+
+Four published essays are tagged `talvio` and render on the agency blog
+today, so their stored `sites` include `agency`:
+
+- `how-to-track-job-applications-without-losing-the-plot`
+- `resume-bullet-points-that-show-impact-without-inventing-numbers`
+- `why-one-master-resume-fails-tailored-variants-without-rewriting-from-scratch`
+- `ats-friendly-resume-what-actually-matters-vs-the-myths`
+
+Left out of the read-filter change: this repository must not rewrite
+production rows. A Talvio reader that filters `sites` to `talvio` will miss
+them until the column matches the tag.
+
+**Impact:** After the agency filter ships, those URLs 404 here. They still
+will not appear on a Talvio front end that trusts `sites` alone.
+
+**Remediation:** Confirm none of the four were meant to stay on the agency
+site, then run:
+
+```sql
+update public.blog_posts
+set sites = array['talvio']::text[]
+where slug in (
+  'how-to-track-job-applications-without-losing-the-plot',
+  'resume-bullet-points-that-show-impact-without-inventing-numbers',
+  'why-one-master-resume-fails-tailored-variants-without-rewriting-from-scratch',
+  'ats-friendly-resume-what-actually-matters-vs-the-myths'
+);
+```
+
+If a slug was intentionally on both sites, skip it and remove the bare
+`talvio` tag instead.
 
 ### TD-055 — Public blog lists still download every essay body
 

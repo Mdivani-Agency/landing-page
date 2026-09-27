@@ -12,6 +12,8 @@ Omitted optional fields keep the stored values: status, tags, cover_image_url, s
 
 To change those fields, send them explicitly. status: "draft" unpublishes. tags: [] or cover_image_url: "" clears. featured: true pins a published post above the chronological /blog grid; featured: false unpins it. sites: [] is rejected; send the full list to replace.
 
+Route the post with sites, not with a bare site-key tag. On this site, a tag equal to talvio, Talvio, or TALVIO hides a published post from /blog, the sitemap, and the feed unless tags also include agency, Agency, or AGENCY. A longer tag such as talvio-product still shows.
+
 The result echoes the target base URL.
 
 ${FORMATTING_CONTRACT}`,

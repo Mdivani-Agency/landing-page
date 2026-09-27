@@ -100,6 +100,89 @@ describe("listPublishedPosts", () => {
     expect(slugs).not.toContain("talvio-only-post");
   });
 
+  it("hides posts tagged only for another site before pagination, even when sites still lists this one", async () => {
+    state.client = createFakeSupabase([
+      ...fakeBlogRows,
+      fakeBlogRow({
+        slug: "how-to-track-job-applications-without-losing-the-plot",
+        title: "How to Track Job Applications Without Losing the Plot",
+        tags: ["talvio", "job application tracking"],
+        sites: ["agency"],
+        featured: true,
+        published_at: "2026-09-25T05:10:23.000Z",
+      }),
+      fakeBlogRow({
+        slug: "resume-tips-title-case",
+        title: "Resume tips",
+        tags: ["Talvio", "resume tips"],
+        sites: ["agency", "talvio"],
+        published_at: "2026-09-25T05:10:22.000Z",
+      }),
+      fakeBlogRow({
+        slug: "shared-engineering-note",
+        title: "Shared engineering note",
+        tags: ["AI", "product"],
+        sites: ["agency", "talvio"],
+        published_at: "2026-09-20T09:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "talvio-product-mention",
+        title: "A note that mentions the product name in a longer tag",
+        tags: ["talvio-product", "AI"],
+        sites: ["agency"],
+        published_at: "2026-09-19T09:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "agency-talvio-case-study",
+        title: "What we learned building Talvio",
+        tags: ["Agency", "talvio"],
+        sites: ["agency"],
+        published_at: "2026-09-18T09:00:00.000Z",
+      }),
+    ]);
+
+    const posts = await listPublishedPosts();
+    const slugs = posts.map((post) => post.slug);
+
+    expect(slugs).not.toContain(
+      "how-to-track-job-applications-without-losing-the-plot",
+    );
+    expect(slugs).not.toContain("resume-tips-title-case");
+    expect(slugs).toContain("shared-engineering-note");
+    expect(slugs).toContain("talvio-product-mention");
+    expect(slugs).toContain("agency-talvio-case-study");
+    expect(slugs).toContain("shipping-the-first-slice");
+
+    const listing = paginateBlogListing(posts, 1);
+    expect(listing.featured.map((post) => post.slug)).not.toContain(
+      "how-to-track-job-applications-without-losing-the-plot",
+    );
+    expect(listing.posts.map((post) => post.slug)).not.toContain(
+      "resume-tips-title-case",
+    );
+    expect(listing.total).toBe(
+      posts.filter((post) => !post.featured).length,
+    );
+
+    const featured = (await listFeaturedPublishedSummaries()).map(
+      (post) => post.slug,
+    );
+    expect(featured).not.toContain(
+      "how-to-track-job-applications-without-losing-the-plot",
+    );
+    expect(featured).toContain("idea-to-production-ai");
+
+    await expect(
+      getPostBySlug("how-to-track-job-applications-without-losing-the-plot"),
+    ).resolves.toBeNull();
+    await expect(getPostBySlug("shared-engineering-note")).resolves.toMatchObject({
+      slug: "shared-engineering-note",
+    });
+    await expect(getPostBySlug("agency-talvio-case-study")).resolves.toMatchObject({
+      slug: "agency-talvio-case-study",
+    });
+  });
+
   it("maps snake_case columns onto the camelCase post shape", async () => {
     const [, post] = await listPublishedPosts();
 

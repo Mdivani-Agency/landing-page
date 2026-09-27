@@ -59,6 +59,8 @@ Use this before blog_create_post or blog_update_post. Copy \`value\` into the wr
 
 On create (no slug), omitted status becomes draft and omitted featured becomes false on the server. On update (slug present), omitted status, tags, cover_image_url, sites, and featured keep the stored values. Sending status: "draft" or tags: [] is an explicit write and will unpublish or clear. featured: false unpins a featured post.
 
+Route the post with sites, not with a bare site-key tag. On this site, a tag equal to talvio, Talvio, or TALVIO hides a published post from /blog, the sitemap, and the feed unless tags also include agency, Agency, or AGENCY. A longer tag such as talvio-product still shows. The validator still accepts those tags.
+
 The resolved slug is returned as \`slug\` even when generated. It is only inside \`value\` when you provided one, so a create-shaped \`value\` cannot be reused as an update.
 
 ${FORMATTING_CONTRACT}`,
