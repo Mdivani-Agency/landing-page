@@ -17,10 +17,42 @@ export type FakeSupabase = {
 
 type QueryOutcome = { data: FakeRow[] | null; error: { message: string } | null };
 
+function parsePostgrestArray(value: string): string[] {
+  const trimmed = value.trim();
+
+  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) {
+    throw new Error(`fake supabase: expected an array literal, received ${value}`);
+  }
+
+  const inner = trimmed.slice(1, -1).trim();
+
+  if (!inner) {
+    return [];
+  }
+
+  return inner.split(",").map((part) => {
+    const item = part.trim();
+
+    if (item.startsWith('"') && item.endsWith('"')) {
+      return item.slice(1, -1);
+    }
+
+    return item;
+  });
+}
+
+function arrayOverlaps(cell: unknown, expected: string[]): boolean {
+  return (
+    Array.isArray(cell) &&
+    cell.some((item) => expected.includes(String(item)))
+  );
+}
+
 export type FakeQueryBuilder = {
   select: (columns?: string) => FakeQueryBuilder;
   eq: (column: string, value: unknown) => FakeQueryBuilder;
   contains: (column: string, values: unknown[]) => FakeQueryBuilder;
+  not: (column: string, operator: string, value: string) => FakeQueryBuilder;
   order: (
     column: string,
     options?: { ascending?: boolean },
@@ -120,6 +152,15 @@ export function createFakeSupabase(
             Array.isArray(cell) && values.every((value) => cell.includes(value))
           );
         });
+        return builder;
+      },
+      not: (column, operator, value) => {
+        if (operator !== "ov") {
+          throw new Error(`fake supabase: unsupported not operator ${operator}`);
+        }
+
+        const expected = parsePostgrestArray(value);
+        filters.push((row) => !arrayOverlaps(row[column], expected));
         return builder;
       },
       order: (column, orderOptions) => {

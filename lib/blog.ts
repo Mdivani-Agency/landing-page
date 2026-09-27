@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type PostStatus } from "@/lib/blog-schema";
-import { siteKey, type SiteKey } from "@/lib/site";
+import { siteKey, siteKeys, type SiteKey } from "@/lib/site";
 import {
   createSupabaseAdminClient,
   createSupabaseReadClient,
@@ -63,6 +63,54 @@ const COLUMNS =
 
 const LIST_COLUMNS =
   "slug, title, description, cover_image_url, tags, sites, status, featured, published_at, created_at, updated_at";
+
+type SiteScopedQuery = {
+  eq: (column: string, value: string) => SiteScopedQuery;
+  contains: (column: string, value: readonly string[]) => SiteScopedQuery;
+  not: (column: string, operator: string, value: string) => SiteScopedQuery;
+};
+
+/**
+ * Casing variants of a site key as it may appear in `tags`. The column is
+ * free text, and PostgREST array overlap is case-sensitive.
+ */
+function siteKeyTagVariants(key: string): string[] {
+  const titled = key.charAt(0).toUpperCase() + key.slice(1);
+  return [...new Set([key, titled, key.toUpperCase()])];
+}
+
+/**
+ * PostgREST array literal for the other front ends' tag spellings.
+ * Quoted elements so a comma stays inside the value.
+ */
+function otherSiteTagList(): string {
+  const tags = siteKeys
+    .filter((key) => key !== siteKey)
+    .flatMap(siteKeyTagVariants);
+
+  return `{${tags.map((tag) => `"${tag}"`).join(",")}}`;
+}
+
+/**
+ * Published rows that belong on this front end.
+ *
+ * `sites` must contain this site — that is the column the write API sets.
+ * A tag equal to another site key (`talvio`, `Talvio`, `TALVIO`) also
+ * withholds the row. Overlap is exact, so a longer tag such as
+ * `talvio-product` still passes. Both checks run in the query, before
+ * `order` and before any caller paginates or applies a limit.
+ */
+function publishedOnThisSite<T>(query: T): T {
+  // The Supabase filter builder is generic enough that constraining `T`
+  // here makes `tsc` recurse until it gives up. Cast through the methods
+  // this helper actually calls, then hand the same object back.
+  const scoped = query as unknown as SiteScopedQuery;
+
+  return scoped
+    .eq("status", "published")
+    .contains("sites", [siteKey])
+    .not("tags", "ov", otherSiteTagList()) as T;
+}
 
 function toPost(row: BlogPostRow): BlogPost {
   return {
@@ -165,11 +213,9 @@ export async function listPublishedPosts(): Promise<BlogPost[]> {
     return [];
   }
 
-  const { data, error } = await client
-    .from(TABLE)
-    .select(COLUMNS)
-    .eq("status", "published")
-    .contains("sites", [siteKey])
+  const { data, error } = await publishedOnThisSite(
+    client.from(TABLE).select(COLUMNS),
+  )
     .order("published_at", { ascending: false })
     .order("slug", { ascending: true });
 
@@ -231,12 +277,10 @@ export async function listFeaturedPublishedSummaries(): Promise<
     return [];
   }
 
-  const { data, error } = await client
-    .from(TABLE)
-    .select(LIST_COLUMNS)
-    .eq("status", "published")
+  const { data, error } = await publishedOnThisSite(
+    client.from(TABLE).select(LIST_COLUMNS),
+  )
     .eq("featured", true)
-    .contains("sites", [siteKey])
     .order("published_at", { ascending: false })
     .order("slug", { ascending: true });
 
@@ -350,12 +394,10 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     return null;
   }
 
-  const { data, error } = await client
-    .from(TABLE)
-    .select(COLUMNS)
+  const { data, error } = await publishedOnThisSite(
+    client.from(TABLE).select(COLUMNS),
+  )
     .eq("slug", slug)
-    .eq("status", "published")
-    .contains("sites", [siteKey])
     .maybeSingle();
 
   if (error) {
