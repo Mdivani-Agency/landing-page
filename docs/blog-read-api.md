@@ -11,8 +11,10 @@ deployed. Until then the route returns `500`.
 ## Authentication
 
 Send a bearer token. The secret is `BLOG_READ_TOKEN_TALVIO` (server-only, not
-`NEXT_PUBLIC_*`). It must be at least 32 bytes and should be different from
-`BLOG_WRITE_TOKEN`.
+`NEXT_PUBLIC_*`). It must be at least 32 bytes and must differ from
+`BLOG_WRITE_TOKEN`. The rotation token must differ from it too. If either
+read token is the same value, both this API and `/api/posts` return `500`
+and accept neither credential.
 
 ```
 Authorization: Bearer <BLOG_READ_TOKEN_TALVIO>
@@ -23,8 +25,10 @@ secret length is not leaked by timing.
 
 `BLOG_WRITE_TOKEN` is rejected with `401`. A missing or wrong bearer token
 returns `401` `{ "ok": false, "errors": { "form": "Unauthorized." } }`.
-A missing or too-short `BLOG_READ_TOKEN_TALVIO` returns `500`
+A missing, too-short, or write-token-colliding `BLOG_READ_TOKEN_TALVIO`
+returns `500`
 `{ "ok": false, "errors": { "form": "Read API is not configured." } }`.
+The same collision makes `/api/posts` return `500` as well.
 
 ### Rotation
 

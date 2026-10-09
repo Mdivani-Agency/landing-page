@@ -264,6 +264,75 @@ describe("Talvio read API", () => {
     expect(payload.errors.limit).toMatch(/1 to 100/);
   });
 
+  it("rejects a read token that is the same value as the write token", async () => {
+    const shared = "s".repeat(BLOG_WRITE_MIN_TOKEN_BYTES);
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubEnv("BLOG_WRITE_TOKEN", shared);
+    vi.stubEnv("BLOG_READ_TOKEN_TALVIO", shared);
+
+    const { GET } = await importListRoute();
+    const read = await GET(listRequest("", bearer(shared)));
+
+    expect(read.status).toBe(500);
+    await expect(read.json()).resolves.toEqual({
+      ok: false,
+      errors: { form: "Read API is not configured." },
+    });
+
+    const { POST } = await import("@/app/api/posts/route");
+    const write = await POST(
+      new Request("http://localhost/api/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...bearer(shared),
+        },
+        body: JSON.stringify({
+          title: "A new note",
+          description: "Enough description for the card.",
+          content: "## Hello\n\nThis is enough markdown content.",
+        }),
+      }),
+    );
+
+    expect(write.status).toBe(500);
+    await expect(write.json()).resolves.toEqual({
+      ok: false,
+      errors: { form: "Write API is not configured." },
+    });
+    expect(state.client.rows.map((row) => row.slug)).not.toContain("a-new-note");
+
+    const logged = error.mock.calls.flat().join(" ");
+    expect(logged).toContain("BLOG_READ_TOKEN_TALVIO");
+    expect(logged).toContain("BLOG_WRITE_TOKEN");
+    expect(logged).not.toContain(shared);
+  });
+
+  it("rejects the rotation token when it matches the write token", async () => {
+    vi.stubEnv("BLOG_READ_TOKEN_TALVIO_NEXT", WRITE_TOKEN);
+    const { GET } = await importListRoute();
+    const read = await GET(listRequest("", bearer(READ_TOKEN)));
+    expect(read.status).toBe(500);
+
+    const { POST } = await import("@/app/api/posts/route");
+    const write = await POST(
+      new Request("http://localhost/api/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...bearer(WRITE_TOKEN),
+        },
+        body: JSON.stringify({
+          title: "A new note",
+          description: "Enough description for the card.",
+          content: "## Hello\n\nThis is enough markdown content.",
+        }),
+      }),
+    );
+
+    expect(write.status).toBe(500);
+  });
+
   it("rejects the write token and a missing credential", async () => {
     const { GET } = await importListRoute();
     const wrong = await GET(listRequest("", bearer(WRITE_TOKEN)));

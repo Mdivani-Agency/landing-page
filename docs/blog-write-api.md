@@ -37,7 +37,9 @@ is not leaked by timing.
 
 `BLOG_READ_TOKEN_TALVIO` (and its rotation partner
 `BLOG_READ_TOKEN_TALVIO_NEXT`) is not accepted here. Talvio reads use
-[`docs/blog-read-api.md`](blog-read-api.md).
+[`docs/blog-read-api.md`](blog-read-api.md). If either of those values is
+the same as `BLOG_WRITE_TOKEN`, this API returns `500` and does not accept
+the shared secret.
 
 Missing or wrong tokens return `401` `{ "ok": false, "errors": { "form": "Unauthorized." } }`.
 On write, the handler does not say whether a slug exists. A missing or

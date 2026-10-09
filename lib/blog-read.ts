@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHash, timingSafeEqual } from "node:crypto";
 import { BLOG_WRITE_MIN_TOKEN_BYTES } from "@/lib/blog-schema";
 
 export const BLOG_READ_MIN_TOKEN_BYTES = BLOG_WRITE_MIN_TOKEN_BYTES;
@@ -25,6 +26,12 @@ export const BLOG_READ_RATE_WINDOW_SECONDS = 60;
 
 const CURRENT_ENV = "BLOG_READ_TOKEN_TALVIO";
 const NEXT_ENV = "BLOG_READ_TOKEN_TALVIO_NEXT";
+const WRITE_ENV = "BLOG_WRITE_TOKEN";
+
+export type TalvioReadTokenProblem = {
+  name: typeof CURRENT_ENV | typeof NEXT_ENV;
+  reason: "invalid" | "collides";
+};
 
 export type TalvioReadTokens = {
   current: string;
@@ -33,6 +40,13 @@ export type TalvioReadTokens = {
 
 function longEnough(value: string): boolean {
   return Buffer.byteLength(value, "utf8") >= BLOG_READ_MIN_TOKEN_BYTES;
+}
+
+function sameSecret(left: string, right: string): boolean {
+  const digest = (value: string) =>
+    createHash("sha256").update(value, "utf8").digest();
+
+  return timingSafeEqual(digest(left), digest(right));
 }
 
 /**
@@ -53,23 +67,33 @@ export function readTalvioReadTokens(
   return next ? { current, next } : { current };
 }
 
-/** Env var names that are missing or shorter than 32 bytes. Never values. */
+/**
+ * Config problems for the Talvio read credential. `invalid` is missing or
+ * shorter than 32 bytes. `collides` means the value is the write token, so
+ * neither gate may accept it. Names only — never the secret.
+ */
 export function talvioReadTokenProblems(
   env: Record<string, string | undefined> = process.env,
-): string[] {
-  const names: string[] = [];
+): TalvioReadTokenProblem[] {
+  const problems: TalvioReadTokenProblem[] = [];
   const current = env[CURRENT_ENV]?.trim() ?? "";
   const next = env[NEXT_ENV]?.trim() ?? "";
+  const write = env[WRITE_ENV]?.trim() ?? "";
+  const writeIsCredential = longEnough(write);
 
   if (!current || !longEnough(current)) {
-    names.push(CURRENT_ENV);
+    problems.push({ name: CURRENT_ENV, reason: "invalid" });
+  } else if (writeIsCredential && sameSecret(current, write)) {
+    problems.push({ name: CURRENT_ENV, reason: "collides" });
   }
 
   if (next && !longEnough(next)) {
-    names.push(NEXT_ENV);
+    problems.push({ name: NEXT_ENV, reason: "invalid" });
+  } else if (next && writeIsCredential && sameSecret(next, write)) {
+    problems.push({ name: NEXT_ENV, reason: "collides" });
   }
 
-  return names;
+  return problems;
 }
 
 export type TalvioPostsQuery =

@@ -41,7 +41,31 @@ describe("readTalvioReadTokens", () => {
         BLOG_READ_TOKEN_TALVIO: TOKEN,
         BLOG_READ_TOKEN_TALVIO_NEXT: "short",
       }),
-    ).toEqual(["BLOG_READ_TOKEN_TALVIO_NEXT"]);
+    ).toEqual([{ name: "BLOG_READ_TOKEN_TALVIO_NEXT", reason: "invalid" }]);
+  });
+
+  it("rejects a read token that matches the write token", () => {
+    const write = "w".repeat(BLOG_READ_MIN_TOKEN_BYTES);
+
+    expect(
+      readTalvioReadTokens({
+        BLOG_READ_TOKEN_TALVIO: write,
+        BLOG_WRITE_TOKEN: ` ${write} `,
+      }),
+    ).toBeUndefined();
+    expect(
+      talvioReadTokenProblems({
+        BLOG_READ_TOKEN_TALVIO: TOKEN,
+        BLOG_READ_TOKEN_TALVIO_NEXT: write,
+        BLOG_WRITE_TOKEN: write,
+      }),
+    ).toEqual([{ name: "BLOG_READ_TOKEN_TALVIO_NEXT", reason: "collides" }]);
+    expect(
+      talvioReadTokenProblems({
+        BLOG_READ_TOKEN_TALVIO: TOKEN,
+        BLOG_WRITE_TOKEN: write,
+      }),
+    ).toEqual([]);
   });
 });
 

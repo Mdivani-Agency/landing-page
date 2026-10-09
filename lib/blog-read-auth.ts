@@ -61,6 +61,27 @@ function credentialKey(token: string): string {
   return `blog-read:talvio:${digestToken(token).toString("hex")}`;
 }
 
+function logTalvioReadTokenProblems(): void {
+  const problems = talvioReadTokenProblems();
+  const invalid = problems
+    .filter((problem) => problem.reason === "invalid")
+    .map((problem) => problem.name);
+  const colliding = problems
+    .filter((problem) => problem.reason === "collides")
+    .map((problem) => problem.name);
+
+  if (invalid.length > 0) {
+    console.error("talvio posts: missing env", invalid.join(", "));
+  }
+
+  if (colliding.length > 0) {
+    console.error(
+      "talvio posts: token collides with BLOG_WRITE_TOKEN",
+      colliding.join(", "),
+    );
+  }
+}
+
 /**
  * Gate for `/api/talvio/posts`. The write token is not accepted.
  *
@@ -74,10 +95,7 @@ export async function authorizeTalvioRead(
   const tokens = readTalvioReadTokens();
 
   if (!tokens) {
-    console.error(
-      "talvio posts: missing env",
-      talvioReadTokenProblems().join(", "),
-    );
+    logTalvioReadTokenProblems();
     return blogReadJson(500, {
       ok: false,
       errors: { form: "Read API is not configured." },
