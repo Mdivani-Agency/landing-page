@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import * as Sentry from "@sentry/nextjs";
+import { talvioReadTokenProblems } from "@/lib/blog-read";
 import {
   consumeWriteRateLimit,
   readWriteToken,
@@ -50,6 +51,21 @@ export function authorizeBlogWrite(request: Request): Response | null {
 
   if (!expected) {
     console.error("posts: missing env", "BLOG_WRITE_TOKEN");
+    return blogWriteJson(500, {
+      ok: false,
+      errors: { form: "Write API is not configured." },
+    });
+  }
+
+  const colliding = talvioReadTokenProblems()
+    .filter((problem) => problem.reason === "collides")
+    .map((problem) => problem.name);
+
+  if (colliding.length > 0) {
+    console.error(
+      "posts: token collides with BLOG_WRITE_TOKEN",
+      colliding.join(", "),
+    );
     return blogWriteJson(500, {
       ok: false,
       errors: { form: "Write API is not configured." },

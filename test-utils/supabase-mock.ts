@@ -15,7 +15,11 @@ export type FakeSupabase = {
   rows: FakeRow[];
 };
 
-type QueryOutcome = { data: FakeRow[] | null; error: { message: string } | null };
+type QueryOutcome = {
+  data: FakeRow[] | null;
+  error: { message: string } | null;
+  count: number | null;
+};
 
 function parsePostgrestArray(value: string): string[] {
   const trimmed = value.trim();
@@ -121,15 +125,20 @@ function matchesLogic(row: FakeRow, expression: string): boolean {
 }
 
 export type FakeQueryBuilder = {
-  select: (columns?: string) => FakeQueryBuilder;
+  select: (
+    columns?: string,
+    options?: { count?: "exact" },
+  ) => FakeQueryBuilder;
   eq: (column: string, value: unknown) => FakeQueryBuilder;
   contains: (column: string, values: unknown[]) => FakeQueryBuilder;
+  lte: (column: string, value: unknown) => FakeQueryBuilder;
   not: (column: string, operator: string, value: string) => FakeQueryBuilder;
   or: (filters: string) => FakeQueryBuilder;
   order: (
     column: string,
     options?: { ascending?: boolean },
   ) => FakeQueryBuilder;
+  range: (from: number, to: number) => FakeQueryBuilder;
   insert: (row: FakeRow | FakeRow[]) => FakeQueryBuilder;
   upsert: (
     row: FakeRow,
@@ -157,10 +166,12 @@ export function createFakeSupabase(
     const orders: Array<{ column: string; ascending: boolean }> = [];
     let pendingInsert: FakeRow | null = null;
     let pendingUpsert: FakeRow | null = null;
+    let rangeBounds: { from: number; to: number } | null = null;
+    let countExact = false;
 
     function run(): QueryOutcome {
       if (options.error) {
-        return { data: null, error: options.error };
+        return { data: null, error: options.error, count: null };
       }
 
       if (pendingInsert) {
@@ -172,7 +183,7 @@ export function createFakeSupabase(
               : "inquiry-1",
         };
         rows.push(stored);
-        return { data: [stored], error: null };
+        return { data: [stored], error: null, count: null };
       }
 
       if (pendingUpsert) {
@@ -186,7 +197,7 @@ export function createFakeSupabase(
           rows[index] = { ...pendingUpsert };
         }
 
-        return { data: [{ ...pendingUpsert }], error: null };
+        return { data: [{ ...pendingUpsert }], error: null, count: null };
       }
 
       let result = rows.filter((row) =>
@@ -209,11 +220,24 @@ export function createFakeSupabase(
         });
       }
 
-      return { data: result, error: null };
+      const total = result.length;
+
+      if (rangeBounds) {
+        result = result.slice(rangeBounds.from, rangeBounds.to + 1);
+      }
+
+      return {
+        data: result,
+        error: null,
+        count: countExact ? total : null,
+      };
     }
 
     const builder: FakeQueryBuilder = {
-      select: () => builder,
+      select: (_columns, selectOptions) => {
+        countExact = selectOptions?.count === "exact";
+        return builder;
+      },
       eq: (column, value) => {
         filters.push((row) => row[column] === value);
         return builder;
@@ -225,6 +249,22 @@ export function createFakeSupabase(
             Array.isArray(cell) && values.every((value) => cell.includes(value))
           );
         });
+        return builder;
+      },
+      lte: (column, value) => {
+        filters.push((row) => {
+          const cell = row[column];
+
+          if (cell == null) {
+            return false;
+          }
+
+          return String(cell) <= String(value);
+        });
+        return builder;
+      },
+      range: (from, to) => {
+        rangeBounds = { from, to };
         return builder;
       },
       not: (column, operator, value) => {

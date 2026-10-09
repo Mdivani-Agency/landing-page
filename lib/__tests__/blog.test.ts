@@ -31,8 +31,10 @@ import {
   blogPaginationItems,
   featuredPostsExcept,
   formatPostDate,
+  getEligiblePostBySlug,
   getPostBySlug,
   getPostRecordBySlug,
+  listEligiblePostSummaries,
   listFeaturedPublishedSummaries,
   listPostRecords,
   listPublishedPosts,
@@ -98,6 +100,28 @@ describe("listPublishedPosts", () => {
 
     expect(slugs).not.toContain("draft-internal-notes");
     expect(slugs).not.toContain("talvio-only-post");
+  });
+
+  it("hides a future-dated post even when it is published on this site", async () => {
+    state.client = createFakeSupabase([
+      ...fakeBlogRows,
+      fakeBlogRow({
+        slug: "scheduled-note",
+        title: "Scheduled note",
+        published_at: "2099-01-01T00:00:00.000Z",
+        featured: true,
+      }),
+    ]);
+
+    const slugs = (await listPublishedPosts()).map((post) => post.slug);
+
+    expect(slugs).not.toContain("scheduled-note");
+    expect(slugs).toContain("shipping-the-first-slice");
+    await expect(getPostBySlug("scheduled-note")).resolves.toBeNull();
+    const featured = (await listFeaturedPublishedSummaries()).map(
+      (post) => post.slug,
+    );
+    expect(featured).not.toContain("scheduled-note");
   });
 
   it("hides posts tagged only for another site before pagination, even when sites still lists this one", async () => {
@@ -234,6 +258,156 @@ describe("listPublishedPosts", () => {
     );
 
     error.mockRestore();
+  });
+});
+
+describe("listEligiblePostSummaries", () => {
+  const now = new Date("2026-10-09T12:00:00.000Z");
+
+  function talvioRows() {
+    return [
+      fakeBlogRow({
+        slug: "published-talvio",
+        title: "Published on Talvio",
+        sites: ["talvio"],
+        tags: ["product"],
+        featured: true,
+        published_at: "2026-09-02T00:00:00.000Z",
+        content: "## Talvio body",
+      }),
+      fakeBlogRow({
+        slug: "shared-note",
+        title: "Shared note",
+        sites: ["agency", "talvio"],
+        tags: ["engineering"],
+        published_at: "2026-09-01T00:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "shared-agency-tag",
+        title: "Shared but tagged only for the agency",
+        sites: ["agency", "talvio"],
+        tags: ["agency"],
+        published_at: "2026-09-03T00:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "shared-both-tags",
+        title: "Shared and tagged for both",
+        sites: ["agency", "talvio"],
+        tags: ["Agency", "Talvio"],
+        published_at: "2026-09-03T00:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "agency-only",
+        title: "Agency only",
+        sites: ["agency"],
+        published_at: "2026-09-04T00:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "talvio-draft",
+        title: "Draft that kept its timestamp",
+        sites: ["talvio"],
+        status: "draft",
+        published_at: "2026-09-05T00:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "talvio-future",
+        title: "Future Talvio post",
+        sites: ["talvio"],
+        published_at: "2099-01-01T00:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "alpha-tie",
+        title: "Alpha",
+        sites: ["talvio"],
+        published_at: "2026-08-01T00:00:00.000Z",
+      }),
+      fakeBlogRow({
+        slug: "zeta-tie",
+        title: "Zeta",
+        sites: ["talvio"],
+        published_at: "2026-08-01T00:00:00.000Z",
+      }),
+    ];
+  }
+
+  beforeEach(() => {
+    state.client = createFakeSupabase(talvioRows());
+  });
+
+  it("returns the eligible page and the unpaged total", async () => {
+    const page = await listEligiblePostSummaries(
+      "talvio",
+      { limit: 2, offset: 0 },
+      now,
+    );
+
+    expect(page.total).toBe(5);
+    expect(page.posts.map((post) => post.slug)).toEqual([
+      "shared-both-tags",
+      "published-talvio",
+    ]);
+    expect(page.posts[0]).not.toHaveProperty("content");
+
+    const next = await listEligiblePostSummaries(
+      "talvio",
+      { limit: 2, offset: 2 },
+      now,
+    );
+    const last = await listEligiblePostSummaries(
+      "talvio",
+      { limit: 2, offset: 4 },
+      now,
+    );
+    const pastEnd = await listEligiblePostSummaries(
+      "talvio",
+      { limit: 2, offset: 5 },
+      now,
+    );
+
+    expect(next.posts.map((post) => post.slug)).toEqual([
+      "shared-note",
+      "alpha-tie",
+    ]);
+    expect(last.posts.map((post) => post.slug)).toEqual(["zeta-tie"]);
+    expect(pastEnd.posts).toEqual([]);
+    expect(pastEnd.total).toBe(5);
+  });
+
+  it("hides agency-only tags, drafts, and future posts, including on detail", async () => {
+    await expect(getEligiblePostBySlug("talvio", "published-talvio", now)).resolves.toMatchObject({
+      slug: "published-talvio",
+      content: "## Talvio body",
+    });
+    await expect(getEligiblePostBySlug("talvio", "shared-agency-tag", now)).resolves.toBeNull();
+    await expect(getEligiblePostBySlug("talvio", "agency-only", now)).resolves.toBeNull();
+    await expect(getEligiblePostBySlug("talvio", "talvio-draft", now)).resolves.toBeNull();
+    await expect(getEligiblePostBySlug("talvio", "talvio-future", now)).resolves.toBeNull();
+    await expect(getEligiblePostBySlug("talvio", "missing-slug", now)).resolves.toBeNull();
+  });
+
+  it("throws a static error that omits the query", async () => {
+    state.client = createFakeSupabase([], {
+      error: { message: "secret sql from blog_posts" },
+    });
+
+    await expect(
+      listEligiblePostSummaries("talvio", { limit: 1, offset: 0 }, now),
+    ).rejects.toThrow(/^blog: list eligible posts failed$/);
+  });
+
+  it("names missing Supabase variables and not their values", async () => {
+    state.configured = false;
+
+    await expect(
+      listEligiblePostSummaries("talvio", { limit: 1, offset: 0 }, now),
+    ).rejects.toThrow("blog: missing env SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY");
+  });
+
+  it("keeps a shared post tagged only agency on the agency site", async () => {
+    const slugs = (await listPublishedPosts()).map((post) => post.slug);
+
+    expect(slugs).toContain("shared-agency-tag");
+    expect(slugs).not.toContain("published-talvio");
   });
 });
 

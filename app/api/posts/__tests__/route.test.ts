@@ -88,6 +88,21 @@ describe("POST /api/posts", () => {
     expect(response.status).toBe(401);
   });
 
+  it("rejects the Talvio read token", async () => {
+    const readToken = "r".repeat(BLOG_WRITE_MIN_TOKEN_BYTES);
+    vi.stubEnv("BLOG_READ_TOKEN_TALVIO", readToken);
+    const { POST } = await importRoute();
+    const response = await POST(
+      postRequest(validBody, { Authorization: `Bearer ${readToken}` }),
+    );
+
+    expect(response.status).toBe(401);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      errors: { form: "Unauthorized." },
+    });
+  });
+
   it("accepts a lowercase Bearer scheme", async () => {
     const { POST } = await importRoute();
     const response = await POST(
@@ -555,6 +570,19 @@ describe("GET /api/posts", () => {
     expect(response.status).toBe(401);
   });
 
+  it("rejects the Talvio read token", async () => {
+    const readToken = "r".repeat(BLOG_WRITE_MIN_TOKEN_BYTES);
+    vi.stubEnv("BLOG_READ_TOKEN_TALVIO", readToken);
+    const { GET } = await importRoute();
+    const response = await GET(
+      new Request("http://localhost/api/posts", {
+        headers: { Authorization: `Bearer ${readToken}` },
+      }),
+    );
+
+    expect(response.status).toBe(401);
+  });
+
   it("lists drafts and other-site posts for an authenticated caller", async () => {
     const { GET } = await importRoute();
     const response = await GET(
@@ -734,6 +762,20 @@ describe("GET /api/posts/[slug]", () => {
     const { GET } = await importSlugRoute();
     const response = await GET(
       slugRequest("idea-to-production-ai"),
+      slugContext("idea-to-production-ai"),
+    );
+
+    expect(response.status).toBe(401);
+  });
+
+  it("rejects the Talvio read token", async () => {
+    const readToken = "r".repeat(BLOG_WRITE_MIN_TOKEN_BYTES);
+    vi.stubEnv("BLOG_READ_TOKEN_TALVIO", readToken);
+    const { GET } = await importSlugRoute();
+    const response = await GET(
+      slugRequest("idea-to-production-ai", {
+        Authorization: `Bearer ${readToken}`,
+      }),
       slugContext("idea-to-production-ai"),
     );
 

@@ -119,6 +119,8 @@ default branch.
 | `SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` key for reads; resolves to the `anon` role and stays subject to row level security |
 | `SUPABASE_SECRET_KEY` | `sb_secret_…` key for server-side writes (`blog_posts` and `inquiries`); bypasses row level security, so never expose it to the browser |
 | `BLOG_WRITE_TOKEN` | Set after `migrate_supabase` has applied `blog_posts` (TD-044 / TD-045). At least 32 random bytes, server-only. Until the table is live, leave unset so `POST /api/posts` returns 500 instead of writing into a missing relation |
+| `BLOG_READ_TOKEN_TALVIO` | Server-only read credential for `GET /api/talvio/posts`. At least 32 random bytes, different from `BLOG_WRITE_TOKEN`. Set on production only after the read routes are deployed. Leave unset until then so the route returns 500. |
+| `BLOG_READ_TOKEN_TALVIO_NEXT` | Optional second read token. Set it to the replacement, deploy consumers onto it, then move it into `BLOG_READ_TOKEN_TALVIO` and clear this one. A value shorter than 32 bytes makes the read API return 500. |
 
 The contact and Supabase variables are server-only — never prefix them with
 `NEXT_PUBLIC_`. The Vercel Upstash Redis integration also writes
