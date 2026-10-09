@@ -24,6 +24,8 @@ async function checkWithUpstash(
   restUrl: string,
   restToken: string,
   key: string,
+  maxRequests: number,
+  windowSeconds: number,
 ): Promise<RateLimitResult> {
   const response = await fetch(`${restUrl}/pipeline`, {
     method: "POST",
@@ -35,7 +37,7 @@ async function checkWithUpstash(
       ["INCR", key],
       // NX: only set the TTL when the key has none, i.e. on the first
       // request of the window, so the window does not keep sliding.
-      ["EXPIRE", key, String(CONTACT_RATE_LIMIT_WINDOW_SECONDS), "NX"],
+      ["EXPIRE", key, String(windowSeconds), "NX"],
     ]),
   });
 
@@ -53,10 +55,10 @@ async function checkWithUpstash(
     throw new Error("unexpected rate limit store response");
   }
 
-  if (incr.result > CONTACT_RATE_LIMIT_MAX_REQUESTS) {
+  if (incr.result > maxRequests) {
     return {
       allowed: false,
-      retryAfterSeconds: CONTACT_RATE_LIMIT_WINDOW_SECONDS,
+      retryAfterSeconds: windowSeconds,
     };
   }
 
@@ -75,21 +77,26 @@ function pruneMemoryWindows(now: number): void {
   }
 }
 
-function checkWithMemory(key: string, now: number): RateLimitResult {
+function checkWithMemory(
+  key: string,
+  now: number,
+  maxRequests: number,
+  windowSeconds: number,
+): RateLimitResult {
   const existing = memoryWindows.get(key);
 
   if (!existing || existing.resetAt <= now) {
     pruneMemoryWindows(now);
     memoryWindows.set(key, {
       count: 1,
-      resetAt: now + CONTACT_RATE_LIMIT_WINDOW_SECONDS * 1000,
+      resetAt: now + windowSeconds * 1000,
     });
     return { allowed: true };
   }
 
   existing.count += 1;
 
-  if (existing.count > CONTACT_RATE_LIMIT_MAX_REQUESTS) {
+  if (existing.count > maxRequests) {
     return {
       allowed: false,
       retryAfterSeconds: Math.max(
@@ -100,6 +107,51 @@ function checkWithMemory(key: string, now: number): RateLimitResult {
   }
 
   return { allowed: true };
+}
+
+export type RateLimitCheck = {
+  maxRequests: number;
+  windowSeconds: number;
+  env?: Record<string, string | undefined>;
+  now?: number;
+  /** Logged when the shared store errors. The key itself is never logged. */
+  failureLabel: string;
+};
+
+/**
+ * Fixed-window counter. Uses Upstash Redis over REST when either
+ * UPSTASH_REDIS_REST_URL/TOKEN or the Vercel KV aliases are set, so the
+ * counter holds across serverless isolates. Without those variables it
+ * falls back to process memory.
+ *
+ * Store failures fail open: an outage must not block the caller. The
+ * failure label is a static string; callers must not put secrets in `key`
+ * if that key could later be copied into an error.
+ */
+export async function checkRateLimit(
+  key: string,
+  options: RateLimitCheck,
+): Promise<RateLimitResult> {
+  const env = options.env ?? process.env;
+  const now = options.now ?? Date.now();
+  const store = readRateLimitStoreEnv(env);
+
+  if (store) {
+    try {
+      return await checkWithUpstash(
+        store.restUrl,
+        store.restToken,
+        key,
+        options.maxRequests,
+        options.windowSeconds,
+      );
+    } catch (error) {
+      console.error(options.failureLabel, error);
+      return { allowed: true };
+    }
+  }
+
+  return checkWithMemory(key, now, options.maxRequests, options.windowSeconds);
 }
 
 /**
@@ -144,17 +196,11 @@ export async function checkContactRateLimit(
   env: Record<string, string | undefined> = process.env,
   now: number = Date.now(),
 ): Promise<RateLimitResult> {
-  const key = `contact:rate:${ip}`;
-  const store = readRateLimitStoreEnv(env);
-
-  if (store) {
-    try {
-      return await checkWithUpstash(store.restUrl, store.restToken, key);
-    } catch (error) {
-      console.error("contact: rate limit store failed", error);
-      return { allowed: true };
-    }
-  }
-
-  return checkWithMemory(key, now);
+  return checkRateLimit(`contact:rate:${ip}`, {
+    maxRequests: CONTACT_RATE_LIMIT_MAX_REQUESTS,
+    windowSeconds: CONTACT_RATE_LIMIT_WINDOW_SECONDS,
+    env,
+    now,
+    failureLabel: "contact: rate limit store failed",
+  });
 }

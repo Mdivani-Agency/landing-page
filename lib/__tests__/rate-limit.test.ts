@@ -70,6 +70,69 @@ describe("readRateLimitStoreEnv", () => {
   });
 });
 
+describe("checkRateLimit", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("uses the caller's window and keeps buckets apart", async () => {
+    vi.resetModules();
+    const { checkRateLimit } = await importRateLimit();
+    const now = 5_000_000;
+    const options = {
+      maxRequests: 1,
+      windowSeconds: 30,
+      env: {},
+      now,
+      failureLabel: "example: rate limit store failed",
+    };
+
+    await expect(checkRateLimit("bucket-a", options)).resolves.toEqual({
+      allowed: true,
+    });
+    await expect(checkRateLimit("bucket-a", options)).resolves.toEqual({
+      allowed: false,
+      retryAfterSeconds: 30,
+    });
+    await expect(checkRateLimit("bucket-b", options)).resolves.toEqual({
+      allowed: true,
+    });
+  });
+
+  it("sends the caller's window to the shared store", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(Response.json([{ result: 9 }, { result: 1 }]));
+    vi.stubGlobal("fetch", fetchMock);
+    const { checkRateLimit } = await importRateLimit();
+
+    await expect(
+      checkRateLimit("blog-read:talvio:abc", {
+        maxRequests: 8,
+        windowSeconds: 45,
+        env: {
+          KV_REST_API_URL: "https://kv.upstash.io",
+          KV_REST_API_TOKEN: "kv-token",
+        },
+        failureLabel: "talvio posts: rate limit store failed",
+      }),
+    ).resolves.toEqual({
+      allowed: false,
+      retryAfterSeconds: 45,
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://kv.upstash.io/pipeline",
+      expect.objectContaining({
+        body: JSON.stringify([
+          ["INCR", "blog-read:talvio:abc"],
+          ["EXPIRE", "blog-read:talvio:abc", "45", "NX"],
+        ]),
+      }),
+    );
+  });
+});
+
 describe("checkContactRateLimit (in-memory fallback)", () => {
   beforeEach(() => {
     vi.resetModules();

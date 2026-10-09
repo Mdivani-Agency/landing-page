@@ -35,6 +35,10 @@ The `Bearer` scheme is case-insensitive. Every method rate-limits by client
 IP before comparing tokens. Comparison uses SHA-256 digests so secret length
 is not leaked by timing.
 
+`BLOG_READ_TOKEN_TALVIO` (and its rotation partner
+`BLOG_READ_TOKEN_TALVIO_NEXT`) is not accepted here. Talvio reads use
+[`docs/blog-read-api.md`](blog-read-api.md).
+
 Missing or wrong tokens return `401` `{ "ok": false, "errors": { "form": "Unauthorized." } }`.
 On write, the handler does not say whether a slug exists. A missing or
 too-short `BLOG_WRITE_TOKEN` returns `500`.
@@ -71,7 +75,8 @@ create, omitted `status` is still `draft` and omitted `featured` is `false`.
 ## Public reads on this site
 
 `sites` is the routing column. A published post is listed, linked, and
-included in the sitemap and feed here only when `sites` contains `agency`.
+included in the sitemap and feed here only when `sites` contains `agency`
+and `published_at` is at or before the request time.
 
 Tags are a backstop for rows that still list `agency` in `sites` while the
 only site key in `tags` is another front end. A tag equal to `talvio`,
@@ -79,6 +84,8 @@ only site key in `tags` is another front end. A tag equal to `talvio`,
 contains `agency`, `Agency`, or `AGENCY`. Overlap is the whole tag, so
 `talvio-product` still appears. An agency essay about Talvio should use a
 longer tag, or include an `agency` tag when the bare site key has to stay.
+The same rule runs in reverse for Talvio reads: a shared post tagged only
+`agency` is hidden there. See [`docs/blog-read-api.md`](blog-read-api.md).
 
 `GET /api/posts` is the authenticated editor listing and does not apply this
 rule. Drafts stay hidden from public reads either way.

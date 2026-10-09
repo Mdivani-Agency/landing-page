@@ -67,6 +67,7 @@ const LIST_COLUMNS =
 type SiteScopedQuery = {
   eq: (column: string, value: string) => SiteScopedQuery;
   contains: (column: string, value: readonly string[]) => SiteScopedQuery;
+  lte: (column: string, value: string) => SiteScopedQuery;
   or: (filters: string) => SiteScopedQuery;
 };
 
@@ -84,20 +85,24 @@ function quotedTag(tag: string): string {
 }
 
 /**
- * Show the row unless tags name another site and do not name this one.
+ * Show the row unless tags name another site and do not name `site`.
  *
- * `and(tags.not.ov.{"talvio"}, ...)` is "no other-site key". That clause is
- * OR'd with `tags.ov.{"agency"}` (and the other casings), so a post tagged
- * `agency` + `Talvio` stays. A longer tag such as `talvio-product` does not
- * overlap. Each array literal is a single element so the comma that splits
- * `or` conditions stays outside the value.
+ * For the agency site, `and(tags.not.ov.{"talvio"}, ...)` is "no other-site
+ * key". That clause is OR'd with `tags.ov.{"agency"}` (and the other
+ * casings), so a post tagged `agency` + `Talvio` stays. A longer tag such
+ * as `talvio-product` does not overlap. Each array literal is a single
+ * element so the comma that splits `or` conditions stays outside the value.
+ *
+ * The Talvio read API passes `talvio`, which swaps the keys. A shared post
+ * tagged only `agency` is hidden there. Decision recorded in
+ * `docs/blog-read-api.md`: the backstop is symmetric.
  */
-function audienceOrFilter(): string {
+function audienceOrFilter(site: SiteKey): string {
   const foreign = siteKeys
-    .filter((key) => key !== siteKey)
+    .filter((key) => key !== site)
     .flatMap(siteKeyTagVariants)
     .map((tag) => `tags.not.ov.${quotedTag(tag)}`);
-  const local = siteKeyTagVariants(siteKey).map(
+  const local = siteKeyTagVariants(site).map(
     (tag) => `tags.ov.${quotedTag(tag)}`,
   );
 
@@ -105,23 +110,31 @@ function audienceOrFilter(): string {
 }
 
 /**
- * Published rows that belong on this front end.
+ * Published rows that belong on `site` at `nowIso`.
  *
- * `sites` must contain this site — that is the column the write API sets.
- * Tags are a backstop for rows whose `sites` still list this site while the
- * only site key in `tags` is another front end. Both checks run in the
- * query, before `order` and before any caller paginates or applies a limit.
+ * `sites` must contain that site — that is the column the write API sets.
+ * Tags are a symmetric backstop for rows whose `sites` still list this site
+ * while the only site key in `tags` is another front end. `published_at`
+ * must be at or before `nowIso`, so a future-dated post stays off every
+ * public surface. All three run in the query, before `order` and before any
+ * caller paginates or applies a limit.
+ *
+ * The Supabase filter builder is generic enough that constraining `T`
+ * here makes `tsc` recurse until it gives up. Cast through the methods
+ * this helper actually calls, then hand the same object back.
  */
-function publishedOnThisSite<T>(query: T): T {
-  // The Supabase filter builder is generic enough that constraining `T`
-  // here makes `tsc` recurse until it gives up. Cast through the methods
-  // this helper actually calls, then hand the same object back.
+function publishedOnSite<T>(query: T, site: SiteKey, nowIso: string): T {
   const scoped = query as unknown as SiteScopedQuery;
 
   return scoped
     .eq("status", "published")
-    .contains("sites", [siteKey])
-    .or(audienceOrFilter()) as T;
+    .contains("sites", [site])
+    .lte("published_at", nowIso)
+    .or(audienceOrFilter(site)) as T;
+}
+
+function publishedOnThisSite<T>(query: T): T {
+  return publishedOnSite(query, siteKey, new Date().toISOString());
 }
 
 function toPost(row: BlogPostRow): BlogPost {
@@ -203,6 +216,20 @@ function readClient(): SupabaseClient | null {
     console.warn(message);
     reportReadFailure(message);
     return null;
+  }
+
+  return createSupabaseReadClient(env.url, env.key);
+}
+
+/**
+ * Authenticated reads surface a missing configuration instead of an empty
+ * catalog. The message names variables only — never values.
+ */
+function readClientOrThrow(): SupabaseClient {
+  const env = readSupabaseEnv();
+
+  if (!env.ok) {
+    throw new Error(`blog: missing env ${env.missing.join(", ")}`);
   }
 
   return createSupabaseReadClient(env.url, env.key);
@@ -416,6 +443,66 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     console.error("blog: get by slug failed", error);
     reportReadFailure("blog: get by slug failed", error);
     return null;
+  }
+
+  return data ? toPost(data as BlogPostRow) : null;
+}
+
+export type EligiblePostPage = {
+  limit: number;
+  offset: number;
+};
+
+/**
+ * One page of posts eligible for `site`, plus the unpaged total.
+ *
+ * The count is exact and ignores `limit` / `offset`, so a caller can prove
+ * it has walked every matching row. Failures throw a static error — the
+ * PostgREST message stays out of the exception.
+ */
+export async function listEligiblePostSummaries(
+  site: SiteKey,
+  page: EligiblePostPage,
+  now = new Date(),
+): Promise<{ posts: BlogPostSummary[]; total: number }> {
+  const { data, error, count } = await publishedOnSite(
+    readClientOrThrow().from(TABLE).select(LIST_COLUMNS, { count: "exact" }),
+    site,
+    now.toISOString(),
+  )
+    .order("published_at", { ascending: false })
+    .order("slug", { ascending: true })
+    .range(page.offset, page.offset + page.limit - 1);
+
+  if (error || typeof count !== "number") {
+    throw new Error("blog: list eligible posts failed");
+  }
+
+  return {
+    posts: ((data ?? []) as Omit<BlogPostRow, "content">[]).map(toSummary),
+    total: count,
+  };
+}
+
+/**
+ * One eligible post, or null when the slug is missing or ineligible.
+ * Drafts, other-site posts, and future-dated posts all miss the same way.
+ */
+export async function getEligiblePostBySlug(
+  site: SiteKey,
+  slug: string,
+  now = new Date(),
+): Promise<BlogPost | null> {
+  const { data, error } = await publishedOnSite(
+    readClientOrThrow().from(TABLE).select(COLUMNS),
+    site,
+    now.toISOString(),
+  )
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error("blog: get eligible post failed");
   }
 
   return data ? toPost(data as BlogPostRow) : null;
