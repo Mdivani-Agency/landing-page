@@ -28,6 +28,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 import BlogPage from "@/app/blog/page";
+import BlogPostPage from "@/app/blog/[slug]/page";
 import BlogListPage, {
   generateMetadata as generateBlogListPageMetadata,
   generateStaticParams as generateBlogListStaticParams,
@@ -193,5 +194,32 @@ describe("/blog/page/[page]", () => {
     expect(metadata.alternates).toEqual(
       expect.objectContaining({ canonical: "/blog/page/2" }),
     );
+  });
+});
+
+describe("/blog/[slug] for posts that moved to Talvio", () => {
+  it("308s a Talvio-only post to its talvio.co article", async () => {
+    await expect(
+      BlogPostPage({ params: Promise.resolve({ slug: "talvio-only-post" }) }),
+    ).rejects.toThrow(
+      "NEXT_REDIRECT:https://www.talvio.co/blog/talvio-only-post",
+    );
+    expect(state.notFound).not.toHaveBeenCalled();
+  });
+
+  it("still 404s a slug that exists on neither site", async () => {
+    await expect(
+      BlogPostPage({ params: Promise.resolve({ slug: "no-such-post" }) }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+    expect(state.permanentRedirect).not.toHaveBeenCalled();
+  });
+
+  it("does not redirect drafts", async () => {
+    await expect(
+      BlogPostPage({
+        params: Promise.resolve({ slug: "draft-internal-notes" }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+    expect(state.permanentRedirect).not.toHaveBeenCalled();
   });
 });

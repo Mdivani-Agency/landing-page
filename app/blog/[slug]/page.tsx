@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { BlogPostCard } from "@/components/blog-post-card";
 import { BlogShare } from "@/components/blog-share";
 import { BlogTags } from "@/components/blog-tags";
@@ -9,12 +9,14 @@ import { Section } from "@/components/section";
 import {
   featuredPostsExcept,
   formatPostDate,
+  getEligiblePostBySlug,
   getPostBySlug,
   listFeaturedPublishedSummaries,
   listPublishedSlugs,
 } from "@/lib/blog";
 import { absoluteUrl, articleJsonLd, breadcrumbJsonLd } from "@/lib/blog-seo";
 import { createPageMetadata, serializeJsonLd } from "@/lib/metadata";
+import { talvioOrigin } from "@/lib/site";
 
 export const revalidate = 3600;
 
@@ -47,6 +49,24 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
   });
 }
 
+/**
+ * Posts that moved to Talvio (`sites` no longer lists agency) keep their
+ * search equity: send the old agency URL to the Talvio article with a 308.
+ * A lookup failure falls through to the normal 404.
+ */
+async function redirectIfTalvioPost(slug: string): Promise<void> {
+  let talvioPost = null;
+  try {
+    talvioPost = await getEligiblePostBySlug("talvio", slug);
+  } catch {
+    return;
+  }
+
+  if (talvioPost) {
+    permanentRedirect(`${talvioOrigin}/blog/${talvioPost.slug}`);
+  }
+}
+
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
   const [post, featured] = await Promise.all([
@@ -55,6 +75,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   ]);
 
   if (!post) {
+    await redirectIfTalvioPost(slug);
     notFound();
   }
 
