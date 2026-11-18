@@ -2,7 +2,10 @@ export const site = {
   name: "Mdivani Agency",
   personName: "Giorgi Mdivani",
   personRole: "Founder & Lead AI Engineer",
-  url: "https://mdivani.agency",
+  // Production serves www; the apex 308-redirects to it. Canonicals,
+  // sitemap and robots must use the served host or Search Console reports
+  // "Page with redirect".
+  url: "https://www.mdivani.agency",
   email: "giorgi@mdivani.agency",
   address: "L.Kvachadze 19, Tbilisi, Georgia",
   title: "Giorgi Mdivani — AI Engineering & Product Development",
@@ -24,6 +27,9 @@ export const siteKeys = ["agency", "talvio"] as const;
 export type SiteKey = (typeof siteKeys)[number];
 
 export const siteKey: SiteKey = "agency";
+
+/** Canonical origin of the Talvio front end, for posts that moved there. */
+export const talvioOrigin = "https://www.talvio.co";
 
 /** Inquiry form, with a hash so audit CTAs land on the same page without a new route. */
 export const auditInquiryHref = "/inquiry#audit";
