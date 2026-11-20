@@ -3,6 +3,12 @@ import { withSentryConfig } from "@sentry/nextjs/config";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   agentRules: false,
+  images: {
+    // Blog covers may live on Talvio's media host (see isTalvioMediaCoverUrl).
+    remotePatterns: [
+      { protocol: "https", hostname: "media.talvio.co", pathname: "/**" },
+    ],
+  },
   async redirects() {
     return [
       { source: "/hero", destination: "/", permanent: true },

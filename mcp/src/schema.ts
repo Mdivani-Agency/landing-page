@@ -9,7 +9,8 @@ import {
   TITLE_MAX_LENGTH,
   TITLE_MIN_LENGTH,
   isReservedSlug,
-  isSameOriginCoverPath,
+  COVER_IMAGE_ERROR,
+  isAllowedCoverUrl,
   siteKeys,
 } from "../../lib/blog-schema";
 
@@ -59,8 +60,8 @@ export const sitesField = z
 export const coverImageUrlField = z
   .string()
   .trim()
-  .refine((value) => value === "" || isSameOriginCoverPath(value), {
-    message: "Cover image must be a same-origin path starting with /.",
+  .refine((value) => value === "" || isAllowedCoverUrl(value), {
+    message: COVER_IMAGE_ERROR,
   })
   .optional();
 

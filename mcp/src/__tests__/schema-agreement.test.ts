@@ -21,6 +21,14 @@ const cases: Array<{ name: string; payload: unknown }> = [
   { name: "explicit sites", payload: { ...valid, sites: ["agency", "talvio"] } },
   { name: "trimmed site", payload: { ...valid, sites: ["agency "] } },
   { name: "same-origin cover", payload: { ...valid, cover_image_url: "/assets/logo.svg" } },
+  {
+    name: "talvio media cover",
+    payload: { ...valid, cover_image_url: "https://media.talvio.co/blog/cover.png" },
+  },
+  {
+    name: "talvio media cover with query",
+    payload: { ...valid, cover_image_url: "https://media.talvio.co/blog/cover.png?v=1" },
+  },
   { name: "tags with blanks", payload: { ...valid, tags: ["AI", "  ", "product"] } },
   { name: "valid slug", payload: { ...valid, slug: "custom-slug" } },
   { name: "reserved slug", payload: { ...valid, slug: "page" } },

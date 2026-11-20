@@ -79,6 +79,46 @@ export function isSameOriginCoverPath(value: string): boolean {
   );
 }
 
+/** Host for Talvio blog media. Covers there are stored as absolute https URLs. */
+export const TALVIO_MEDIA_ORIGIN = "https://media.talvio.co";
+
+/**
+ * An absolute https URL on media.talvio.co with a plain path: no
+ * credentials, port, query, fragment, `..`, or backslash. The value must
+ * already be in canonical form, so what is stored is what renders.
+ */
+export function isTalvioMediaCoverUrl(value: string): boolean {
+  if (
+    !value.startsWith(`${TALVIO_MEDIA_ORIGIN}/`) ||
+    value.includes("\\") ||
+    value.includes("..") ||
+    value.includes("?") ||
+    value.includes("#")
+  ) {
+    return false;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return false;
+  }
+
+  return (
+    url.origin === TALVIO_MEDIA_ORIGIN &&
+    url.pathname.length > 1 &&
+    url.href === value
+  );
+}
+
+/** A cover is either a same-origin path or a media.talvio.co URL. */
+export function isAllowedCoverUrl(value: string): boolean {
+  return isSameOriginCoverPath(value) || isTalvioMediaCoverUrl(value);
+}
+
+export const COVER_IMAGE_ERROR = `Cover image must be a same-origin path starting with / or a ${TALVIO_MEDIA_ORIGIN}/ URL.`;
+
 function readString(value: unknown): string | undefined {
   return typeof value === "string" ? value.trim() : undefined;
 }
@@ -195,11 +235,10 @@ export function validateBlogWritePayload(
   let coverImageUrl: string | null = null;
   const cover = readString(body.cover_image_url ?? body.coverImageUrl);
   if (cover) {
-    if (isSameOriginCoverPath(cover)) {
+    if (isAllowedCoverUrl(cover)) {
       coverImageUrl = cover;
     } else {
-      errors.coverImageUrl =
-        "Cover image must be a same-origin path starting with /.";
+      errors.coverImageUrl = COVER_IMAGE_ERROR;
     }
   }
 

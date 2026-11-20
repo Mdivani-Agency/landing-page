@@ -17,7 +17,9 @@ vi.mock("@/lib/supabase", async () => {
 import { getPostBySlug, listPublishedPosts } from "@/lib/blog";
 import {
   BLOG_WRITE_MIN_TOKEN_BYTES,
+  isAllowedCoverUrl,
   isSameOriginCoverPath,
+  isTalvioMediaCoverUrl,
   mergeBlogWriteWithExisting,
   readWriteToken,
   resetWriteRateLimit,
@@ -62,6 +64,43 @@ describe("isSameOriginCoverPath", () => {
     expect(isSameOriginCoverPath("/../secret")).toBe(false);
     expect(isSameOriginCoverPath("/assets/hero.jpg?v=1")).toBe(false);
     expect(isSameOriginCoverPath("/assets/hero.jpg#crop")).toBe(false);
+  });
+});
+
+describe("isTalvioMediaCoverUrl", () => {
+  it("accepts canonical https URLs on media.talvio.co", () => {
+    expect(
+      isTalvioMediaCoverUrl("https://media.talvio.co/blog/cover.png"),
+    ).toBe(true);
+  });
+
+  it("rejects other hosts, schemes, and non-canonical forms", () => {
+    for (const value of [
+      "https://media.talvio.co",
+      "https://media.talvio.co/",
+      "http://media.talvio.co/blog/cover.png",
+      "https://media.talvio.co.evil.com/blog/cover.png",
+      "https://evil.com/media.talvio.co/blog/cover.png",
+      "https://talvio-media-prod.s3.us-west-1.amazonaws.com/blog/cover.png",
+      "https://media.talvio.co:8443/blog/cover.png",
+      "https://user@media.talvio.co/blog/cover.png",
+      "https://media.talvio.co/blog/cover.png?v=1",
+      "https://media.talvio.co/blog/cover.png#crop",
+      "https://media.talvio.co/blog/../secret.png",
+      "https://media.talvio.co/blog\\cover.png",
+      "https://media.talvio.co/blog/my cover.png",
+      "https://MEDIA.talvio.co/blog/cover.png",
+    ]) {
+      expect(isTalvioMediaCoverUrl(value), value).toBe(false);
+    }
+  });
+});
+
+describe("isAllowedCoverUrl", () => {
+  it("allows same-origin paths and media.talvio.co URLs only", () => {
+    expect(isAllowedCoverUrl("/assets/logo.svg")).toBe(true);
+    expect(isAllowedCoverUrl("https://media.talvio.co/blog/a.png")).toBe(true);
+    expect(isAllowedCoverUrl("https://cdn.example.com/hero.jpg")).toBe(false);
   });
 });
 

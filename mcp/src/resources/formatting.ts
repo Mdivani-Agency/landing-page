@@ -17,7 +17,7 @@ The page already renders \`title\` as the document <h1> and \`description\` as t
 6. Links: use root-relative paths for internal links (/how-i-work, /work, /blog). Only http, https, mailto, irc, ircs, and xmpp survive the default URL transform; anything else (javascript:, data:) is blanked to an empty href.
 7. Tables scroll horizontally inside their own box, so they never widen the page. Keep column counts low for mobile readability.
 8. Code fences render inside a styled pre. There is no syntax highlighting (no rehype-highlight), so a language hint is documentation only.
-9. Avoid inline images. Markdown ![]() produces an unstyled, unoptimised <img>. Only cover_image_url goes through next/image, and it must be a same-origin path starting with /.
+9. Avoid inline images. Markdown ![]() produces an unstyled, unoptimised <img>. Only cover_image_url goes through next/image. It must be a same-origin path starting with / or an https://media.talvio.co/ URL, with no query string or fragment.
 10. Line breaks: a single newline is a soft break, not a <br>. Use a blank line to start a paragraph.
 11. description is plain text, not Markdown. It feeds the post card, the SEO meta description, and the RSS feed.
 
