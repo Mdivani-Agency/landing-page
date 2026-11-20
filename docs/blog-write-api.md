@@ -59,7 +59,7 @@ bypass the cap).
 | `slug` | no | `[a-z0-9]+(-[a-z0-9]+)*`, max 80. Generated from `title` when omitted. Omit only to create; send `slug` to update. `page` is reserved for `/blog/page/[page]` |
 | `tags` | no | Array of strings; blanks dropped. Free-text labels, not the routing column. See public reads below |
 | `sites` | no | `agency` and/or `talvio`. On create, defaults to this site (`agency`). On update, omitted `sites` keeps the existing list |
-| `cover_image_url` | no | Same-origin path starting with `/` (not `//`, `?`, `#`, or an absolute URL). Remote hosts and query strings are rejected because `next/image` has no remote allowlist and rejects local `src` with search |
+| `cover_image_url` | no | Same-origin path starting with `/` (not `//`, `?`, `#`), or an absolute `https://media.talvio.co/...` URL in canonical form (no port, credentials, query, fragment, or `..`). Other remote hosts and query strings are rejected: `next/image` only allows `media.talvio.co` as a remote host and rejects local `src` with search |
 | `status` | no | `draft` (default) or `published` |
 | `featured` | no | Boolean. Pins a published post above the chronological `/blog` grid. On create, defaults to `false`. On update, omitted `featured` keeps the stored value. Draft + featured is stored but public reads ignore drafts. There is no cap — featuring is an editorial choice. The same column can be toggled in the Supabase table editor (`public.blog_posts.featured`). |
 

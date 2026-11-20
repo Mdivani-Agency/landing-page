@@ -482,6 +482,18 @@ describe("POST /api/posts", () => {
     expect(stored?.coverImageUrl).toBe("/assets/logo.svg");
   });
 
+  it("accepts a media.talvio.co cover URL", async () => {
+    const { POST } = await importRoute();
+    const cover = "https://media.talvio.co/blog/linkedin-1-resume-vs-cv.png";
+    const response = await POST(
+      postRequest({ ...validBody, cover_image_url: cover }, authorized()),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.post.cover_image_url).toBe(cover);
+  });
+
   it("rejects a remote cover URL", async () => {
     const { POST } = await importRoute();
     const response = await POST(
